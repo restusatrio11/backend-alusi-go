@@ -15,6 +15,7 @@ type User struct {
 	SatkerID     *int                   `json:"satker_id,omitempty"`
 	Satker       *Satker                `json:"satker,omitempty"`
 	Roles        []Role                 `json:"roles,omitempty"`
+	Permissions  []string               `json:"permissions,omitempty"`
 	Status       string                 `json:"status"` // active, inactive
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 	LastLoginAt  *time.Time             `json:"last_login_at,omitempty"`
@@ -25,6 +26,18 @@ type User struct {
 func (u *User) HasRole(roleName string) bool {
 	for _, r := range u.Roles {
 		if r.Nama == roleName {
+			return true
+		}
+	}
+	return false
+}
+
+func (u *User) HasPermission(permCode string) bool {
+	if u.IsAdmin() {
+		return true // Superadmin has all permissions
+	}
+	for _, p := range u.Permissions {
+		if p == permCode || p == "*" {
 			return true
 		}
 	}

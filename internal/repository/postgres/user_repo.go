@@ -266,7 +266,37 @@ func (r *UserRepo) querySingleUser(ctx context.Context, query string, arg interf
 		u.Roles = roles
 	}
 
+	perms, err := r.getUserPermissions(ctx, u.ID)
+	if err == nil {
+		u.Permissions = perms
+	}
+
 	return u, nil
+}
+
+func (r *UserRepo) getUserPermissions(ctx context.Context, userID int) ([]string, error) {
+	query := `
+	SELECT DISTINCT p.kode
+	FROM permissions p
+	INNER JOIN role_permissions rp ON p.id = rp.permission_id
+	INNER JOIN user_roles ur ON rp.role_id = ur.role_id
+	WHERE ur.user_id = $1
+	ORDER BY p.kode ASC
+	`
+	rows, err := r.pool.Query(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var perms []string
+	for rows.Next() {
+		var code string
+		if err := rows.Scan(&code); err == nil {
+			perms = append(perms, code)
+		}
+	}
+	return perms, nil
 }
 
 func (r *UserRepo) scanUserWithSatker(rows pgx.Rows) (*domain.User, error) {

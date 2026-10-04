@@ -51,6 +51,7 @@ func TestAnnouncementEndpoints_Routing(t *testing.T) {
 	aiUsecase := usecase.NewAIUsecase(ai.NewAssistantService(nil, nil, nil), nil)
 	aiHandler := deliveryHTTP.NewAIHandler(aiUsecase)
 	reportHandler := deliveryHTTP.NewReportHandler(reportUsecase)
+	rbacHandler := deliveryHTTP.NewRBACHandler(nil)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -66,6 +67,7 @@ func TestAnnouncementEndpoints_Routing(t *testing.T) {
 		auditHandler,
 		aiHandler,
 		reportHandler,
+		rbacHandler,
 		jwtService,
 	)
 

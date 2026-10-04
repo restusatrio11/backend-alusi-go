@@ -122,3 +122,61 @@ func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// RequirePermission middleware enforces that the user has a specific granular permission or is an admin
+func RequirePermission(permissionCode string) gin.HandlerFunc {
+	return RequireAnyPermission(permissionCode)
+}
+
+// RequireAnyPermission middleware restricts endpoint to users having at least one of the required permission codes
+func RequireAnyPermission(permissionCodes ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		claimsVal, exists := c.Get(CtxUserClaims)
+		if !exists {
+			response.Forbidden(c, "Anda tidak memiliki izin untuk mengakses resource ini.")
+			c.Abort()
+			return
+		}
+
+		claims, ok := claimsVal.(*jwt.SessionClaims)
+		if !ok || claims == nil {
+			response.Forbidden(c, "Sesi hak akses tidak valid.")
+			c.Abort()
+			return
+		}
+
+		// 1. Role 'admin' always has full access
+		for _, role := range claims.Roles {
+			if role == "admin" {
+				c.Next()
+				return
+			}
+		}
+
+		// 2. Check granular permissions
+		hasPerm := false
+		for _, userPerm := range claims.Permissions {
+			if userPerm == "*" {
+				hasPerm = true
+				break
+			}
+			for _, required := range permissionCodes {
+				if userPerm == required {
+					hasPerm = true
+					break
+				}
+			}
+			if hasPerm {
+				break
+			}
+		}
+
+		if !hasPerm {
+			response.Forbidden(c, "Anda tidak memiliki izin ("+strings.Join(permissionCodes, ", ")+") untuk melakukan aksi ini.")
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}

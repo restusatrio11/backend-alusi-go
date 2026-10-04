@@ -55,6 +55,7 @@ func TestAuthEndpoints_ManualLoginValidation(t *testing.T) {
 	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
 	aiHandler := deliveryHTTP.NewAIHandler(aiUsecase)
 	reportHandler := deliveryHTTP.NewReportHandler(reportUsecase)
+	rbacHandler := deliveryHTTP.NewRBACHandler(nil)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -70,6 +71,7 @@ func TestAuthEndpoints_ManualLoginValidation(t *testing.T) {
 		auditHandler,
 		aiHandler,
 		reportHandler,
+		rbacHandler,
 		jwtService,
 	)
 

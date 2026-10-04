@@ -18,8 +18,9 @@ type SessionClaims struct {
 	Nama       string   `json:"nama"`
 	Email      string   `json:"email"`
 	NIP        string   `json:"nip,omitempty"`
-	SatkerKode string   `json:"satker_kode,omitempty"`
-	Roles      []string `json:"roles"`
+	SatkerKode  string   `json:"satker_kode,omitempty"`
+	Roles       []string `json:"roles"`
+	Permissions []string `json:"permissions,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -47,14 +48,15 @@ func (s *JWTService) GenerateSessionToken(user *domain.User, satkerKode string) 
 	}
 
 	claims := SessionClaims{
-		UserID:     user.ID,
-		SSOSub:     user.SSOSub,
-		UserType:   user.UserType,
-		Nama:       user.Nama,
-		Email:      user.Email,
-		NIP:        nip,
-		SatkerKode: satkerKode,
-		Roles:      roleNames,
+		UserID:      user.ID,
+		SSOSub:      user.SSOSub,
+		UserType:    user.UserType,
+		Nama:        user.Nama,
+		Email:       user.Email,
+		NIP:         nip,
+		SatkerKode:  satkerKode,
+		Roles:       roleNames,
+		Permissions: user.Permissions,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

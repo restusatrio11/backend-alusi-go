@@ -29,6 +29,7 @@ func SetupRouter(
 	auditHandler *AuditHandler,
 	aiHandler *AIHandler,
 	reportHandler *ReportHandler,
+	rbacHandler *RBACHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -138,10 +139,10 @@ func SetupRouter(
 		// Admin & Pimpinan Management Routes
 		admin := v1.Group("/admin")
 		admin.Use(middleware.AuthRequired(jwtService))
-		admin.Use(middleware.RequireRoles("admin", "pimpinan"))
 		{
-			// Analytics & Reporting (Admin & Pimpinan)
+			// Analytics & Reporting
 			analytics := admin.Group("/analytics")
+			analytics.Use(middleware.RequirePermission("analytics:view"))
 			{
 				analytics.GET("/summary", analyticsHandler.GetDashboardSummary)
 				analytics.GET("/top-apps", analyticsHandler.GetTopApps)
@@ -151,43 +152,52 @@ func SetupRouter(
 
 			// Executive Report Exports (CSV/Excel)
 			reports := admin.Group("/reports")
+			reports.Use(middleware.RequirePermission("reports:export"))
 			{
 				reports.GET("/analytics/export", reportHandler.ExportAnalyticsCSV)
 				reports.GET("/catalog/export", reportHandler.ExportCatalogCSV)
 			}
 
-			// Apps, Audit & Category CRUD (Admin Only)
-			adminApps := admin.Group("")
-			adminApps.Use(middleware.RequireRoles("admin"))
+			// Apps & Guides CRUD
+			admin.POST("/apps", middleware.RequirePermission("apps:create"), adminHandler.CreateApp)
+			admin.PUT("/apps/reorder", middleware.RequirePermission("apps:reorder"), adminHandler.ReorderApps)
+			admin.PUT("/apps/:id", middleware.RequirePermission("apps:update"), adminHandler.UpdateApp)
+			admin.DELETE("/apps/:id", middleware.RequirePermission("apps:delete"), adminHandler.DeleteApp)
+			admin.POST("/apps/:id/logo", middleware.RequirePermission("apps:upload_logo"), adminHandler.UploadAppLogo)
+			admin.POST("/apps/:id/probe", middleware.RequirePermission("monitoring:probe"), monitoringHandler.ManualProbeApp)
+
+			// App Guides & FAQ Management
+			admin.POST("/apps/:id/guides", middleware.RequirePermission("guides:manage"), adminHandler.CreateGuide)
+			admin.PUT("/guides/:id", middleware.RequirePermission("guides:manage"), adminHandler.UpdateGuide)
+			admin.DELETE("/guides/:id", middleware.RequirePermission("guides:manage"), adminHandler.DeleteGuide)
+
+			// Announcements Broadcast Management
+			admin.GET("/announcements", middleware.RequirePermission("announcements:view"), announcementHandler.ListAdminAnnouncements)
+			admin.POST("/announcements", middleware.RequirePermission("announcements:create"), announcementHandler.CreateAnnouncement)
+			admin.PUT("/announcements/:id", middleware.RequirePermission("announcements:update"), announcementHandler.UpdateAnnouncement)
+			admin.DELETE("/announcements/:id", middleware.RequirePermission("announcements:delete"), announcementHandler.DeleteAnnouncement)
+
+			// Feedback & Issue Reports Tracking
+			admin.GET("/feedbacks", middleware.RequirePermission("feedbacks:view"), feedbackHandler.ListAdminFeedbacks)
+			admin.PUT("/feedbacks/:id", middleware.RequirePermission("feedbacks:respond"), feedbackHandler.UpdateFeedbackStatus)
+
+			// Audit Logs Trail
+			admin.GET("/audit-logs", middleware.RequirePermission("audit:view"), auditHandler.ListAuditLogs)
+
+			// Categories Management
+			admin.POST("/categories", middleware.RequirePermission("categories:create"), adminHandler.CreateCategory)
+			admin.PUT("/categories/:id", middleware.RequirePermission("categories:update"), adminHandler.UpdateCategory)
+			admin.DELETE("/categories/:id", middleware.RequirePermission("categories:delete"), adminHandler.DeleteCategory)
+
+			// Dynamic RBAC & Role Permission Management
+			rbac := admin.Group("/rbac")
+			rbac.Use(middleware.RequirePermission("rbac:view"))
 			{
-				adminApps.POST("/apps", adminHandler.CreateApp)
-				adminApps.PUT("/apps/reorder", adminHandler.ReorderApps)
-				adminApps.PUT("/apps/:id", adminHandler.UpdateApp)
-				adminApps.DELETE("/apps/:id", adminHandler.DeleteApp)
-				adminApps.POST("/apps/:id/logo", adminHandler.UploadAppLogo)
-				adminApps.POST("/apps/:id/probe", monitoringHandler.ManualProbeApp)
-
-				// App Guides & FAQ Management
-				adminApps.POST("/apps/:id/guides", adminHandler.CreateGuide)
-				adminApps.PUT("/guides/:id", adminHandler.UpdateGuide)
-				adminApps.DELETE("/guides/:id", adminHandler.DeleteGuide)
-
-				// Announcements Broadcast Management
-				adminApps.GET("/announcements", announcementHandler.ListAdminAnnouncements)
-				adminApps.POST("/announcements", announcementHandler.CreateAnnouncement)
-				adminApps.PUT("/announcements/:id", announcementHandler.UpdateAnnouncement)
-				adminApps.DELETE("/announcements/:id", announcementHandler.DeleteAnnouncement)
-
-				// Feedback & Issue Reports Tracking
-				adminApps.GET("/feedbacks", feedbackHandler.ListAdminFeedbacks)
-				adminApps.PUT("/feedbacks/:id", feedbackHandler.UpdateFeedbackStatus)
-
-				// Audit Logs Trail
-				adminApps.GET("/audit-logs", auditHandler.ListAuditLogs)
-
-				adminApps.POST("/categories", adminHandler.CreateCategory)
-				adminApps.PUT("/categories/:id", adminHandler.UpdateCategory)
-				adminApps.DELETE("/categories/:id", adminHandler.DeleteCategory)
+				rbac.GET("/permissions", rbacHandler.ListPermissions)
+				rbac.GET("/roles", rbacHandler.ListRoles)
+				rbac.PUT("/roles/:id/permissions", middleware.RequirePermission("rbac:manage_roles"), rbacHandler.UpdateRolePermissions)
+				rbac.GET("/users", rbacHandler.ListUsers)
+				rbac.PUT("/users/:id/roles", middleware.RequirePermission("rbac:assign_users"), rbacHandler.AssignUserRoles)
 			}
 		}
 	}
