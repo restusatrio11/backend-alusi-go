@@ -129,6 +129,16 @@ definitions:
     - judul
     - konten
     type: object
+  usecase.ManualLoginInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
   usecase.OpenAPICatalogResponse:
     properties:
       dataset:
@@ -1590,6 +1600,40 @@ paths:
       summary: Inisiasi login SSO BPS Sumut
       tags:
       - Auth
+    post:
+      consumes:
+      - application/json
+      description: Autentikasi manual pengguna menggunakan kombinasi Username / Email
+        / NIP dan Password
+      parameters:
+      - description: Kredensial login manual
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.ManualLoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Manual Login (Username/Email/NIP & Password)
+      tags:
+      - Auth
   /auth/logout:
     get:
       description: Menghapus cookie sesi lokal dan mengarahkan ke Single Log Out SSO
@@ -1641,6 +1685,41 @@ paths:
           schema:
             type: string
       summary: Single Log Out (SLO)
+      tags:
+      - Auth
+  /auth/manual-login:
+    post:
+      consumes:
+      - application/json
+      description: Autentikasi manual pengguna menggunakan kombinasi Username / Email
+        / NIP dan Password
+      parameters:
+      - description: Kredensial login manual
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.ManualLoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Manual Login (Username/Email/NIP & Password)
       tags:
       - Auth
   /auth/me:

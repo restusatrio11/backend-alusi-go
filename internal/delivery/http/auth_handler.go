@@ -70,6 +70,50 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	c.Redirect(http.StatusFound, authURL)
 }
 
+// ManualLogin godoc
+// @Summary      Manual Login (Username/Email/NIP & Password)
+// @Description  Autentikasi manual pengguna menggunakan kombinasi Username / Email / NIP dan Password
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body      usecase.ManualLoginInput  true  "Kredensial login manual"
+// @Success      200    {object}  response.Response
+// @Failure      400    {object}  response.Response
+// @Failure      401    {object}  response.Response
+// @Failure      500    {object}  response.Response
+// @Router       /auth/manual-login [post]
+// @Router       /auth/login [post]
+func (h *AuthHandler) ManualLogin(c *gin.Context) {
+	var input usecase.ManualLoginInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(c, "Username dan password wajib diisi.", nil)
+		return
+	}
+
+	user, sessionToken, err := h.authUsecase.ManualLogin(c.Request.Context(), input)
+	if err != nil {
+		response.BadRequest(c, err.Error(), nil)
+		return
+	}
+
+	// Set session cookie
+	maxAge := h.cfg.JWT.ExpirationHours * 3600
+	c.SetCookie(
+		middleware.CookieSessionName,
+		sessionToken,
+		maxAge,
+		"/",
+		h.cfg.JWT.CookieDomain,
+		h.cfg.JWT.CookieSecure,
+		true, // HttpOnly
+	)
+
+	response.Success(c, http.StatusOK, "Login berhasil", gin.H{
+		"token": sessionToken,
+		"user":  user,
+	}, nil)
+}
+
 // Callback godoc
 // @Summary      OAuth2 / SSO Callback handler
 // @Description  Menerima authorization code dari SSO BPS Sumut, menukar dengan token, dan melakukan JIT provisioning

@@ -8,11 +8,17 @@ import (
 
 	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/repository/postgres"
+	"backend-alusi-go/pkg/crypto"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/sso"
 
 	"github.com/rs/zerolog/log"
 )
+
+type ManualLoginInput struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
 
 type AuthUsecase struct {
 	userRepo   *postgres.UserRepo
@@ -181,5 +187,66 @@ func (u *AuthUsecase) GetLogoutURL(postLogoutRedirectURI string) string {
 
 // GetProfile returns authenticated user details
 func (u *AuthUsecase) GetProfile(ctx context.Context, userID int) (*domain.User, error) {
+	if u.userRepo == nil {
+		return nil, fmt.Errorf("user repository is not initialized")
+	}
 	return u.userRepo.GetByID(ctx, userID)
 }
+
+// ManualLogin verifies username/email/NIP and password, updates last login, and returns user and session token
+func (u *AuthUsecase) ManualLogin(ctx context.Context, input ManualLoginInput) (*domain.User, string, error) {
+	if u.userRepo == nil {
+		return nil, "", fmt.Errorf("user repository is not initialized")
+	}
+
+	trimmedUsername := strings.TrimSpace(input.Username)
+	if trimmedUsername == "" || input.Password == "" {
+		return nil, "", fmt.Errorf("username dan password wajib diisi")
+	}
+
+	user, err := u.userRepo.GetByUsernameOrEmailOrNIP(ctx, trimmedUsername)
+	if err != nil {
+		return nil, "", fmt.Errorf("gagal memeriksa kredensial pengguna: %w", err)
+	}
+
+	if user == nil {
+		return nil, "", fmt.Errorf("username atau password salah")
+	}
+
+	if user.Status != "active" {
+		return nil, "", fmt.Errorf("akun Anda berstatus non-aktif, silakan hubungi administrator")
+	}
+
+	if user.PasswordHash == nil || *user.PasswordHash == "" {
+		return nil, "", fmt.Errorf("akun ini dikonfigurasi menggunakan SSO BPS, silakan login dengan SSO")
+	}
+
+	if !crypto.CheckPasswordHash(input.Password, *user.PasswordHash) {
+		return nil, "", fmt.Errorf("username atau password salah")
+	}
+
+	// Update last login timestamp
+	now := time.Now()
+	_ = u.userRepo.UpdateLastLogin(ctx, user.ID, now)
+	user.LastLoginAt = &now
+
+	// Reload full user with satker & roles
+	fullUser, err := u.userRepo.GetByID(ctx, user.ID)
+	if err == nil && fullUser != nil {
+		user = fullUser
+	}
+
+	// Generate Portal Session JWT
+	resolvedSatkerKode := ""
+	if user.Satker != nil {
+		resolvedSatkerKode = user.Satker.Kode
+	}
+
+	sessionToken, _, err := u.jwtService.GenerateSessionToken(user, resolvedSatkerKode)
+	if err != nil {
+		return nil, "", fmt.Errorf("gagal membuat token sesi: %w", err)
+	}
+
+	return user, sessionToken, nil
+}
+

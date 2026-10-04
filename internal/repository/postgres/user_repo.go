@@ -24,7 +24,7 @@ func NewUserRepo(pool *pgxpool.Pool) *UserRepo {
 func (r *UserRepo) GetByID(ctx context.Context, id int) (*domain.User, error) {
 	query := `
 	SELECT 
-		u.id, u.sso_sub, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
+		u.id, COALESCE(u.sso_sub, ''), u.username, u.password_hash, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
 		u.status, u.metadata, u.last_login_at, u.created_at, u.updated_at,
 		s.id, s.kode, s.nama, s.created_at, s.updated_at
 	FROM users u
@@ -37,7 +37,7 @@ func (r *UserRepo) GetByID(ctx context.Context, id int) (*domain.User, error) {
 func (r *UserRepo) GetBySSOSub(ctx context.Context, ssoSub string) (*domain.User, error) {
 	query := `
 	SELECT 
-		u.id, u.sso_sub, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
+		u.id, COALESCE(u.sso_sub, ''), u.username, u.password_hash, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
 		u.status, u.metadata, u.last_login_at, u.created_at, u.updated_at,
 		s.id, s.kode, s.nama, s.created_at, s.updated_at
 	FROM users u
@@ -50,7 +50,7 @@ func (r *UserRepo) GetBySSOSub(ctx context.Context, ssoSub string) (*domain.User
 func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `
 	SELECT 
-		u.id, u.sso_sub, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
+		u.id, COALESCE(u.sso_sub, ''), u.username, u.password_hash, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
 		u.status, u.metadata, u.last_login_at, u.created_at, u.updated_at,
 		s.id, s.kode, s.nama, s.created_at, s.updated_at
 	FROM users u
@@ -58,6 +58,20 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*domain.User, 
 	WHERE u.email = $1
 	`
 	return r.querySingleUser(ctx, query, email)
+}
+
+func (r *UserRepo) GetByUsernameOrEmailOrNIP(ctx context.Context, identifier string) (*domain.User, error) {
+	query := `
+	SELECT 
+		u.id, COALESCE(u.sso_sub, ''), u.username, u.password_hash, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
+		u.status, u.metadata, u.last_login_at, u.created_at, u.updated_at,
+		s.id, s.kode, s.nama, s.created_at, s.updated_at
+	FROM users u
+	LEFT JOIN satker s ON u.satker_id = s.id
+	WHERE LOWER(u.username) = LOWER($1) OR LOWER(u.email) = LOWER($1) OR u.nip = $1
+	LIMIT 1
+	`
+	return r.querySingleUser(ctx, query, identifier)
 }
 
 func (r *UserRepo) GetSatkerByKode(ctx context.Context, kode string) (*domain.Satker, error) {
@@ -88,16 +102,23 @@ func (r *UserRepo) GetRoleByNama(ctx context.Context, nama string) (*domain.Role
 
 func (r *UserRepo) Create(ctx context.Context, user *domain.User) error {
 	query := `
-	INSERT INTO users (sso_sub, user_type, nip, nik, nama, email, satker_id, status, metadata, last_login_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	INSERT INTO users (sso_sub, username, password_hash, user_type, nip, nik, nama, email, satker_id, status, metadata, last_login_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 	RETURNING id, created_at, updated_at
 	`
 	metadataBytes, _ := json.Marshal(user.Metadata)
 
+	var ssoSubVal *string
+	if user.SSOSub != "" {
+		ssoSubVal = &user.SSOSub
+	}
+
 	err := r.pool.QueryRow(
 		ctx,
 		query,
-		user.SSOSub,
+		ssoSubVal,
+		user.Username,
+		user.PasswordHash,
 		user.UserType,
 		user.NIP,
 		user.NIK,
@@ -119,16 +140,18 @@ func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
 	query := `
 	UPDATE users
 	SET 
-		user_type = $1,
-		nip = $2,
-		nik = $3,
-		nama = $4,
-		email = $5,
-		satker_id = $6,
-		status = $7,
-		metadata = $8,
+		username = $1,
+		password_hash = COALESCE($2, password_hash),
+		user_type = $3,
+		nip = $4,
+		nik = $5,
+		nama = $6,
+		email = $7,
+		satker_id = $8,
+		status = $9,
+		metadata = $10,
 		updated_at = NOW()
-	WHERE id = $9
+	WHERE id = $11
 	RETURNING updated_at
 	`
 	metadataBytes, _ := json.Marshal(user.Metadata)
@@ -136,6 +159,8 @@ func (r *UserRepo) Update(ctx context.Context, user *domain.User) error {
 	err := r.pool.QueryRow(
 		ctx,
 		query,
+		user.Username,
+		user.PasswordHash,
 		user.UserType,
 		user.NIP,
 		user.NIK,
@@ -189,7 +214,7 @@ func (r *UserRepo) List(ctx context.Context, offset, limit int) ([]domain.User, 
 
 	query := `
 	SELECT 
-		u.id, u.sso_sub, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
+		u.id, COALESCE(u.sso_sub, ''), u.username, u.password_hash, u.user_type, u.nip, u.nik, u.nama, u.email, u.satker_id, 
 		u.status, u.metadata, u.last_login_at, u.created_at, u.updated_at,
 		s.id, s.kode, s.nama, s.created_at, s.updated_at
 	FROM users u
@@ -252,7 +277,7 @@ func (r *UserRepo) scanUserWithSatker(rows pgx.Rows) (*domain.User, error) {
 	var satkerCreated, satkerUpdated *time.Time
 
 	err := rows.Scan(
-		&u.ID, &u.SSOSub, &u.UserType, &u.NIP, &u.NIK, &u.Nama, &u.Email, &u.SatkerID,
+		&u.ID, &u.SSOSub, &u.Username, &u.PasswordHash, &u.UserType, &u.NIP, &u.NIK, &u.Nama, &u.Email, &u.SatkerID,
 		&u.Status, &metadataBytes, &u.LastLoginAt, &u.CreatedAt, &u.UpdatedAt,
 		&satkerID, &satkerKode, &satkerNama, &satkerCreated, &satkerUpdated,
 	)

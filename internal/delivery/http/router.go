@@ -65,10 +65,12 @@ func SetupRouter(
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
-		// Auth Routes (SSO Sumut)
+		// Auth Routes (SSO Sumut & Manual Login)
 		auth := v1.Group("/auth")
 		{
 			auth.GET("/login", authHandler.Login)
+			auth.POST("/login", authHandler.ManualLogin)
+			auth.POST("/manual-login", authHandler.ManualLogin)
 			auth.GET("/callback", authHandler.Callback)
 			auth.GET("/logout", authHandler.Logout)
 			auth.POST("/logout", authHandler.Logout)
