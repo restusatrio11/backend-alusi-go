@@ -55,3 +55,5 @@ apiClient.interceptors.response.use(
     return Promise.reject(new Error(errorMessage))
   }
 )
+
+export default apiClient

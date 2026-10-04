@@ -1,176 +1,194 @@
-import { type ChangeEvent, useState } from 'react'
-import { getRouteApi } from '@tanstack/react-router'
-import { SlidersHorizontal, ArrowUpAZ, ArrowDownAZ } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { ConfigDrawer } from '@/components/config-drawer'
+import { useState, useEffect } from 'react'
+import { Plus, RefreshCw, Layers, ArrowUpDown, List } from 'lucide-react'
+import { App, Category } from '@/types/apps'
+import { appsApi } from './api/apps-api'
+import { categoriesApi } from '@/features/categories/api/categories-api'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { apps } from './data/apps'
-
-const route = getRouteApi('/_authenticated/apps/')
-
-type AppType = 'all' | 'connected' | 'notConnected'
-
-const appText = new Map<AppType, string>([
-  ['all', 'All Apps'],
-  ['connected', 'Connected'],
-  ['notConnected', 'Not Connected'],
-])
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AppsTable } from './components/apps-table'
+import { AppFormDialog } from './components/app-form-dialog'
+import { AppLogoDialog } from './components/app-logo-dialog'
+import { AppDeleteDialog } from './components/app-delete-dialog'
+import { AppGuidesDialog } from './components/app-guides-dialog'
+import { AppReorderView } from './components/app-reorder-view'
 
 export function Apps() {
-  const {
-    filter = '',
-    type = 'all',
-    sort: initSort = 'asc',
-  } = route.useSearch()
-  const navigate = route.useNavigate()
+  const [apps, setApps] = useState<App[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('table')
 
-  const [sort, setSort] = useState(initSort)
-  const [appType, setAppType] = useState(type)
-  const [searchTerm, setSearchTerm] = useState(filter)
+  // Dialog States
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [appToEdit, setAppToEdit] = useState<App | null>(null)
 
-  const filteredApps = apps
-    .sort((a, b) =>
-      sort === 'asc'
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name)
-    )
-    .filter((app) =>
-      appType === 'connected'
-        ? app.connected
-        : appType === 'notConnected'
-          ? !app.connected
-          : true
-    )
-    .filter((app) => app.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const [isLogoOpen, setIsLogoOpen] = useState(false)
+  const [appForLogo, setAppForLogo] = useState<App | null>(null)
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        filter: e.target.value || undefined,
-      }),
-    })
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [appToDelete, setAppToDelete] = useState<App | null>(null)
+
+  const [isGuidesOpen, setIsGuidesOpen] = useState(false)
+  const [appForGuides, setAppForGuides] = useState<App | null>(null)
+
+  const fetchData = async () => {
+    setIsLoading(true)
+    try {
+      const [appsRes, catRes] = await Promise.all([
+        appsApi.getApps({ per_page: 100 }),
+        categoriesApi.getCategories(),
+      ])
+      setApps(appsRes.apps)
+      setCategories(catRes)
+    } catch {
+      setApps([])
+      setCategories([])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleTypeChange = (value: AppType) => {
-    setAppType(value)
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        type: value === 'all' ? undefined : value,
-      }),
-    })
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const handleOpenCreate = () => {
+    setAppToEdit(null)
+    setIsFormOpen(true)
   }
 
-  const handleSortChange = (sort: 'asc' | 'desc') => {
-    setSort(sort)
-    navigate({ search: (prev) => ({ ...prev, sort }) })
+  const handleOpenEdit = (app: App) => {
+    setAppToEdit(app)
+    setIsFormOpen(true)
+  }
+
+  const handleOpenLogo = (app: App) => {
+    setAppForLogo(app)
+    setIsLogoOpen(true)
+  }
+
+  const handleOpenDelete = (app: App) => {
+    setAppToDelete(app)
+    setIsDeleteOpen(true)
+  }
+
+  const handleOpenGuides = (app: App) => {
+    setAppForGuides(app)
+    setIsGuidesOpen(true)
   }
 
   return (
     <>
-      {/* ===== Top Heading ===== */}
+      {/* Top Header */}
       <Header>
-        <Search className='me-auto' />
-        <ThemeSwitch />
-        <ConfigDrawer />
-        <ProfileDropdown />
+        <div className='flex items-center gap-2'>
+          <Layers className='size-5 text-primary' />
+          <h2 className='text-sm font-semibold tracking-tight'>Katalog Aplikasi ALUSI</h2>
+        </div>
+        <div className='ml-auto flex items-center space-x-2'>
+          <ThemeSwitch />
+          <ProfileDropdown />
+        </div>
       </Header>
 
-      {/* ===== Content ===== */}
-      <Main fixed>
-        <div>
-          <h1 className='text-2xl font-bold tracking-tight'>
-            App Integrations
-          </h1>
-          <p className='text-muted-foreground'>
-            Here&apos;s a list of your apps for the integration!
-          </p>
-        </div>
-        <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
-          <div className='flex flex-col gap-4 sm:my-4 sm:flex-row'>
-            <Input
-              placeholder='Filter apps...'
-              className='h-9 w-40 lg:w-62.5'
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-            <Select value={appType} onValueChange={handleTypeChange}>
-              <SelectTrigger className='w-36'>
-                <SelectValue>{appText.get(appType)}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='all'>All Apps</SelectItem>
-                <SelectItem value='connected'>Connected</SelectItem>
-                <SelectItem value='notConnected'>Not Connected</SelectItem>
-              </SelectContent>
-            </Select>
+      {/* Main Content */}
+      <Main>
+        <div className='space-y-6'>
+          {/* Page Heading */}
+          <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
+            <div>
+              <h1 className='text-2xl font-bold tracking-tight'>Manajemen Aplikasi</h1>
+              <p className='text-sm text-muted-foreground'>
+                Kelola metadata aplikasi, kategori, logo, hak akses SSO, dan panduan teknis portal ALUSI BPS.
+              </p>
+            </div>
+
+            <div className='flex items-center gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={fetchData}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`mr-1.5 size-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button size='sm' onClick={handleOpenCreate}>
+                <Plus className='mr-1.5 size-4' />
+                Tambah Aplikasi
+              </Button>
+            </div>
           </div>
 
-          <Select value={sort} onValueChange={handleSortChange}>
-            <SelectTrigger className='w-16'>
-              <SelectValue>
-                <SlidersHorizontal size={18} />
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent align='end'>
-              <SelectItem value='asc'>
-                <div className='flex items-center gap-4'>
-                  <ArrowUpAZ size={16} />
-                  <span>Ascending</span>
-                </div>
-              </SelectItem>
-              <SelectItem value='desc'>
-                <div className='flex items-center gap-4'>
-                  <ArrowDownAZ size={16} />
-                  <span>Descending</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          {/* View Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-4'>
+            <div className='flex items-center justify-between'>
+              <TabsList>
+                <TabsTrigger value='table' className='flex items-center gap-1.5'>
+                  <List className='size-3.5' />
+                  Daftar Tabel
+                </TabsTrigger>
+                <TabsTrigger value='reorder' className='flex items-center gap-1.5'>
+                  <ArrowUpDown className='size-3.5' />
+                  Urutan Tampilan
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value='table' className='m-0'>
+              <AppsTable
+                apps={apps}
+                categories={categories}
+                isLoading={isLoading}
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
+                onUploadLogo={handleOpenLogo}
+                onManageGuides={handleOpenGuides}
+                onRefresh={fetchData}
+              />
+            </TabsContent>
+
+            <TabsContent value='reorder' className='m-0'>
+              <AppReorderView
+                initialApps={apps}
+                onSuccess={fetchData}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-        <Separator className='shadow-sm' />
-        <ul className='faded-bottom no-scrollbar grid gap-4 overflow-auto pt-4 pb-16 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredApps.map((app) => (
-            <li
-              key={app.name}
-              className='rounded-lg border p-4 hover:shadow-md'
-            >
-              <div className='mb-8 flex items-center justify-between'>
-                <div
-                  className={`flex size-10 items-center justify-center rounded-lg bg-muted p-2`}
-                >
-                  {app.logo}
-                </div>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  className={`${app.connected ? 'border border-blue-300 bg-blue-50 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900' : ''}`}
-                >
-                  {app.connected ? 'Connected' : 'Connect'}
-                </Button>
-              </div>
-              <div>
-                <h2 className='mb-1 font-semibold'>{app.name}</h2>
-                <p className='line-clamp-2 text-gray-500'>{app.desc}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+
+        {/* Dialogs */}
+        <AppFormDialog
+          open={isFormOpen}
+          onOpenChange={setIsFormOpen}
+          appToEdit={appToEdit}
+          categories={categories}
+          onSuccess={fetchData}
+        />
+
+        <AppLogoDialog
+          open={isLogoOpen}
+          onOpenChange={setIsLogoOpen}
+          app={appForLogo}
+          onSuccess={fetchData}
+        />
+
+        <AppDeleteDialog
+          open={isDeleteOpen}
+          onOpenChange={setIsDeleteOpen}
+          app={appToDelete}
+          onSuccess={fetchData}
+        />
+
+        <AppGuidesDialog
+          open={isGuidesOpen}
+          onOpenChange={setIsGuidesOpen}
+          app={appForGuides}
+        />
       </Main>
     </>
   )

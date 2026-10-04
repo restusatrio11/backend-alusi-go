@@ -1,56 +1,35 @@
 import {
-  Construction,
   LayoutDashboard,
-  Monitor,
-  Bug,
-  ListTodo,
-  FileX,
-  HelpCircle,
-  Lock,
-  Bell,
-  Package,
-  Palette,
-  ServerOff,
-  Settings,
-  Wrench,
-  UserCog,
-  UserX,
-  Users,
-  MessagesSquare,
+  Layers,
+  FolderTree,
+  Activity,
+  Megaphone,
+  MessageSquareWarning,
+  LineChart,
   ShieldCheck,
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
+  Settings,
+  Palette,
+  Monitor,
+  Building2,
 } from 'lucide-react'
-import { ClerkLogo } from '@/assets/clerk-logo'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
   user: {
-    name: 'satnaing',
-    email: 'satnaingdev@gmail.com',
-    avatar: '/avatars/shadcn.jpg',
+    name: 'Admin BPS Sumut',
+    email: 'admin@bps.go.id',
+    avatar: '',
   },
   teams: [
     {
-      name: 'Shadcn Admin',
-      logo: Command,
-      plan: 'Vite + ShadcnUI',
-    },
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
+      name: 'ALUSI BPS Sumut',
+      logo: Building2,
+      plan: 'Portal Admin Terpadu',
     },
   ],
   navGroups: [
     {
-      title: 'General',
+      title: 'Katalog & Layanan',
       items: [
         {
           title: 'Dashboard',
@@ -58,146 +37,75 @@ export const sidebarData: SidebarData = {
           icon: LayoutDashboard,
         },
         {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: ListTodo,
-        },
-        {
-          title: 'Apps',
+          title: 'Katalog Aplikasi',
           url: '/apps',
-          icon: Package,
+          icon: Layers,
         },
         {
-          title: 'Chats',
-          url: '/chats',
-          badge: '3',
-          icon: MessagesSquare,
-        },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: Users,
-        },
-        {
-          title: 'Secured by Clerk',
-          icon: ClerkLogo,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/clerk/sign-in',
-            },
-            {
-              title: 'Sign Up',
-              url: '/clerk/sign-up',
-            },
-            {
-              title: 'User Management',
-              url: '/clerk/user-management',
-            },
-          ],
+          title: 'Kategori Aplikasi',
+          url: '/categories',
+          icon: FolderTree,
         },
       ],
     },
     {
-      title: 'Pages',
+      title: 'Pemantauan & Interaksi',
       items: [
         {
-          title: 'Auth',
+          title: 'Monitoring Layanan',
+          url: '/monitoring',
+          icon: Activity,
+        },
+        {
+          title: 'Pengumuman',
+          url: '/announcements',
+          icon: Megaphone,
+        },
+        {
+          title: 'Umpan Balik & Isu',
+          url: '/feedbacks',
+          icon: MessageSquareWarning,
+        },
+      ],
+    },
+    {
+      title: 'Analitik & Jejak Audit',
+      items: [
+        {
+          title: 'Analitik Penggunaan',
+          url: '/analytics',
+          icon: LineChart,
+        },
+        {
+          title: 'Audit Trail',
+          url: '/audit-logs',
           icon: ShieldCheck,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/sign-in',
-            },
-            {
-              title: 'Sign In (2 Col)',
-              url: '/sign-in-2',
-            },
-            {
-              title: 'Sign Up',
-              url: '/sign-up',
-            },
-            {
-              title: 'Forgot Password',
-              url: '/forgot-password',
-            },
-            {
-              title: 'OTP',
-              url: '/otp',
-            },
-          ],
-        },
-        {
-          title: 'Errors',
-          icon: Bug,
-          items: [
-            {
-              title: 'Unauthorized',
-              url: '/errors/unauthorized',
-              icon: Lock,
-            },
-            {
-              title: 'Forbidden',
-              url: '/errors/forbidden',
-              icon: UserX,
-            },
-            {
-              title: 'Not Found',
-              url: '/errors/not-found',
-              icon: FileX,
-            },
-            {
-              title: 'Internal Server Error',
-              url: '/errors/internal-server-error',
-              icon: ServerOff,
-            },
-            {
-              title: 'Maintenance Error',
-              url: '/errors/maintenance-error',
-              icon: Construction,
-            },
-          ],
         },
       ],
     },
     {
-      title: 'Other',
+      title: 'Konfigurasi',
       items: [
         {
-          title: 'Settings',
+          title: 'Pengaturan',
           icon: Settings,
           items: [
             {
-              title: 'Profile',
+              title: 'Profil Akun',
               url: '/settings',
-              icon: UserCog,
+              icon: Settings,
             },
             {
-              title: 'Account',
-              url: '/settings/account',
-              icon: Wrench,
-            },
-            {
-              title: 'Appearance',
+              title: 'Tema & Tampilan',
               url: '/settings/appearance',
               icon: Palette,
             },
             {
-              title: 'Notifications',
-              url: '/settings/notifications',
-              icon: Bell,
-            },
-            {
-              title: 'Display',
+              title: 'Display Layar',
               url: '/settings/display',
               icon: Monitor,
             },
           ],
-        },
-        {
-          title: 'Help Center',
-          url: '/help-center',
-          icon: HelpCircle,
         },
       ],
     },
