@@ -18,6 +18,7 @@ func SetupRouter(
 	authHandler *AuthHandler,
 	catalogHandler *CatalogHandler,
 	interactionHandler *InteractionHandler,
+	adminHandler *AdminHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -78,6 +79,21 @@ func SetupRouter(
 			apps.GET("/:slug", middleware.OptionalAuth(jwtService), catalogHandler.GetAppBySlug)
 			apps.POST("/:id/click", middleware.OptionalAuth(jwtService), interactionHandler.RecordClick)
 			apps.POST("/:id/favorite", middleware.AuthRequired(jwtService), interactionHandler.ToggleFavorite)
+		}
+
+		// Admin Management Routes (Protected by Admin Role)
+		admin := v1.Group("/admin")
+		admin.Use(middleware.AuthRequired(jwtService))
+		admin.Use(middleware.RequireRoles("admin"))
+		{
+			admin.POST("/apps", adminHandler.CreateApp)
+			admin.PUT("/apps/reorder", adminHandler.ReorderApps)
+			admin.PUT("/apps/:id", adminHandler.UpdateApp)
+			admin.DELETE("/apps/:id", adminHandler.DeleteApp)
+
+			admin.POST("/categories", adminHandler.CreateCategory)
+			admin.PUT("/categories/:id", adminHandler.UpdateCategory)
+			admin.DELETE("/categories/:id", adminHandler.DeleteCategory)
 		}
 	}
 

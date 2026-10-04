@@ -75,12 +75,14 @@ func main() {
 	authUsecase := usecase.NewAuthUsecase(userRepo, ssoClient, jwtService)
 	catalogUsecase := usecase.NewCatalogUsecase(categoryRepo, appRepo, userRepo)
 	interactionUsecase := usecase.NewInteractionUsecase(favoriteRepo, clickLogRepo, appRepo, clickWorker)
+	adminUsecase := usecase.NewAdminUsecase(appRepo, categoryRepo)
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
+	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -88,6 +90,7 @@ func main() {
 		authHandler,
 		catalogHandler,
 		interactionHandler,
+		adminHandler,
 		jwtService,
 	)
 
