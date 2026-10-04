@@ -191,13 +191,13 @@ func SetupRouter(
 
 			// Dynamic RBAC & Role Permission Management
 			rbac := admin.Group("/rbac")
-			rbac.Use(middleware.RequirePermission("rbac:view"))
+			rbac.Use(middleware.RequireAnyPermission("rbac:view", "users:view"))
 			{
 				rbac.GET("/permissions", rbacHandler.ListPermissions)
 				rbac.GET("/roles", rbacHandler.ListRoles)
-				rbac.PUT("/roles/:id/permissions", middleware.RequirePermission("rbac:manage_roles"), rbacHandler.UpdateRolePermissions)
+				rbac.PUT("/roles/:id/permissions", middleware.RequireAnyPermission("rbac:manage", "rbac:manage_roles"), rbacHandler.UpdateRolePermissions)
 				rbac.GET("/users", rbacHandler.ListUsers)
-				rbac.PUT("/users/:id/roles", middleware.RequirePermission("rbac:assign_users"), rbacHandler.AssignUserRoles)
+				rbac.PUT("/users/:id/roles", middleware.RequireAnyPermission("users:manage", "rbac:assign_users"), rbacHandler.AssignUserRoles)
 			}
 		}
 	}
