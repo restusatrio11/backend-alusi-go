@@ -57,9 +57,12 @@ func (u *MonitoringUsecase) GetAppStatusHistoryByIdentifier(ctx context.Context,
 }
 
 // GetServiceUptimeSummary returns 30-day uptime summary for all applications
-func (u *MonitoringUsecase) GetServiceUptimeSummary(ctx context.Context, days int) ([]map[string]interface{}, error) {
+func (u *MonitoringUsecase) GetServiceUptimeSummary(ctx context.Context, days int) (*domain.ServiceUptimeSummary, error) {
 	if u.statusCheckRepo == nil {
-		return []map[string]interface{}{}, nil
+		return &domain.ServiceUptimeSummary{
+			OverallUptimePercentage: 100.0,
+			Services:                make([]domain.AppUptimeSummary, 0),
+		}, nil
 	}
 	return u.statusCheckRepo.GetUptimeSummary(ctx, days)
 }

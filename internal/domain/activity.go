@@ -22,6 +22,31 @@ type StatusCheck struct {
 	CheckedAt      time.Time `json:"checked_at"`
 }
 
+type AppUptimeSummary struct {
+	AppID            int     `json:"app_id"`
+	AppNama          string  `json:"app_nama"`
+	AppSlug          string  `json:"app_slug"`
+	AppIkonURL       *string `json:"app_ikon_url,omitempty"`
+	CurrentStatus    string  `json:"current_status"`
+	UptimePercentage float64 `json:"uptime_percentage"`
+	AvgLatencyMS     int     `json:"avg_latency_ms"`
+	LastCheckAt      *string `json:"last_check_at,omitempty"`
+	TotalChecks      int64   `json:"total_checks"`
+	SuccessChecks    int64   `json:"success_checks"`
+	FailedChecks     int64   `json:"failed_checks"`
+}
+
+type ServiceUptimeSummary struct {
+	TotalApps               int                `json:"total_apps"`
+	OnlineApps              int                `json:"online_apps"`
+	MaintenanceApps         int                `json:"maintenance_apps"`
+	DegradedApps            int                `json:"degraded_apps"`
+	OfflineApps             int                `json:"offline_apps"`
+	OverallUptimePercentage float64            `json:"overall_uptime_percentage"`
+	AvgResponseTimeMS       int                `json:"avg_response_time_ms"`
+	Services                []AppUptimeSummary `json:"services"`
+}
+
 type Announcement struct {
 	ID        int        `json:"id"`
 	Judul     string     `json:"judul"`
