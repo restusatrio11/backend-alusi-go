@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +16,7 @@ import (
 	"backend-alusi-go/pkg/sso"
 )
 
-func TestAnnouncementEndpoints_Routing(t *testing.T) {
+func TestFeedbackEndpoints_Routing(t *testing.T) {
 	cfg := &config.Config{
 		App:  config.AppConfig{Name: "test-app", Env: "test", Debug: true},
 		JWT:  config.JWTConfig{Secret: "test-secret-at-least-32-chars-long", ExpirationHours: 24},
@@ -55,13 +56,20 @@ func TestAnnouncementEndpoints_Routing(t *testing.T) {
 		jwtService,
 	)
 
-	// 1. Test GET /api/v1/announcements -> 200 OK
+	// 1. Test POST /api/v1/feedbacks -> 201 Created
+	payload := map[string]interface{}{
+		"kategori": "kendala",
+		"pesan":    "Tidak bisa mengakses halaman login SIMBATIK",
+	}
+	body, _ := json.Marshal(payload)
+
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/api/v1/announcements", nil)
+	req, _ := http.NewRequest(http.MethodPost, "/api/v1/feedbacks", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK for /announcements, got %d", w.Code)
+	if w.Code != http.StatusCreated {
+		t.Fatalf("Expected 201 Created for POST /feedbacks, got %d", w.Code)
 	}
 
 	var resp response.StandardResponse
@@ -70,20 +78,19 @@ func TestAnnouncementEndpoints_Routing(t *testing.T) {
 	}
 
 	if !resp.Success {
-		t.Errorf("Expected success = true for /announcements")
+		t.Errorf("Expected success = true for POST /feedbacks")
 	}
 }
 
-func TestAnnouncementDomain(t *testing.T) {
-	ann := domain.Announcement{
+func TestFeedbackDomain(t *testing.T) {
+	fb := domain.Feedback{
 		ID:       1,
-		Judul:    "Pemeliharaan Server Rutin",
-		Konten:   "Aplikasi SIMBATIK akan offline pada pukul 22:00",
-		Tipe:     "maintenance",
-		IsActive: true,
+		Kategori: "kendala",
+		Pesan:    "Error loading map",
+		Status:   "pending",
 	}
 
-	if ann.Judul != "Pemeliharaan Server Rutin" || ann.Tipe != "maintenance" {
-		t.Errorf("Unexpected announcement data")
+	if fb.Kategori != "kendala" || fb.Status != "pending" {
+		t.Errorf("Unexpected feedback domain data")
 	}
 }

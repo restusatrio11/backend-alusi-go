@@ -21,6 +21,7 @@ func SetupRouter(
 	adminHandler *AdminHandler,
 	monitoringHandler *MonitoringHandler,
 	announcementHandler *AnnouncementHandler,
+	feedbackHandler *FeedbackHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -91,6 +92,12 @@ func SetupRouter(
 			announcements.GET("", announcementHandler.GetActiveAnnouncements)
 		}
 
+		// Feedbacks & Issue Reports (Public / User)
+		feedbacks := v1.Group("/feedbacks")
+		{
+			feedbacks.POST("", middleware.OptionalAuth(jwtService), feedbackHandler.SubmitFeedback)
+		}
+
 		// Public Service Monitoring
 		services := v1.Group("/services")
 		{
@@ -118,6 +125,10 @@ func SetupRouter(
 			admin.POST("/announcements", announcementHandler.CreateAnnouncement)
 			admin.PUT("/announcements/:id", announcementHandler.UpdateAnnouncement)
 			admin.DELETE("/announcements/:id", announcementHandler.DeleteAnnouncement)
+
+			// Feedback & Issue Reports Tracking
+			admin.GET("/feedbacks", feedbackHandler.ListAdminFeedbacks)
+			admin.PUT("/feedbacks/:id", feedbackHandler.UpdateFeedbackStatus)
 
 			admin.POST("/categories", adminHandler.CreateCategory)
 			admin.PUT("/categories/:id", adminHandler.UpdateCategory)

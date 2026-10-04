@@ -53,6 +53,7 @@ func main() {
 	var statusCheckRepo *postgres.StatusCheckRepo
 	var guideRepo *postgres.GuideRepo
 	var announcementRepo *postgres.AnnouncementRepo
+	var feedbackRepo *postgres.FeedbackRepo
 
 	if err != nil {
 		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
@@ -71,6 +72,7 @@ func main() {
 		statusCheckRepo = postgres.NewStatusCheckRepo(db.Pool)
 		guideRepo = postgres.NewGuideRepo(db.Pool)
 		announcementRepo = postgres.NewAnnouncementRepo(db.Pool)
+		feedbackRepo = postgres.NewFeedbackRepo(db.Pool)
 	}
 
 	// 4. Initialize Background Workers & Services
@@ -85,6 +87,7 @@ func main() {
 	adminUsecase := usecase.NewAdminUsecase(appRepo, categoryRepo, guideRepo)
 	monitoringUsecase := usecase.NewMonitoringUsecase(statusCheckRepo, appRepo, healthProbeWorker)
 	announcementUsecase := usecase.NewAnnouncementUsecase(announcementRepo, appRepo)
+	feedbackUsecase := usecase.NewFeedbackUsecase(feedbackRepo, appRepo)
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
@@ -94,6 +97,7 @@ func main() {
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
+	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -104,6 +108,7 @@ func main() {
 		adminHandler,
 		monitoringHandler,
 		announcementHandler,
+		feedbackHandler,
 		jwtService,
 	)
 

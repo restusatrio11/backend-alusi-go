@@ -30,6 +30,7 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	adminUsecase := usecase.NewAdminUsecase(nil, nil, nil)
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 	announcementUsecase := usecase.NewAnnouncementUsecase(nil, nil)
+	feedbackUsecase := usecase.NewFeedbackUsecase(nil, nil)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
@@ -38,6 +39,7 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
+	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -48,6 +50,7 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 		adminHandler,
 		monitoringHandler,
 		announcementHandler,
+		feedbackHandler,
 		jwtService,
 	)
 
