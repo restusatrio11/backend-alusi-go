@@ -142,7 +142,7 @@ func SetupRouter(
 		{
 			// Analytics & Reporting
 			analytics := admin.Group("/analytics")
-			analytics.Use(middleware.RequirePermission("analytics:view"))
+			analytics.Use(middleware.RequireAnyPermission("analytics:view", "dashboard:view"))
 			{
 				analytics.GET("/summary", analyticsHandler.GetDashboardSummary)
 				analytics.GET("/top-apps", analyticsHandler.GetTopApps)
