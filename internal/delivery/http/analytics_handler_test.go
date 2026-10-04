@@ -9,12 +9,13 @@ import (
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
 	"backend-alusi-go/internal/delivery/http/response"
+	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/sso"
 )
 
-func TestMonitoringEndpoints_Routing(t *testing.T) {
+func TestAnalyticsEndpoints_Routing(t *testing.T) {
 	cfg := &config.Config{
 		App:  config.AppConfig{Name: "test-app", Env: "test", Debug: true},
 		JWT:  config.JWTConfig{Secret: "test-secret-at-least-32-chars-long", ExpirationHours: 24},
@@ -31,6 +32,7 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 	announcementUsecase := usecase.NewAnnouncementUsecase(nil, nil)
 	feedbackUsecase := usecase.NewFeedbackUsecase(nil, nil)
+	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
@@ -40,7 +42,6 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
-	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
 
 	router := deliveryHTTP.SetupRouter(
@@ -57,13 +58,30 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 		jwtService,
 	)
 
-	// 1. Test GET /api/v1/services/status -> 200 OK
+	// Generate admin token
+	adminUser := &domain.User{
+		ID:       1,
+		SSOSub:   "19950101",
+		Nama:     "Admin BPS",
+		Email:    "admin@bps.go.id",
+		UserType: "internal",
+		Roles: []domain.Role{
+			{ID: 1, Nama: "admin"},
+		},
+	}
+	adminToken, _, err := jwtService.GenerateSessionToken(adminUser, "1200")
+	if err != nil {
+		t.Fatalf("Failed to generate admin token: %v", err)
+	}
+
+	// 1. Test GET /api/v1/admin/analytics/summary with Admin Token -> 200 OK
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/api/v1/services/status", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/analytics/summary", nil)
+	req.Header.Set("Authorization", "Bearer "+adminToken)
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK for /services/status, got %d", w.Code)
+		t.Fatalf("Expected 200 OK for /admin/analytics/summary, got %d", w.Code)
 	}
 
 	var resp response.StandardResponse
@@ -72,15 +90,16 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	}
 
 	if !resp.Success {
-		t.Errorf("Expected success = true for /services/status")
+		t.Errorf("Expected success = true for /admin/analytics/summary")
 	}
 
-	// 2. Test GET /api/v1/apps/simbatik/status-history -> 200 OK (empty list when offline)
+	// 2. Test GET /api/v1/admin/analytics/top-apps with Admin Token -> 200 OK
 	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest(http.MethodGet, "/api/v1/apps/simbatik/status-history", nil)
+	req2, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/analytics/top-apps", nil)
+	req2.Header.Set("Authorization", "Bearer "+adminToken)
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK for /apps/simbatik/status-history, got %d", w2.Code)
+		t.Fatalf("Expected 200 OK for /admin/analytics/top-apps, got %d", w2.Code)
 	}
 }

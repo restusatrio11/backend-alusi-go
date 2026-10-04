@@ -22,6 +22,7 @@ func SetupRouter(
 	monitoringHandler *MonitoringHandler,
 	announcementHandler *AnnouncementHandler,
 	feedbackHandler *FeedbackHandler,
+	analyticsHandler *AnalyticsHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -104,35 +105,49 @@ func SetupRouter(
 			services.GET("/status", monitoringHandler.GetServiceUptimeSummary)
 		}
 
-		// Admin Management Routes (Protected by Admin Role)
+		// Admin & Pimpinan Management Routes
 		admin := v1.Group("/admin")
 		admin.Use(middleware.AuthRequired(jwtService))
-		admin.Use(middleware.RequireRoles("admin"))
+		admin.Use(middleware.RequireRoles("admin", "pimpinan"))
 		{
-			admin.POST("/apps", adminHandler.CreateApp)
-			admin.PUT("/apps/reorder", adminHandler.ReorderApps)
-			admin.PUT("/apps/:id", adminHandler.UpdateApp)
-			admin.DELETE("/apps/:id", adminHandler.DeleteApp)
-			admin.POST("/apps/:id/probe", monitoringHandler.ManualProbeApp)
+			// Analytics & Reporting (Admin & Pimpinan)
+			analytics := admin.Group("/analytics")
+			{
+				analytics.GET("/summary", analyticsHandler.GetDashboardSummary)
+				analytics.GET("/top-apps", analyticsHandler.GetTopApps)
+				analytics.GET("/trends", analyticsHandler.GetTrends)
+				analytics.GET("/disruptions", analyticsHandler.GetDisruptions)
+			}
 
-			// App Guides & FAQ Management
-			admin.POST("/apps/:id/guides", adminHandler.CreateGuide)
-			admin.PUT("/guides/:id", adminHandler.UpdateGuide)
-			admin.DELETE("/guides/:id", adminHandler.DeleteGuide)
+			// Apps & Category CRUD (Admin Only)
+			adminApps := admin.Group("")
+			adminApps.Use(middleware.RequireRoles("admin"))
+			{
+				adminApps.POST("/apps", adminHandler.CreateApp)
+				adminApps.PUT("/apps/reorder", adminHandler.ReorderApps)
+				adminApps.PUT("/apps/:id", adminHandler.UpdateApp)
+				adminApps.DELETE("/apps/:id", adminHandler.DeleteApp)
+				adminApps.POST("/apps/:id/probe", monitoringHandler.ManualProbeApp)
 
-			// Announcements Broadcast Management
-			admin.GET("/announcements", announcementHandler.ListAdminAnnouncements)
-			admin.POST("/announcements", announcementHandler.CreateAnnouncement)
-			admin.PUT("/announcements/:id", announcementHandler.UpdateAnnouncement)
-			admin.DELETE("/announcements/:id", announcementHandler.DeleteAnnouncement)
+				// App Guides & FAQ Management
+				adminApps.POST("/apps/:id/guides", adminHandler.CreateGuide)
+				adminApps.PUT("/guides/:id", adminHandler.UpdateGuide)
+				adminApps.DELETE("/guides/:id", adminHandler.DeleteGuide)
 
-			// Feedback & Issue Reports Tracking
-			admin.GET("/feedbacks", feedbackHandler.ListAdminFeedbacks)
-			admin.PUT("/feedbacks/:id", feedbackHandler.UpdateFeedbackStatus)
+				// Announcements Broadcast Management
+				adminApps.GET("/announcements", announcementHandler.ListAdminAnnouncements)
+				adminApps.POST("/announcements", announcementHandler.CreateAnnouncement)
+				adminApps.PUT("/announcements/:id", announcementHandler.UpdateAnnouncement)
+				adminApps.DELETE("/announcements/:id", announcementHandler.DeleteAnnouncement)
 
-			admin.POST("/categories", adminHandler.CreateCategory)
-			admin.PUT("/categories/:id", adminHandler.UpdateCategory)
-			admin.DELETE("/categories/:id", adminHandler.DeleteCategory)
+				// Feedback & Issue Reports Tracking
+				adminApps.GET("/feedbacks", feedbackHandler.ListAdminFeedbacks)
+				adminApps.PUT("/feedbacks/:id", feedbackHandler.UpdateFeedbackStatus)
+
+				adminApps.POST("/categories", adminHandler.CreateCategory)
+				adminApps.PUT("/categories/:id", adminHandler.UpdateCategory)
+				adminApps.DELETE("/categories/:id", adminHandler.DeleteCategory)
+			}
 		}
 	}
 
