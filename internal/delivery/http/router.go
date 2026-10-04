@@ -3,12 +3,18 @@ package http
 import (
 	"backend-alusi-go/config"
 	"backend-alusi-go/internal/delivery/http/middleware"
+	"backend-alusi-go/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 )
 
 // SetupRouter initializes and configures the Gin engine
-func SetupRouter(cfg *config.Config, healthHandler *HealthHandler) *gin.Engine {
+func SetupRouter(
+	cfg *config.Config,
+	healthHandler *HealthHandler,
+	authHandler *AuthHandler,
+	jwtService *jwt.JWTService,
+) *gin.Engine {
 	if !cfg.App.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
@@ -29,11 +35,15 @@ func SetupRouter(cfg *config.Config, healthHandler *HealthHandler) *gin.Engine {
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
-		v1.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "pong",
-			})
-		})
+		// Auth Routes (SSO Sumut)
+		auth := v1.Group("/auth")
+		{
+			auth.GET("/login", authHandler.Login)
+			auth.GET("/callback", authHandler.Callback)
+			auth.GET("/logout", authHandler.Logout)
+			auth.POST("/logout", authHandler.Logout)
+			auth.GET("/me", middleware.AuthRequired(jwtService), authHandler.Me)
+		}
 	}
 
 	return router

@@ -12,8 +12,12 @@ import (
 
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
+	"backend-alusi-go/internal/repository/postgres"
+	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/database"
+	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/logger"
+	"backend-alusi-go/pkg/sso"
 
 	"github.com/rs/zerolog/log"
 )
@@ -32,6 +36,7 @@ func main() {
 		Str("app", cfg.App.Name).
 		Str("env", cfg.App.Env).
 		Str("port", cfg.App.Port).
+		Str("sso_issuer", cfg.SSO.IssuerURL).
 		Msg("Starting Portal BPS Sumut Backend API...")
 
 	// 3. Initialize PostgreSQL Database Connection Pool
@@ -39,6 +44,7 @@ func main() {
 	db, err := database.NewPostgresDB(ctx, &cfg.Database)
 	cancelInit()
 
+	var userRepo *postgres.UserRepo
 	if err != nil {
 		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
 	} else {
@@ -48,13 +54,20 @@ func main() {
 		} else {
 			log.Info().Msg("All database migrations verified and applied")
 		}
+		userRepo = postgres.NewUserRepo(db.Pool)
 	}
 
-	// 4. Setup Delivery & Handlers
-	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
-	router := deliveryHTTP.SetupRouter(cfg, healthHandler)
+	// 4. Initialize Services & Usecases
+	jwtService := jwt.NewJWTService(&cfg.JWT)
+	ssoClient := sso.NewClient(&cfg.SSO)
+	authUsecase := usecase.NewAuthUsecase(userRepo, ssoClient, jwtService)
 
-	// 5. Configure HTTP Server
+	// 5. Setup Delivery & Handlers
+	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
+	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
+	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, jwtService)
+
+	// 6. Configure HTTP Server
 	serverAddr := fmt.Sprintf(":%s", cfg.App.Port)
 	srv := &http.Server{
 		Addr:         serverAddr,
@@ -64,7 +77,7 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	// 6. Start Server in Goroutine
+	// 7. Start Server in Goroutine
 	go func() {
 		log.Info().Str("addr", serverAddr).Msg("HTTP Server is listening and serving requests")
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -72,7 +85,7 @@ func main() {
 		}
 	}()
 
-	// 7. Graceful Shutdown Listener
+	// 8. Graceful Shutdown Listener
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

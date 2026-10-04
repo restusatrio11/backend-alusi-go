@@ -1,0 +1,6 @@
+DROP INDEX IF EXISTS idx_users_nik;
+DROP INDEX IF EXISTS idx_users_user_type;
+
+ALTER TABLE users DROP COLUMN IF EXISTS metadata;
+ALTER TABLE users DROP COLUMN IF EXISTS nik;
+ALTER TABLE users DROP COLUMN IF EXISTS user_type;
