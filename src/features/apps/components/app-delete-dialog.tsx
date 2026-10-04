@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { AlertTriangle, Loader2, ShieldAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import { App } from '@/types/apps'
 import { appsApi } from '../api/apps-api'
@@ -48,25 +48,36 @@ export function AppDeleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-md'>
-        <DialogHeader>
-          <div className='flex items-center gap-2 text-destructive mb-1'>
-            <AlertTriangle className='size-5' />
-            <DialogTitle>Nonaktifkan Aplikasi</DialogTitle>
+      <DialogContent className='sm:max-w-lg p-6 md:p-7'>
+        <DialogHeader className='space-y-2 pb-2'>
+          <div className='flex items-center gap-2.5 text-destructive'>
+            <div className='p-2 rounded-full bg-destructive/10'>
+              <AlertTriangle className='size-5 text-destructive' />
+            </div>
+            <DialogTitle className='text-lg font-bold'>Nonaktifkan Katalog Aplikasi</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
             Apakah Anda yakin ingin menonaktifkan aplikasi{' '}
-            <span className='font-semibold text-foreground'>&quot;{app?.nama}&quot;</span>?
-            Aplikasi tidak akan ditampilkan lagi pada katalog pengguna umum.
+            <strong className='text-foreground font-semibold'>&quot;{app?.nama}&quot;</strong>?
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className='gap-2 pt-2'>
+        <div className='p-3.5 rounded-xl border border-destructive/20 bg-destructive/5 text-xs text-muted-foreground space-y-1 my-1'>
+          <p className='font-semibold text-destructive flex items-center gap-1.5'>
+            <ShieldAlert className='size-3.5' /> Dampak Tindakan:
+          </p>
+          <p className='leading-relaxed'>
+            Aplikasi tidak akan lagi tampil di halaman beranda atau pencarian publik portal ALUSI, namun riwayat log statistik klik sebelumnya tetap tersimpan secara aman.
+          </p>
+        </div>
+
+        <DialogFooter className='gap-2.5 pt-3 border-t'>
           <Button
             type='button'
             variant='outline'
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
+            className='h-10 px-4 text-xs'
           >
             Batal
           </Button>
@@ -75,9 +86,10 @@ export function AppDeleteDialog({
             variant='destructive'
             onClick={handleDelete}
             disabled={isDeleting}
+            className='h-10 px-5 text-xs font-semibold shadow-xs'
           >
             {isDeleting && <Loader2 className='mr-2 size-4 animate-spin' />}
-            Ya, Nonaktifkan
+            Ya, Nonaktifkan Aplikasi
           </Button>
         </DialogFooter>
       </DialogContent>

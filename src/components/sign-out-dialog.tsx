@@ -38,7 +38,7 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
       cancelBtnText='Batal'
       destructive
       handleConfirm={handleSignOut}
-      className='sm:max-w-sm'
+      className='sm:max-w-md'
     />
   )
 }

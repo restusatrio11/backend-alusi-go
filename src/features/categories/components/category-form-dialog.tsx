@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2 } from 'lucide-react'
+import { FolderTree, Sparkles, Hash, FileText, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Category, CategoryPayload } from '@/types/apps'
 import { categoriesApi } from '../api/categories-api'
@@ -17,6 +17,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -109,44 +110,61 @@ export function CategoryFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-md'>
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Edit Kategori Aplikasi' : 'Tambah Kategori Baru'}
-          </DialogTitle>
-          <DialogDescription>
+      <DialogContent className='sm:max-w-xl lg:max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8'>
+        <DialogHeader className='space-y-1.5 pb-2 border-b'>
+          <div className='flex items-center gap-2 text-primary'>
+            <FolderTree className='size-5' />
+            <DialogTitle className='text-xl font-bold tracking-tight'>
+              {isEditing ? 'Edit Kategori Aplikasi' : 'Tambah Kategori Aplikasi Baru'}
+            </DialogTitle>
+          </div>
+          <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
             {isEditing
-              ? 'Perbarui nama kelompok, deskripsi, atau urutan kategori aplikasi.'
-              : 'Tambahkan kelompok kategori baru untuk mengelompokkan aplikasi dalam katalog.'}
+              ? 'Perbarui nama kelompok, deskripsi tugas pokok fungsi, atau urutan indeks kategori.'
+              : 'Tambahkan kelompok kategori baru untuk menata dan mengklasifikasikan seluruh aplikasi dalam katalog portal.'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 py-2'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5 pt-3'>
             <FormField
               control={form.control}
               name='nama'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Kategori *</FormLabel>
+                  <FormLabel className='text-xs font-medium'>Nama Kategori *</FormLabel>
                   <FormControl>
-                    <Input placeholder='Contoh: Layanan Statistik, Manajemen Internal' {...field} />
+                    <Input
+                      placeholder='Contoh: Layanan Statistik, Manajemen Internal, Tata Usaha'
+                      className='h-10 text-xs'
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className='grid grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
                 name='ikon'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ikon Lucide</FormLabel>
+                    <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                      <Sparkles className='size-3.5 text-muted-foreground' />
+                      Ikon Identifier (Lucide Icon)
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder='bar-chart-2' {...field} />
+                      <Input
+                        placeholder='bar-chart-2, database, layers'
+                        className='h-10 text-xs font-mono'
+                        {...field}
+                      />
                     </FormControl>
+                    <FormDescription className='text-[11px]'>
+                      Nama identifier ikon dari pustaka Lucide
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -157,15 +175,22 @@ export function CategoryFormDialog({
                 name='urutan'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nomor Urutan</FormLabel>
+                    <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                      <Hash className='size-3.5 text-muted-foreground' />
+                      Nomor Urutan Tampilan
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type='number'
                         min={1}
+                        className='h-10 text-xs font-mono'
                         value={field.value}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
+                    <FormDescription className='text-[11px]'>
+                      Urutan prioritas penataan di menu navigasi
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -177,11 +202,15 @@ export function CategoryFormDialog({
               name='deskripsi'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deskripsi Singkat</FormLabel>
+                  <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                    <FileText className='size-3.5 text-muted-foreground' />
+                    Deskripsi Singkat Kategori
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder='Penjelasan kelompok layanan aplikasi ini...'
-                      rows={3}
+                      placeholder='Jelaskan kelompok fungsi modul atau sistem yang termasuk ke dalam kategori ini...'
+                      rows={4}
+                      className='text-xs leading-relaxed resize-y'
                       {...field}
                     />
                   </FormControl>
@@ -190,16 +219,21 @@ export function CategoryFormDialog({
               )}
             />
 
-            <DialogFooter className='gap-2 pt-2'>
+            <DialogFooter className='gap-2.5 pt-4 border-t'>
               <Button
                 type='button'
                 variant='outline'
                 onClick={() => onOpenChange(false)}
                 disabled={form.formState.isSubmitting}
+                className='h-10 px-4 text-xs'
               >
                 Batal
               </Button>
-              <Button type='submit' disabled={form.formState.isSubmitting}>
+              <Button
+                type='submit'
+                disabled={form.formState.isSubmitting}
+                className='h-10 px-5 text-xs font-semibold shadow-xs'
+              >
                 {form.formState.isSubmitting && (
                   <Loader2 className='mr-2 size-4 animate-spin' />
                 )}

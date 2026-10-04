@@ -2,7 +2,19 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2 } from 'lucide-react'
+import {
+  Layers,
+  Globe,
+  Tag,
+  Users,
+  Activity,
+  Building2,
+  Phone,
+  FileText,
+  Eye,
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { App, Category, CreateAppPayload, UpdateAppPayload } from '@/types/apps'
 import { appsApi } from '../api/apps-api'
@@ -153,215 +165,248 @@ export function AppFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Edit Metadata Aplikasi' : 'Tambah Aplikasi Baru'}
-          </DialogTitle>
-          <DialogDescription>
+      <DialogContent className='sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-8'>
+        <DialogHeader className='space-y-1.5 pb-2 border-b'>
+          <div className='flex items-center gap-2 text-primary'>
+            <Layers className='size-5' />
+            <DialogTitle className='text-xl font-bold tracking-tight'>
+              {isEditing ? 'Edit Metadata Aplikasi' : 'Tambah Aplikasi Baru'}
+            </DialogTitle>
+          </div>
+          <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
             {isEditing
-              ? 'Perbarui data katalog aplikasi, tautan URL, status layanan, dan target pengguna.'
-              : 'Lengkapi formulir di bawah ini untuk mendaftarkan aplikasi baru ke dalam portal ALUSI.'}
+              ? 'Perbarui informasi katalog aplikasi, tautan URL, status layanan, dan target pengguna secara lengkap.'
+              : 'Lengkapi formulir di bawah ini untuk mendaftarkan modul atau sistem aplikasi baru ke dalam katalog ALUSI.'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 py-2'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='nama'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nama Aplikasi *</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Contoh: SIMPEG BPS, Pojok Statistik' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 pt-3'>
+            {/* Section 1: Identitas & Klasifikasi */}
+            <div className='space-y-4'>
+              <div className='flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+                <Tag className='size-3.5 text-primary' />
+                <span>Identitas & Klasifikasi Modul</span>
+              </div>
 
-              <FormField
-                control={form.control}
-                name='category_id'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kategori Aplikasi *</FormLabel>
-                    <Select
-                      value={field.value ? String(field.value) : ''}
-                      onValueChange={(val) => field.onChange(Number(val))}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih Kategori' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={String(cat.id)}>
-                            {cat.nama}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name='url'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL Tautan Aplikasi *</FormLabel>
-                  <FormControl>
-                    <Input placeholder='https://layanan.bps.go.id' {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Tautan langsung menuju aplikasi web atau dashboard terkait.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='target_pengguna'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Target Pengguna</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih Sasaran' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value='Semua'>Semua (Publik & Pegawai)</SelectItem>
-                        <SelectItem value='Internal BPS'>Internal Pegawai BPS</SelectItem>
-                        <SelectItem value='Mitra'>Mitra Statistik / Lapangan</SelectItem>
-                        <SelectItem value='Pimpinan'>Pimpinan & Manajerial</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='status_layanan'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status Operasional Layanan</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Status' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value='online'>🟢 Operasional Normal (Online)</SelectItem>
-                        <SelectItem value='pemeliharaan'>🟡 Pemeliharaan (Maintenance)</SelectItem>
-                        <SelectItem value='kendala'>🟠 Gangguan / Kendala Teknis</SelectItem>
-                        <SelectItem value='offline'>🔴 Tidak Aktif (Offline)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='pemilik'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Unit Pengelola / Pemilik</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Contoh: Tim TI / Bagian Umum' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='kontak_admin'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kontak Admin / Helpdesk</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Email / No WhatsApp PIC' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name='deskripsi'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Deskripsi Aplikasi</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Jelaskan fungsi utama, fitur, dan cakupan penggunaan aplikasi...'
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t'>
-              <FormField
-                control={form.control}
-                name='is_public'
-                render={({ field }) => (
-                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs'>
-                    <div className='space-y-0.5'>
-                      <FormLabel className='text-sm font-medium'>
-                        Dapat Diakses Publik
-                      </FormLabel>
-                      <FormDescription className='text-xs'>
-                        Tampil di portal publik tanpa login SSO
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {isEditing && (
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
-                  name='aktif'
+                  name='nama'
                   render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-sm font-medium'>
-                          Status Katalog Aktif
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium'>Nama Aplikasi *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Contoh: SIMPEG BPS, Pojok Statistik, ARON'
+                          className='h-10 text-xs'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='category_id'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium'>Kategori Aplikasi *</FormLabel>
+                      <Select
+                        value={field.value ? String(field.value) : ''}
+                        onValueChange={(val) => field.onChange(Number(val))}
+                      >
+                        <FormControl>
+                          <SelectTrigger className='h-10 text-xs'>
+                            <SelectValue placeholder='Pilih Kategori' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={String(cat.id)}>
+                              {cat.nama}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name='url'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                      <Globe className='size-3.5 text-muted-foreground' />
+                      URL Tautan Aplikasi Web *
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='https://layanan.bps.go.id atau https://sumut.bps.go.id/app'
+                        className='h-10 text-xs font-mono'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className='text-[11px]'>
+                      Tautan absolut yang dibuka ketika pengguna mengklik peluncuran modul ini.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Section 2: Sasaran & Operasional */}
+            <div className='space-y-4 pt-2 border-t'>
+              <div className='flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+                <Activity className='size-3.5 text-primary' />
+                <span>Sasaran Pengguna & Status Layanan</span>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='target_pengguna'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Users className='size-3.5 text-muted-foreground' />
+                        Target Sasaran Pengguna
+                      </FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className='h-10 text-xs'>
+                            <SelectValue placeholder='Pilih Sasaran' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='Semua'>🌐 Semua (Publik & Pegawai)</SelectItem>
+                          <SelectItem value='Internal BPS'>🔒 Internal Pegawai BPS</SelectItem>
+                          <SelectItem value='Mitra'>📋 Mitra Statistik / Lapangan</SelectItem>
+                          <SelectItem value='Pimpinan'>👔 Pimpinan & Manajerial</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='status_layanan'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Activity className='size-3.5 text-muted-foreground' />
+                        Status Operasional Layanan
+                      </FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className='h-10 text-xs'>
+                            <SelectValue placeholder='Status' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='online'>🟢 Operasional Normal (Online)</SelectItem>
+                          <SelectItem value='pemeliharaan'>🟡 Pemeliharaan (Maintenance)</SelectItem>
+                          <SelectItem value='kendala'>🟠 Gangguan / Kendala Teknis</SelectItem>
+                          <SelectItem value='offline'>🔴 Tidak Aktif (Offline)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='pemilik'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Building2 className='size-3.5 text-muted-foreground' />
+                        Unit Pengelola / Pemilik Modul *
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Contoh: Tim TI / Bagian Umum / Nerwilis'
+                          className='h-10 text-xs'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='kontak_admin'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Phone className='size-3.5 text-muted-foreground' />
+                        Kontak Admin / Helpdesk
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Email atau No. WhatsApp PIC layanan'
+                          className='h-10 text-xs'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Section 3: Deskripsi & Visibilitas */}
+            <div className='space-y-4 pt-2 border-t'>
+              <FormField
+                control={form.control}
+                name='deskripsi'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                      <FileText className='size-3.5 text-muted-foreground' />
+                      Deskripsi & Ringkasan Fitur
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='Jelaskan fungsi utama, fitur unggulan, dan cakupan pemanfaatan aplikasi ini...'
+                        rows={4}
+                        className='text-xs leading-relaxed resize-y'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='is_public'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-center justify-between rounded-xl border bg-muted/30 p-4 shadow-xs'>
+                      <div className='space-y-0.5 pr-2'>
+                        <FormLabel className='text-xs font-semibold flex items-center gap-1.5'>
+                          <Eye className='size-3.5 text-primary' />
+                          Visibilitas Publik
                         </FormLabel>
-                        <FormDescription className='text-xs'>
-                          Tampilkan aplikasi dalam katalog
+                        <FormDescription className='text-[11px] leading-snug'>
+                          Dapat dilihat dan diakses pada portal publik tanpa login SSO
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -373,19 +418,54 @@ export function AppFormDialog({
                     </FormItem>
                   )}
                 />
-              )}
+
+                {isEditing ? (
+                  <FormField
+                    control={form.control}
+                    name='aktif'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-xl border bg-muted/30 p-4 shadow-xs'>
+                        <div className='space-y-0.5 pr-2'>
+                          <FormLabel className='text-xs font-semibold flex items-center gap-1.5'>
+                            <CheckCircle2 className='size-3.5 text-emerald-600' />
+                            Status Katalog Aktif
+                          </FormLabel>
+                          <FormDescription className='text-[11px] leading-snug'>
+                            Menampilkan aplikasi dalam daftar pencarian katalog
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <div className='rounded-xl border border-dashed p-4 flex items-center text-xs text-muted-foreground bg-muted/10'>
+                    Aplikasi baru secara default akan berstatus aktif di katalog.
+                  </div>
+                )}
+              </div>
             </div>
 
-            <DialogFooter className='gap-2 pt-4'>
+            <DialogFooter className='gap-2.5 pt-4 border-t'>
               <Button
                 type='button'
                 variant='outline'
                 onClick={() => onOpenChange(false)}
                 disabled={form.formState.isSubmitting}
+                className='h-10 px-4 text-xs'
               >
                 Batal
               </Button>
-              <Button type='submit' disabled={form.formState.isSubmitting}>
+              <Button
+                type='submit'
+                disabled={form.formState.isSubmitting}
+                className='h-10 px-5 text-xs font-semibold shadow-xs'
+              >
                 {form.formState.isSubmitting && (
                   <Loader2 className='mr-2 size-4 animate-spin' />
                 )}

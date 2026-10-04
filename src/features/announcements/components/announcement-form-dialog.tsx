@@ -3,12 +3,16 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {
+  Megaphone,
   Info,
   AlertTriangle,
   AlertOctagon,
   CheckCircle2,
   ExternalLink,
   Loader2,
+  Calendar,
+  Layers,
+  Sparkles,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { App } from '@/types/apps'
@@ -166,12 +170,12 @@ export function AnnouncementFormDialog({
       case 'danger':
         return 'bg-destructive/10 border-destructive/30 text-destructive'
       case 'warning':
-        return 'bg-amber-500/10 border-amber-500/30 text-amber-800 dark:text-amber-400'
+        return 'bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-300'
       case 'success':
-        return 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-400'
+        return 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-300'
       case 'info':
       default:
-        return 'bg-blue-500/10 border-blue-500/30 text-blue-800 dark:text-blue-400'
+        return 'bg-blue-500/10 border-blue-500/30 text-blue-900 dark:text-blue-300'
     }
   }
 
@@ -191,41 +195,51 @@ export function AnnouncementFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Edit Pengumuman Broadcast' : 'Buat Pengumuman Baru'}
-          </DialogTitle>
-          <DialogDescription>
-            Siarkan banner pengumuman pemeliharaan, rilis fitur baru, atau informasi penting kepada pengguna portal.
+      <DialogContent className='sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto p-6 md:p-8'>
+        <DialogHeader className='space-y-1.5 pb-2 border-b'>
+          <div className='flex items-center gap-2 text-primary'>
+            <Megaphone className='size-5' />
+            <DialogTitle className='text-xl font-bold tracking-tight'>
+              {isEditing ? 'Edit Pengumuman Broadcast' : 'Buat Pengumuman Broadcast Baru'}
+            </DialogTitle>
+          </div>
+          <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
+            Siarkan banner pengumuman pemeliharaan, rilis fitur sistem baru, atau informasi mendesak kepada seluruh pengguna portal ALUSI.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 py-2'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 pt-3'>
             {/* Live Banner Preview */}
-            <div className='space-y-1.5'>
-              <span className='text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
-                Live Preview Tampilan Banner
-              </span>
+            <div className='space-y-2'>
+              <div className='flex items-center justify-between'>
+                <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5'>
+                  <Sparkles className='size-3.5 text-primary' />
+                  Pratinjau Langsung (Live Banner Preview)
+                </span>
+                <span className='text-[10px] text-muted-foreground'>
+                  Tampilan real-time yang dilihat pengguna
+                </span>
+              </div>
+
               <div
-                className={`p-4 rounded-xl border flex items-start gap-3 transition-colors ${getPreviewBannerStyle(
+                className={`p-4 rounded-xl border flex items-start gap-3 transition-all duration-200 shadow-xs ${getPreviewBannerStyle(
                   watchedValues.tipe
                 )}`}
               >
                 {getPreviewIcon(watchedValues.tipe)}
                 <div className='flex-1 min-w-0 space-y-1'>
-                  <h4 className='font-semibold text-sm leading-tight'>
+                  <h4 className='font-bold text-sm leading-snug'>
                     {watchedValues.judul || 'Judul Pengumuman / Pemeliharaan'}
                   </h4>
-                  <p className='text-xs opacity-90 leading-relaxed'>
+                  <p className='text-xs leading-relaxed opacity-90'>
                     {watchedValues.pesan ||
-                      'Pesan pengumuman atau rincian jadwal maintenance akan ditampilkan di sini kepada pengguna.'}
+                      'Pesan lengkap atau rincian jadwal pemeliharaan sistem akan ditampilkan di bagian ini.'}
                   </p>
                   {watchedValues.tautan_url && (
-                    <div className='pt-1'>
-                      <span className='inline-flex items-center text-xs font-semibold underline gap-1'>
-                        {watchedValues.tautan_teks || 'Lihat Selengkapnya'}
+                    <div className='pt-1.5'>
+                      <span className='inline-flex items-center text-xs font-semibold underline gap-1 hover:opacity-80 transition-opacity'>
+                        {watchedValues.tautan_teks || 'Buka Tautan Terkait'}
                         <ExternalLink className='size-3' />
                       </span>
                     </div>
@@ -234,185 +248,221 @@ export function AnnouncementFormDialog({
               </div>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 pt-2'>
-              <FormField
-                control={form.control}
-                name='judul'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Judul Pengumuman *</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Pemeliharaan Server SIMPEG' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='tipe'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipe & Warna Banner</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+            {/* Section 1: Konten Utama */}
+            <div className='space-y-4 pt-2 border-t'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='judul'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium'>Judul Pengumuman *</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih Tipe' />
-                        </SelectTrigger>
+                        <Input
+                          placeholder='Contoh: Pemeliharaan Server SIMPEG'
+                          className='h-10 text-xs'
+                          {...field}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value='info'>ℹ️ Informasi (Biru)</SelectItem>
-                        <SelectItem value='warning'>⚠️ Peringatan / Maintenance (Kuning)</SelectItem>
-                        <SelectItem value='danger'>🚨 Gangguan Kritis (Merah)</SelectItem>
-                        <SelectItem value='success'>✅ Pengumuman Sukses (Hijau)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name='pesan'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Isi Pesan Pengumuman *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder='Tuliskan informasi lengkap mengenai pengumuman atau jadwal pemeliharaan...'
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name='tipe'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium'>Kategori & Tema Warna</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className='h-10 text-xs'>
+                            <SelectValue placeholder='Pilih Tipe' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='info'>ℹ️ Informasi Umum (Biru)</SelectItem>
+                          <SelectItem value='warning'>⚠️ Peringatan / Maintenance (Kuning)</SelectItem>
+                          <SelectItem value='danger'>🚨 Gangguan Kritis / Darurat (Merah)</SelectItem>
+                          <SelectItem value='success'>✅ Pengumuman Sukses (Hijau)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <FormField
                 control={form.control}
-                name='app_id'
+                name='pesan'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target Cakupan Aplikasi</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Semua Aplikasi' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value='all'>🌐 Semua Aplikasi (Global Portal)</SelectItem>
-                        {apps.map((app) => (
-                          <SelectItem key={app.id} value={String(app.id)}>
-                            📱 {app.nama}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='aktif'
-                render={({ field }) => (
-                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs'>
-                    <div className='space-y-0.5'>
-                      <FormLabel className='text-sm font-medium'>
-                        Status Siaran Aktif
-                      </FormLabel>
-                      <FormDescription className='text-xs'>
-                        Tayangkan banner saat ini
-                      </FormDescription>
-                    </div>
+                    <FormLabel className='text-xs font-medium'>Isi Pesan Pengumuman *</FormLabel>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                      <Textarea
+                        placeholder='Tuliskan detail jadwal, dampak pemeliharaan, atau petunjuk operasional bagi pegawai...'
+                        rows={4}
+                        className='text-xs leading-relaxed resize-y'
+                        {...field}
                       />
                     </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='tautan_url'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tautan URL Aksi (Opsional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder='https://layanan.bps.go.id/info' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='tautan_teks'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Label Teks Tombol Aksi</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Contoh: Baca Selengkapnya' {...field} />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='mulai_pada'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jadwal Mulai Tayang (Opsional)</FormLabel>
-                    <FormControl>
-                      <Input type='datetime-local' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Section 2: Sasaran & Jadwal */}
+            <div className='space-y-4 pt-2 border-t'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='app_id'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Layers className='size-3.5 text-muted-foreground' />
+                        Target Cakupan Aplikasi
+                      </FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className='h-10 text-xs'>
+                            <SelectValue placeholder='Semua Aplikasi' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='all'>🌐 Seluruh Aplikasi (Global Portal BPS)</SelectItem>
+                          {apps.map((app) => (
+                            <SelectItem key={app.id} value={String(app.id)}>
+                              📱 {app.nama}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name='berakhir_pada'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jadwal Berakhir Tayang (Opsional)</FormLabel>
-                    <FormControl>
-                      <Input type='datetime-local' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name='aktif'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-center justify-between rounded-xl border bg-muted/30 p-4 shadow-xs'>
+                      <div className='space-y-0.5 pr-2'>
+                        <FormLabel className='text-xs font-semibold'>
+                          Status Siaran Aktif
+                        </FormLabel>
+                        <FormDescription className='text-[11px] leading-snug'>
+                          Tayangkan banner saat ini di portal pengguna
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='tautan_url'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <ExternalLink className='size-3.5 text-muted-foreground' />
+                        Tautan URL Tindak Lanjut (Opsional)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='https://sumut.bps.go.id/panduan'
+                          className='h-10 text-xs font-mono'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='tautan_teks'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium'>Label Tombol Tautan</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='Contoh: Petunjuk Alternatif, Unduh SOP'
+                          className='h-10 text-xs'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='mulai_pada'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Calendar className='size-3.5 text-muted-foreground' />
+                        Jadwal Mulai Tayang (Opsional)
+                      </FormLabel>
+                      <FormControl>
+                        <Input type='datetime-local' className='h-10 text-xs font-mono' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='berakhir_pada'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-xs font-medium flex items-center gap-1.5'>
+                        <Calendar className='size-3.5 text-muted-foreground' />
+                        Jadwal Berakhir Tayang (Opsional)
+                      </FormLabel>
+                      <FormControl>
+                        <Input type='datetime-local' className='h-10 text-xs font-mono' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
-            <DialogFooter className='gap-2 pt-2'>
+            <DialogFooter className='gap-2.5 pt-4 border-t'>
               <Button
                 type='button'
                 variant='outline'
                 onClick={() => onOpenChange(false)}
                 disabled={form.formState.isSubmitting}
+                className='h-10 px-4 text-xs'
               >
                 Batal
               </Button>
-              <Button type='submit' disabled={form.formState.isSubmitting}>
+              <Button
+                type='submit'
+                disabled={form.formState.isSubmitting}
+                className='h-10 px-5 text-xs font-semibold shadow-xs'
+              >
                 {form.formState.isSubmitting && (
                   <Loader2 className='mr-2 size-4 animate-spin' />
                 )}

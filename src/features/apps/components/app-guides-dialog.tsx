@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, BookOpen, Trash2, Edit2, Loader2, FileText } from 'lucide-react'
+import { Plus, BookOpen, Trash2, Edit2, Loader2, FileText, Info, HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { App, AppGuide } from '@/types/apps'
 import { guidesApi } from '@/features/guides/api/guides-api'
@@ -116,54 +116,60 @@ export function AppGuidesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-3xl max-h-[85vh] overflow-y-auto'>
-        <DialogHeader>
+      <DialogContent className='sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto p-6 md:p-8'>
+        <DialogHeader className='space-y-1.5 pb-2 border-b'>
           <div className='flex items-center gap-2 text-primary'>
             <BookOpen className='size-5' />
-            <DialogTitle>Panduan & FAQ: {app?.nama}</DialogTitle>
+            <DialogTitle className='text-xl font-bold tracking-tight'>
+              Kelola Panduan Pengguna & FAQ: {app?.nama}
+            </DialogTitle>
           </div>
-          <DialogDescription>
-            Kelola petunjuk teknis, FAQ, dan manual penggunaan untuk aplikasi ini.
+          <DialogDescription className='text-xs text-muted-foreground leading-relaxed'>
+            Kelola petunjuk penggunaan teknis, prosedur operasional standar (SOP), dan tanya-jawab umum (FAQ) bagi pengguna aplikasi.
           </DialogDescription>
         </DialogHeader>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 py-2'>
-          {/* List of Guides */}
-          <div className='space-y-3'>
+        <div className='grid grid-cols-1 lg:grid-cols-12 gap-6 py-3'>
+          {/* List of Guides (5 cols) */}
+          <div className='lg:col-span-5 space-y-3'>
             <div className='flex items-center justify-between'>
-              <h4 className='text-sm font-semibold text-foreground flex items-center gap-1.5'>
-                <FileText className='size-4 text-muted-foreground' />
-                Daftar Panduan ({guides.length})
+              <h4 className='text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5'>
+                <FileText className='size-3.5 text-primary' />
+                Daftar Dokumen Panduan ({guides.length})
               </h4>
               <Button
                 variant='outline'
                 size='sm'
                 onClick={resetForm}
-                className='text-xs h-7 px-2'
+                className='text-xs h-8 px-2.5 gap-1'
               >
-                <Plus className='size-3 mr-1' /> Tambah Baru
+                <Plus className='size-3.5' /> Tambah Baru
               </Button>
             </div>
 
             {isLoading ? (
-              <div className='flex items-center justify-center p-8'>
+              <div className='flex items-center justify-center p-12 border rounded-xl bg-muted/10'>
                 <Loader2 className='size-6 animate-spin text-primary' />
               </div>
             ) : guides.length === 0 ? (
-              <div className='p-6 text-center rounded-lg border border-dashed text-xs text-muted-foreground'>
-                Belum ada panduan atau FAQ untuk aplikasi ini.
+              <div className='p-8 text-center rounded-2xl border-2 border-dashed text-xs text-muted-foreground space-y-1.5 bg-muted/10'>
+                <HelpCircle className='size-8 text-muted-foreground/40 mx-auto' />
+                <p className='font-medium text-foreground'>Belum ada panduan terdaftar</p>
+                <p>Klik tombol &quot;Tambah Baru&quot; untuk menyusun panduan pertama.</p>
               </div>
             ) : (
-              <div className='space-y-2 max-h-[50vh] overflow-y-auto pr-1'>
+              <div className='space-y-2.5 max-h-[55vh] overflow-y-auto pr-1'>
                 {guides.map((guide, idx) => (
                   <Card
                     key={guide.id}
-                    className={`transition-colors cursor-pointer border ${
-                      activeGuideId === guide.id ? 'border-primary bg-primary/5' : 'hover:border-muted-foreground/40'
+                    className={`transition-all cursor-pointer border shadow-xs ${
+                      activeGuideId === guide.id
+                        ? 'border-primary ring-1 ring-primary/30 bg-primary/5'
+                        : 'hover:border-muted-foreground/40 bg-card hover:bg-muted/30'
                     }`}
                     onClick={() => handleStartEdit(guide)}
                   >
-                    <CardHeader className='p-3 pb-1'>
+                    <CardHeader className='p-3.5 pb-1'>
                       <div className='flex items-start justify-between gap-2'>
                         <CardTitle className='text-xs font-semibold leading-snug line-clamp-1'>
                           {idx + 1}. {guide.judul}
@@ -172,30 +178,32 @@ export function AppGuidesDialog({
                           <Button
                             variant='ghost'
                             size='icon'
-                            className='size-6 text-muted-foreground hover:text-foreground'
+                            className='size-7 text-muted-foreground hover:text-foreground'
                             onClick={(e) => {
                               e.stopPropagation()
                               handleStartEdit(guide)
                             }}
+                            title='Edit'
                           >
-                            <Edit2 className='size-3' />
+                            <Edit2 className='size-3.5' />
                           </Button>
                           <Button
                             variant='ghost'
                             size='icon'
-                            className='size-6 text-destructive/80 hover:text-destructive'
+                            className='size-7 text-destructive/80 hover:text-destructive hover:bg-destructive/10'
                             onClick={(e) => {
                               e.stopPropagation()
                               handleDelete(guide.id)
                             }}
+                            title='Hapus'
                           >
-                            <Trash2 className='size-3' />
+                            <Trash2 className='size-3.5' />
                           </Button>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className='p-3 pt-0'>
-                      <p className='text-[11px] text-muted-foreground line-clamp-2'>
+                    <CardContent className='p-3.5 pt-0'>
+                      <p className='text-[11px] text-muted-foreground line-clamp-2 leading-relaxed'>
                         {guide.konten}
                       </p>
                     </CardContent>
@@ -205,62 +213,72 @@ export function AppGuidesDialog({
             )}
           </div>
 
-          {/* Form Editor */}
-          <div className='space-y-3 border-l pl-4'>
-            <div className='flex items-center justify-between'>
-              <h4 className='text-sm font-semibold text-foreground'>
-                {activeGuideId ? 'Edit Panduan' : 'Form Panduan Baru'}
+          {/* Form Editor (7 cols) */}
+          <div className='lg:col-span-7 space-y-3 lg:border-l lg:pl-6'>
+            <div className='flex items-center justify-between pb-1'>
+              <h4 className='text-xs font-semibold text-foreground uppercase tracking-wider'>
+                {activeGuideId ? '📝 Edit Konten Panduan' : '✍️ Susun Panduan / FAQ Baru'}
               </h4>
               {activeGuideId && (
-                <Badge variant='outline' className='text-[10px]'>
-                  Mode Edit
+                <Badge variant='outline' className='text-[10px] bg-primary/10 text-primary border-primary/30'>
+                  Mode Mengedit
                 </Badge>
               )}
             </div>
 
-            <form onSubmit={handleSave} className='space-y-3'>
-              <div>
-                <label className='text-xs font-medium mb-1 block'>
+            <form onSubmit={handleSave} className='space-y-4'>
+              <div className='space-y-1.5'>
+                <label className='text-xs font-medium text-foreground block'>
                   Judul Panduan / Pertanyaan FAQ *
                 </label>
                 <Input
                   value={judul}
                   onChange={(e) => setJudul(e.target.value)}
-                  placeholder='Contoh: Cara Login dengan Akun BPS'
+                  placeholder='Contoh: Petunjuk Pengajuan Cuti di SIMPEG'
+                  className='h-10 text-xs'
                   required
                 />
               </div>
 
-              <div>
-                <label className='text-xs font-medium mb-1 block'>
-                  Isi Panduan / Jawaban (Markdown) *
-                </label>
+              <div className='space-y-1.5'>
+                <div className='flex items-center justify-between'>
+                  <label className='text-xs font-medium text-foreground block'>
+                    Isi Panduan / Langkah Operasional (Format Markdown) *
+                  </label>
+                  <span className='text-[10px] text-muted-foreground flex items-center gap-1'>
+                    <Info className='size-3' /> Mendukung Heading, List, Link
+                  </span>
+                </div>
                 <Textarea
                   value={konten}
                   onChange={(e) => setKonten(e.target.value)}
-                  placeholder='Tuliskan langkah-langkah penggunaan atau penjelasan detail...'
-                  rows={8}
+                  placeholder='1. Buka halaman utama aplikasi&#10;2. Masukkan kredensial login SSO&#10;3. Masuk ke menu formulir...'
+                  rows={10}
+                  className='text-xs leading-relaxed font-mono resize-y min-h-[220px]'
                   required
                 />
-                <p className='text-[10px] text-muted-foreground mt-1'>
-                  Mendukung sintaks Markdown (heading, list, bold, link).
-                </p>
               </div>
 
-              <div className='flex items-center justify-end gap-2 pt-2'>
+              <div className='flex items-center justify-end gap-2.5 pt-2 border-t'>
                 {activeGuideId && (
                   <Button
                     type='button'
                     variant='outline'
                     size='sm'
                     onClick={resetForm}
+                    className='h-9 px-3 text-xs'
                   >
-                    Batal
+                    Batal Edit
                   </Button>
                 )}
-                <Button type='submit' size='sm' disabled={isSaving}>
+                <Button
+                  type='submit'
+                  size='sm'
+                  disabled={isSaving}
+                  className='h-9 px-4 text-xs font-semibold shadow-xs'
+                >
                   {isSaving && <Loader2 className='mr-1.5 size-3.5 animate-spin' />}
-                  {activeGuideId ? 'Simpan Perubahan' : 'Tambah Panduan'}
+                  {activeGuideId ? 'Simpan Perubahan' : 'Terbitkan Panduan'}
                 </Button>
               </div>
             </form>
