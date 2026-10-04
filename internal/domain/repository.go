@@ -41,7 +41,7 @@ type AppRepository interface {
 	List(ctx context.Context, filter AppFilter) ([]App, int64, error)
 	GetByID(ctx context.Context, id int, userID *int) (*App, error)
 	GetBySlug(ctx context.Context, slug string, userID *int) (*App, error)
-	Search(ctx context.Context, query string, userID *int, limit int) ([]App, error)
+	Search(ctx context.Context, query string, categoryID *int, roleIDs []int, isPublicOnly bool, userID *int, limit int) ([]App, error)
 	Create(ctx context.Context, app *App, roleIDs []int) error
 	Update(ctx context.Context, app *App, roleIDs []int) error
 	UpdateStatus(ctx context.Context, id int, status string) error

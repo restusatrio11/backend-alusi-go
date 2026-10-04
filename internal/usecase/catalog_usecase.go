@@ -141,6 +141,33 @@ func (u *CatalogUsecase) GetAppBySlug(ctx context.Context, slug string, userID *
 	return u.appRepo.GetBySlug(ctx, slug, userID)
 }
 
-func (u *CatalogUsecase) SearchApps(ctx context.Context, query string, userID *int, limit int) ([]domain.App, error) {
-	return u.appRepo.Search(ctx, query, userID, limit)
+func (u *CatalogUsecase) SearchApps(
+	ctx context.Context,
+	query string,
+	categorySlug string,
+	claims *jwt.SessionClaims,
+	limit int,
+) ([]domain.App, error) {
+	var categoryID *int
+	if categorySlug != "" {
+		cat, err := u.categoryRepo.GetBySlug(ctx, categorySlug)
+		if err == nil && cat != nil {
+			categoryID = &cat.ID
+		}
+	}
+
+	var userID *int
+	var roleIDs []int
+	if claims != nil {
+		userID = &claims.UserID
+		user, err := u.userRepo.GetByID(ctx, claims.UserID)
+		if err == nil && user != nil {
+			for _, r := range user.Roles {
+				roleIDs = append(roleIDs, r.ID)
+			}
+		}
+	}
+
+	isPublicOnly := claims == nil
+	return u.appRepo.Search(ctx, query, categoryID, roleIDs, isPublicOnly, userID, limit)
 }

@@ -207,13 +207,65 @@ func (r *AppRepo) GetBySlug(ctx context.Context, slug string, userID *int) (*dom
 	return app, nil
 }
 
-func (r *AppRepo) Search(ctx context.Context, searchKeyword string, userID *int, limit int) ([]domain.App, error) {
+func (r *AppRepo) Search(
+	ctx context.Context,
+	searchKeyword string,
+	categoryID *int,
+	roleIDs []int,
+	isPublicOnly bool,
+	userID *int,
+	limit int,
+) ([]domain.App, error) {
 	if limit <= 0 {
 		limit = 20
 	}
 
-	favSelect, favJoin, argIdx, args := r.buildFavSnippet(userID, 1)
-	args = append(args, "%"+searchKeyword+"%", searchKeyword, limit)
+	var whereClauses []string
+	var args []interface{}
+	argIdx := 1
+
+	whereClauses = append(whereClauses, "a.aktif = true")
+
+	if isPublicOnly {
+		whereClauses = append(whereClauses, fmt.Sprintf("a.is_public = $%d", argIdx))
+		args = append(args, true)
+		argIdx++
+	}
+
+	if categoryID != nil {
+		whereClauses = append(whereClauses, fmt.Sprintf("a.category_id = $%d", argIdx))
+		args = append(args, *categoryID)
+		argIdx++
+	}
+
+	if len(roleIDs) > 0 {
+		whereClauses = append(whereClauses, fmt.Sprintf(`(
+			a.is_public = true 
+			OR NOT EXISTS (SELECT 1 FROM app_access WHERE app_id = a.id)
+			OR EXISTS (SELECT 1 FROM app_access aa WHERE aa.app_id = a.id AND aa.role_id = ANY($%d))
+		)`, argIdx))
+		args = append(args, roleIDs)
+		argIdx++
+	}
+
+	// Trigram and text match filter
+	whereClauses = append(whereClauses, fmt.Sprintf(`(
+		a.nama ILIKE $%d 
+		OR a.deskripsi ILIKE $%d 
+		OR similarity(a.nama, $%d) > 0.15
+		OR similarity(COALESCE(a.deskripsi, ''), $%d) > 0.15
+	)`, argIdx, argIdx, argIdx+1, argIdx+1))
+	args = append(args, "%"+searchKeyword+"%", searchKeyword)
+	queryArgIdx := argIdx + 1
+	argIdx += 2
+
+	favSelect, favJoin, argIdx, favArgs := r.buildFavSnippet(userID, argIdx)
+	args = append(args, favArgs...)
+
+	args = append(args, limit)
+	limitArgIdx := argIdx
+
+	whereSQL := "WHERE " + strings.Join(whereClauses, " AND ")
 
 	query := fmt.Sprintf(`
 	SELECT 
@@ -225,18 +277,12 @@ func (r *AppRepo) Search(ctx context.Context, searchKeyword string, userID *int,
 	FROM apps a
 	INNER JOIN categories c ON a.category_id = c.id
 	%s
-	WHERE a.aktif = true 
-	  AND (
-		  a.nama ILIKE $%d 
-		  OR a.deskripsi ILIKE $%d 
-		  OR similarity(a.nama, $%d) > 0.15
-		  OR similarity(COALESCE(a.deskripsi, ''), $%d) > 0.15
-	  )
+	%s
 	ORDER BY 
 		similarity(a.nama, $%d) DESC,
 		a.urutan ASC
 	LIMIT $%d
-	`, favSelect, favJoin, argIdx, argIdx, argIdx+1, argIdx+1, argIdx+1, argIdx+2)
+	`, favSelect, favJoin, whereSQL, queryArgIdx, limitArgIdx)
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {

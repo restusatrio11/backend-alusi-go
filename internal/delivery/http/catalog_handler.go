@@ -91,7 +91,7 @@ func (h *CatalogHandler) GetAppBySlug(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Detail aplikasi berhasil dimuat", app, nil)
 }
 
-// SearchApps handles full text and trigram search
+// SearchApps handles full text and trigram search with typo tolerance
 func (h *CatalogHandler) SearchApps(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -99,14 +99,15 @@ func (h *CatalogHandler) SearchApps(c *gin.Context) {
 		return
 	}
 
+	categorySlug := c.Query("category")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	var userID *int
-	if val, exists := c.Get(middleware.CtxUserID); exists {
-		id := val.(int)
-		userID = &id
+
+	var claims *jwt.SessionClaims
+	if val, exists := c.Get(middleware.CtxUserClaims); exists {
+		claims = val.(*jwt.SessionClaims)
 	}
 
-	apps, err := h.catalogUsecase.SearchApps(c.Request.Context(), query, userID, limit)
+	apps, err := h.catalogUsecase.SearchApps(c.Request.Context(), query, categorySlug, claims, limit)
 	if err != nil {
 		response.InternalServerError(c, "Gagal mencari aplikasi: "+err.Error())
 		return
