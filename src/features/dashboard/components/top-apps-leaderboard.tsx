@@ -89,17 +89,17 @@ export function TopAppsLeaderboard({ apps, isLoading }: TopAppsLeaderboardProps)
                         {app.nama}
                       </span>
                       <span className='text-xs font-mono font-medium text-foreground shrink-0 ml-2'>
-                        {app.total_clicks.toLocaleString('id-ID')} klik
+                        {(app.total_clicks ?? 0).toLocaleString('id-ID')} klik
                       </span>
                     </div>
 
                     <div className='flex items-center gap-2'>
                       <Progress
-                        value={app.click_percentage}
+                        value={app.click_percentage ?? 0}
                         className='h-1.5 flex-1'
                       />
                       <span className='text-[10px] text-muted-foreground font-mono shrink-0 w-8 text-right'>
-                        {app.click_percentage.toFixed(0)}%
+                        {(app.click_percentage ?? 0).toFixed(0)}%
                       </span>
                     </div>
                   </div>

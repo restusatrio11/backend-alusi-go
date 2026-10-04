@@ -62,7 +62,8 @@ export function DisruptionsWidget({
               </thead>
               <tbody className='divide-y divide-border/50'>
                 {disruptions.map((item) => {
-                  const isHealthy = item.uptime_percentage >= 99.0
+                  const uptimePct = item.uptime_percentage ?? 100
+                  const isHealthy = uptimePct >= 99.0
                   return (
                     <tr
                       key={item.app_id}
@@ -88,7 +89,7 @@ export function DisruptionsWidget({
                       </td>
 
                       <td className='py-2.5 text-center font-mono'>
-                        {item.total_incidents > 0 ? (
+                        {(item.total_incidents ?? 0) > 0 ? (
                           <Badge
                             variant='secondary'
                             className='text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
@@ -101,7 +102,7 @@ export function DisruptionsWidget({
                       </td>
 
                       <td className='py-2.5 text-center font-mono'>
-                        {item.total_downtime_minutes > 0 ? (
+                        {(item.total_downtime_minutes ?? 0) > 0 ? (
                           <span className='text-rose-600 dark:text-rose-400 font-medium flex items-center justify-center gap-1'>
                             <Clock className='size-3' />
                             {item.total_downtime_minutes} mnt
@@ -119,7 +120,7 @@ export function DisruptionsWidget({
                               : 'text-amber-600 dark:text-amber-400'
                           }
                         >
-                          {item.uptime_percentage.toFixed(1)}%
+                          {uptimePct.toFixed(1)}%
                         </span>
                       </td>
 
