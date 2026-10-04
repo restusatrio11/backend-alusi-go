@@ -20,6 +20,7 @@ func SetupRouter(
 	interactionHandler *InteractionHandler,
 	adminHandler *AdminHandler,
 	monitoringHandler *MonitoringHandler,
+	announcementHandler *AnnouncementHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -84,6 +85,12 @@ func SetupRouter(
 			apps.POST("/:id/favorite", middleware.AuthRequired(jwtService), interactionHandler.ToggleFavorite)
 		}
 
+		// Announcements Routes (Public)
+		announcements := v1.Group("/announcements")
+		{
+			announcements.GET("", announcementHandler.GetActiveAnnouncements)
+		}
+
 		// Public Service Monitoring
 		services := v1.Group("/services")
 		{
@@ -105,6 +112,12 @@ func SetupRouter(
 			admin.POST("/apps/:id/guides", adminHandler.CreateGuide)
 			admin.PUT("/guides/:id", adminHandler.UpdateGuide)
 			admin.DELETE("/guides/:id", adminHandler.DeleteGuide)
+
+			// Announcements Broadcast Management
+			admin.GET("/announcements", announcementHandler.ListAdminAnnouncements)
+			admin.POST("/announcements", announcementHandler.CreateAnnouncement)
+			admin.PUT("/announcements/:id", announcementHandler.UpdateAnnouncement)
+			admin.DELETE("/announcements/:id", announcementHandler.DeleteAnnouncement)
 
 			admin.POST("/categories", adminHandler.CreateCategory)
 			admin.PUT("/categories/:id", adminHandler.UpdateCategory)

@@ -9,12 +9,13 @@ import (
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
 	"backend-alusi-go/internal/delivery/http/response"
+	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/sso"
 )
 
-func TestMonitoringEndpoints_Routing(t *testing.T) {
+func TestAnnouncementEndpoints_Routing(t *testing.T) {
 	cfg := &config.Config{
 		App:  config.AppConfig{Name: "test-app", Env: "test", Debug: true},
 		JWT:  config.JWTConfig{Secret: "test-secret-at-least-32-chars-long", ExpirationHours: 24},
@@ -51,13 +52,13 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 		jwtService,
 	)
 
-	// 1. Test GET /api/v1/services/status -> 200 OK
+	// 1. Test GET /api/v1/announcements -> 200 OK
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/api/v1/services/status", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/announcements", nil)
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK for /services/status, got %d", w.Code)
+		t.Fatalf("Expected 200 OK for /announcements, got %d", w.Code)
 	}
 
 	var resp response.StandardResponse
@@ -66,15 +67,20 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	}
 
 	if !resp.Success {
-		t.Errorf("Expected success = true for /services/status")
+		t.Errorf("Expected success = true for /announcements")
+	}
+}
+
+func TestAnnouncementDomain(t *testing.T) {
+	ann := domain.Announcement{
+		ID:       1,
+		Judul:    "Pemeliharaan Server Rutin",
+		Konten:   "Aplikasi SIMBATIK akan offline pada pukul 22:00",
+		Tipe:     "maintenance",
+		IsActive: true,
 	}
 
-	// 2. Test GET /api/v1/apps/simbatik/status-history -> 200 OK (empty list when offline)
-	w2 := httptest.NewRecorder()
-	req2, _ := http.NewRequest(http.MethodGet, "/api/v1/apps/simbatik/status-history", nil)
-	router.ServeHTTP(w2, req2)
-
-	if w2.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK for /apps/simbatik/status-history, got %d", w2.Code)
+	if ann.Judul != "Pemeliharaan Server Rutin" || ann.Tipe != "maintenance" {
+		t.Errorf("Unexpected announcement data")
 	}
 }

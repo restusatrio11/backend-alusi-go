@@ -43,8 +43,10 @@ func TestCatalogEndpoints_Routing(t *testing.T) {
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
+	announcementUsecase := usecase.NewAnnouncementUsecase(nil, nil)
+	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 
-	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, catalogHandler, interactionHandler, adminHandler, monitoringHandler, jwtService)
+	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, catalogHandler, interactionHandler, adminHandler, monitoringHandler, announcementHandler, jwtService)
 
 	// 1. Test GET /api/v1/apps/search with empty query -> 400 Bad Request
 	w := httptest.NewRecorder()
