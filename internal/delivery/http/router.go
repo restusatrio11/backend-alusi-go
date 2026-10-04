@@ -23,6 +23,7 @@ func SetupRouter(
 	announcementHandler *AnnouncementHandler,
 	feedbackHandler *FeedbackHandler,
 	analyticsHandler *AnalyticsHandler,
+	auditHandler *AuditHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -119,7 +120,7 @@ func SetupRouter(
 				analytics.GET("/disruptions", analyticsHandler.GetDisruptions)
 			}
 
-			// Apps & Category CRUD (Admin Only)
+			// Apps, Audit & Category CRUD (Admin Only)
 			adminApps := admin.Group("")
 			adminApps.Use(middleware.RequireRoles("admin"))
 			{
@@ -143,6 +144,9 @@ func SetupRouter(
 				// Feedback & Issue Reports Tracking
 				adminApps.GET("/feedbacks", feedbackHandler.ListAdminFeedbacks)
 				adminApps.PUT("/feedbacks/:id", feedbackHandler.UpdateFeedbackStatus)
+
+				// Audit Logs Trail
+				adminApps.GET("/audit-logs", auditHandler.ListAuditLogs)
 
 				adminApps.POST("/categories", adminHandler.CreateCategory)
 				adminApps.PUT("/categories/:id", adminHandler.UpdateCategory)

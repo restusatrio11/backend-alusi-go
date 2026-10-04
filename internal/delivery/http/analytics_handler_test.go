@@ -43,6 +43,8 @@ func TestAnalyticsEndpoints_Routing(t *testing.T) {
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
+	auditUsecase := usecase.NewAuditUsecase(nil)
+	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -55,6 +57,7 @@ func TestAnalyticsEndpoints_Routing(t *testing.T) {
 		announcementHandler,
 		feedbackHandler,
 		analyticsHandler,
+		auditHandler,
 		jwtService,
 	)
 

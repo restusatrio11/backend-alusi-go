@@ -1,7 +1,6 @@
 package http_test
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +15,7 @@ import (
 	"backend-alusi-go/pkg/sso"
 )
 
-func TestFeedbackEndpoints_Routing(t *testing.T) {
+func TestAuditEndpoints_Routing(t *testing.T) {
 	cfg := &config.Config{
 		App:  config.AppConfig{Name: "test-app", Env: "test", Debug: true},
 		JWT:  config.JWTConfig{Secret: "test-secret-at-least-32-chars-long", ExpirationHours: 24},
@@ -33,6 +32,8 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 	announcementUsecase := usecase.NewAnnouncementUsecase(nil, nil)
 	feedbackUsecase := usecase.NewFeedbackUsecase(nil, nil)
+	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
+	auditUsecase := usecase.NewAuditUsecase(nil)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
@@ -42,9 +43,7 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
-	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
-	auditUsecase := usecase.NewAuditUsecase(nil)
 	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
 
 	router := deliveryHTTP.SetupRouter(
@@ -62,20 +61,30 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 		jwtService,
 	)
 
-	// 1. Test POST /api/v1/feedbacks -> 201 Created
-	payload := map[string]interface{}{
-		"kategori": "kendala",
-		"pesan":    "Tidak bisa mengakses halaman login SIMBATIK",
+	// Generate admin token
+	adminUser := &domain.User{
+		ID:       1,
+		SSOSub:   "19950101",
+		Nama:     "Admin BPS",
+		Email:    "admin@bps.go.id",
+		UserType: "internal",
+		Roles: []domain.Role{
+			{ID: 1, Nama: "admin"},
+		},
 	}
-	body, _ := json.Marshal(payload)
+	adminToken, _, err := jwtService.GenerateSessionToken(adminUser, "1200")
+	if err != nil {
+		t.Fatalf("Failed to generate admin token: %v", err)
+	}
 
+	// 1. Test GET /api/v1/admin/audit-logs with Admin Token -> 200 OK
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodPost, "/api/v1/feedbacks", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/audit-logs", nil)
+	req.Header.Set("Authorization", "Bearer "+adminToken)
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusCreated {
-		t.Fatalf("Expected 201 Created for POST /feedbacks, got %d", w.Code)
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for /admin/audit-logs, got %d", w.Code)
 	}
 
 	var resp response.StandardResponse
@@ -84,19 +93,6 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 	}
 
 	if !resp.Success {
-		t.Errorf("Expected success = true for POST /feedbacks")
-	}
-}
-
-func TestFeedbackDomain(t *testing.T) {
-	fb := domain.Feedback{
-		ID:       1,
-		Kategori: "kendala",
-		Pesan:    "Error loading map",
-		Status:   "pending",
-	}
-
-	if fb.Kategori != "kendala" || fb.Status != "pending" {
-		t.Errorf("Unexpected feedback domain data")
+		t.Errorf("Expected success = true for /admin/audit-logs")
 	}
 }

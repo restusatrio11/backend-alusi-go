@@ -63,3 +63,14 @@ type AuditLog struct {
 	UserAgent     *string                `json:"user_agent,omitempty"`
 	CreatedAt     time.Time              `json:"created_at"`
 }
+
+type AuditLogFilter struct {
+	UserID    *int
+	Action    string
+	Entity    string
+	EntityID  *string
+	StartDate *time.Time
+	EndDate   *time.Time
+	Page      int
+	PerPage   int
+}
