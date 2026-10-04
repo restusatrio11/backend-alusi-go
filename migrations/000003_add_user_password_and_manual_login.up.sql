@@ -16,12 +16,12 @@ VALUES (
     'Administrator ALUSI',
     'admin@bps.go.id',
     'active',
-    '$2a$10$wTf7Jz/3NqYhX4Y.qCqv1e8K1zGzE9j7VwK7uX4Z7vB9uB3Y8C3v6', -- bcrypt hash for 'AdminBPS1200!'
+    '$2a$10$CtL0O5Pagh8WXov1KJIqVOmf7w0WxX.EoccJgsFoyJ/JcQNMShZHq', -- bcrypt hash for 'AdminBPS1200!'
     'internal'
 )
 ON CONFLICT (email) DO UPDATE 
-SET username = COALESCE(users.username, 'admin'),
-    password_hash = COALESCE(users.password_hash, '$2a$10$wTf7Jz/3NqYhX4Y.qCqv1e8K1zGzE9j7VwK7uX4Z7vB9uB3Y8C3v6');
+SET username = 'admin',
+    password_hash = '$2a$10$CtL0O5Pagh8WXov1KJIqVOmf7w0WxX.EoccJgsFoyJ/JcQNMShZHq';
 
 -- Ensure admin role is assigned to the default admin user
 INSERT INTO user_roles (user_id, role_id)
