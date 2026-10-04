@@ -45,6 +45,9 @@ func main() {
 	cancelInit()
 
 	var userRepo *postgres.UserRepo
+	var categoryRepo *postgres.CategoryRepo
+	var appRepo *postgres.AppRepo
+
 	if err != nil {
 		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
 	} else {
@@ -55,17 +58,21 @@ func main() {
 			log.Info().Msg("All database migrations verified and applied")
 		}
 		userRepo = postgres.NewUserRepo(db.Pool)
+		categoryRepo = postgres.NewCategoryRepo(db.Pool)
+		appRepo = postgres.NewAppRepo(db.Pool)
 	}
 
 	// 4. Initialize Services & Usecases
 	jwtService := jwt.NewJWTService(&cfg.JWT)
 	ssoClient := sso.NewClient(&cfg.SSO)
 	authUsecase := usecase.NewAuthUsecase(userRepo, ssoClient, jwtService)
+	catalogUsecase := usecase.NewCatalogUsecase(categoryRepo, appRepo, userRepo)
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
-	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, jwtService)
+	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
+	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, catalogHandler, jwtService)
 
 	// 6. Configure HTTP Server
 	serverAddr := fmt.Sprintf(":%s", cfg.App.Port)

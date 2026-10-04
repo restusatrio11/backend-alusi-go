@@ -16,6 +16,7 @@ func SetupRouter(
 	cfg *config.Config,
 	healthHandler *HealthHandler,
 	authHandler *AuthHandler,
+	catalogHandler *CatalogHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -37,7 +38,7 @@ func SetupRouter(
 	router.Use(middleware.CORS(cfg.CORS.AllowedOrigins))
 	router.Use(middleware.RateLimit(ipLimiter))
 
-	// Health check route (unlimited/fast)
+	// Health check route
 	router.GET("/healthz", healthHandler.Check)
 
 	// API v1 group
@@ -51,6 +52,22 @@ func SetupRouter(
 			auth.GET("/logout", authHandler.Logout)
 			auth.POST("/logout", authHandler.Logout)
 			auth.GET("/me", middleware.AuthRequired(jwtService), authHandler.Me)
+		}
+
+		// Category Routes
+		categories := v1.Group("/categories")
+		{
+			categories.GET("", catalogHandler.ListCategories)
+			categories.GET("/:slug", catalogHandler.GetCategoryBySlug)
+		}
+
+		// Application Catalog Routes (Supports optional auth for personalized roles/favorites)
+		apps := v1.Group("/apps")
+		apps.Use(middleware.OptionalAuth(jwtService))
+		{
+			apps.GET("", catalogHandler.ListApps)
+			apps.GET("/search", catalogHandler.SearchApps)
+			apps.GET("/:slug", catalogHandler.GetAppBySlug)
 		}
 	}
 
