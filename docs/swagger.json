@@ -2245,6 +2245,26 @@
                 }
             }
         },
+        "/services/realtime-status": {
+            "get": {
+                "description": "Membuka koneksi HTTP streaming Server-Sent Events (SSE) untuk menerima notifikasi realtime perubahan status layanan aplikasi secara instan",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Realtime Server-Sent Events (SSE) Stream Status Layanan",
+                "responses": {
+                    "200": {
+                        "description": "text/event-stream data stream",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/services/status": {
             "get": {
                 "description": "Mengambil status operasional, SLA uptime persentase, dan latensi rata-rata seluruh aplikasi",

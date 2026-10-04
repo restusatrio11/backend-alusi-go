@@ -41,7 +41,7 @@ func TestAnnouncementEndpoints_Routing(t *testing.T) {
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
-	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
+	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase, nil)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
 	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)

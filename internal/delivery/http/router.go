@@ -127,6 +127,7 @@ func SetupRouter(
 		services := v1.Group("/services")
 		{
 			services.GET("/status", monitoringHandler.GetServiceUptimeSummary)
+			services.GET("/realtime-status", monitoringHandler.StreamStatusEvents)
 		}
 
 		// Admin & Pimpinan Management Routes

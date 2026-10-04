@@ -1724,6 +1724,20 @@ paths:
       summary: Metadata Katalog Open API (Satu Data Indonesia / DCAT-AP)
       tags:
       - Open Data / SDI
+  /services/realtime-status:
+    get:
+      description: Membuka koneksi HTTP streaming Server-Sent Events (SSE) untuk menerima
+        notifikasi realtime perubahan status layanan aplikasi secara instan
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: text/event-stream data stream
+          schema:
+            type: string
+      summary: Realtime Server-Sent Events (SSE) Stream Status Layanan
+      tags:
+      - Monitoring
   /services/status:
     get:
       description: Mengambil status operasional, SLA uptime persentase, dan latensi

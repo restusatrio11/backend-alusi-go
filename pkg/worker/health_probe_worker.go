@@ -9,6 +9,7 @@ import (
 
 	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/repository/postgres"
+	"backend-alusi-go/pkg/realtime"
 
 	"github.com/rs/zerolog/log"
 )
@@ -16,6 +17,7 @@ import (
 type HealthProbeWorker struct {
 	appRepo         *postgres.AppRepo
 	statusCheckRepo *postgres.StatusCheckRepo
+	sseHub          *realtime.SSEHub
 	httpClient      *http.Client
 	interval        time.Duration
 	ctx             context.Context
@@ -25,6 +27,7 @@ type HealthProbeWorker struct {
 func NewHealthProbeWorker(
 	appRepo *postgres.AppRepo,
 	statusCheckRepo *postgres.StatusCheckRepo,
+	sseHub *realtime.SSEHub,
 	interval time.Duration,
 ) *HealthProbeWorker {
 	if interval <= 0 {
@@ -35,10 +38,10 @@ func NewHealthProbeWorker(
 
 	// Custom HTTP client with timeout and TLS ignore for internal self-signed certs
 	tr := &http.Transport{
-		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
-		MaxIdleConns:        50,
-		IdleConnTimeout:     30 * time.Second,
-		DisableKeepAlives:   false,
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: true},
+		MaxIdleConns:      50,
+		IdleConnTimeout:   30 * time.Second,
+		DisableKeepAlives: false,
 	}
 
 	httpClient := &http.Client{
@@ -49,11 +52,17 @@ func NewHealthProbeWorker(
 	return &HealthProbeWorker{
 		appRepo:         appRepo,
 		statusCheckRepo: statusCheckRepo,
+		sseHub:          sseHub,
 		httpClient:      httpClient,
 		interval:        interval,
 		ctx:             ctx,
 		cancel:          cancel,
 	}
+}
+
+// SetSSEHub updates the realtime SSE hub reference
+func (w *HealthProbeWorker) SetSSEHub(hub *realtime.SSEHub) {
+	w.sseHub = hub
 }
 
 // Start initiates the recurring probe loop
@@ -156,6 +165,35 @@ func (w *HealthProbeWorker) ProbeSingleApp(ctx context.Context, app *domain.App)
 	// Update app service status if not locked in maintenance
 	if w.appRepo != nil && app.StatusLayanan != "maintenance" {
 		_ = w.appRepo.UpdateStatus(ctx, app.ID, statusResult)
+	}
+
+	// Realtime broadcast via SSE Hub
+	if w.sseHub != nil {
+		eventType := "probe_result"
+		if statusResult != app.StatusLayanan {
+			eventType = "status_change"
+		}
+		var codeVal int
+		if statusCode != nil {
+			codeVal = *statusCode
+		}
+		var msgVal string
+		if errMsg != nil {
+			msgVal = *errMsg
+		}
+
+		w.sseHub.BroadcastStatusEvent(realtime.StatusEvent{
+			Type:           eventType,
+			AppID:          app.ID,
+			AppSlug:        app.Slug,
+			Nama:           app.Nama,
+			StatusLayanan:  statusResult,
+			PreviousStatus: app.StatusLayanan,
+			ResponseTimeMs: latencyMS,
+			StatusCode:     codeVal,
+			Message:        msgVal,
+			Timestamp:      time.Now(),
+		})
 	}
 
 	return check, nil

@@ -19,6 +19,7 @@ import (
 	"backend-alusi-go/pkg/exporter"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/logger"
+	"backend-alusi-go/pkg/realtime"
 	"backend-alusi-go/pkg/sso"
 	"backend-alusi-go/pkg/worker"
 
@@ -103,7 +104,9 @@ func main() {
 
 	// 4. Initialize Background Workers & Services
 	clickWorker := worker.NewClickWorker(clickLogRepo, 1000, 3)
-	healthProbeWorker := worker.NewHealthProbeWorker(appRepo, statusCheckRepo, 5*time.Minute)
+	sseHub := realtime.NewSSEHub()
+	sseHub.Start()
+	healthProbeWorker := worker.NewHealthProbeWorker(appRepo, statusCheckRepo, sseHub, 5*time.Minute)
 	jwtService := jwt.NewJWTService(&cfg.JWT)
 	ssoClient := sso.NewClient(&cfg.SSO)
 
@@ -127,7 +130,7 @@ func main() {
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
-	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
+	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase, sseHub)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
@@ -180,9 +183,10 @@ func main() {
 
 	log.Warn().Msg("Shutdown signal received, shutting down gracefully...")
 
-	// Stop background workers
+	// Stop background workers and realtime hub
 	clickWorker.Stop()
 	healthProbeWorker.Stop()
+	sseHub.Stop()
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

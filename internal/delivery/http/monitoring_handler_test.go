@@ -1,10 +1,13 @@
 package http_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
@@ -13,6 +16,7 @@ import (
 	"backend-alusi-go/pkg/ai"
 	"backend-alusi-go/pkg/exporter"
 	"backend-alusi-go/pkg/jwt"
+	"backend-alusi-go/pkg/realtime"
 	"backend-alusi-go/pkg/sso"
 )
 
@@ -35,12 +39,16 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	feedbackUsecase := usecase.NewFeedbackUsecase(nil, nil)
 	reportUsecase := usecase.NewReportUsecase(nil, nil, exporter.NewReportExporter())
 
+	sseHub := realtime.NewSSEHub()
+	sseHub.Start()
+	defer sseHub.Stop()
+
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
-	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
+	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase, sseHub)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
 	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
@@ -93,5 +101,26 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 
 	if w2.Code != http.StatusOK {
 		t.Fatalf("Expected 200 OK for /apps/simbatik/status-history, got %d", w2.Code)
+	}
+
+	// 3. Test GET /api/v1/services/realtime-status -> SSE text/event-stream connection
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	w3 := httptest.NewRecorder()
+	req3, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/api/v1/services/realtime-status", nil)
+	router.ServeHTTP(w3, req3)
+
+	if w3.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for /services/realtime-status, got %d", w3.Code)
+	}
+
+	contentType := w3.Header().Get("Content-Type")
+	if !strings.Contains(contentType, "text/event-stream") {
+		t.Errorf("Expected Content-Type text/event-stream, got %s", contentType)
+	}
+
+	if !strings.Contains(w3.Body.String(), "event: snapshot") {
+		t.Errorf("Expected initial snapshot event in SSE stream, got: %s", w3.Body.String())
 	}
 }
