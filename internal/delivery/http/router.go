@@ -1,11 +1,14 @@
 package http
 
 import (
+	"time"
+
 	"backend-alusi-go/config"
 	"backend-alusi-go/internal/delivery/http/middleware"
 	"backend-alusi-go/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 )
 
 // SetupRouter initializes and configures the Gin engine
@@ -23,13 +26,18 @@ func SetupRouter(
 
 	router := gin.New()
 
-	// Base Middlewares
+	// Rate Limiter: 100 req/sec with burst 50 per IP
+	ipLimiter := middleware.NewIPRateLimiter(rate.Limit(100), 50, 5*time.Minute)
+
+	// Global Base Middlewares
 	router.Use(middleware.RequestID())
+	router.Use(middleware.SecurityHeaders())
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recovery())
 	router.Use(middleware.CORS(cfg.CORS.AllowedOrigins))
+	router.Use(middleware.RateLimit(ipLimiter))
 
-	// Health check route
+	// Health check route (unlimited/fast)
 	router.GET("/healthz", healthHandler.Check)
 
 	// API v1 group
