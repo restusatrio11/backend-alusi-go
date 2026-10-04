@@ -18,6 +18,7 @@ import (
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/logger"
 	"backend-alusi-go/pkg/sso"
+	"backend-alusi-go/pkg/worker"
 
 	"github.com/rs/zerolog/log"
 )
@@ -47,6 +48,8 @@ func main() {
 	var userRepo *postgres.UserRepo
 	var categoryRepo *postgres.CategoryRepo
 	var appRepo *postgres.AppRepo
+	var favoriteRepo *postgres.FavoriteRepo
+	var clickLogRepo *postgres.ClickLogRepo
 
 	if err != nil {
 		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
@@ -60,19 +63,33 @@ func main() {
 		userRepo = postgres.NewUserRepo(db.Pool)
 		categoryRepo = postgres.NewCategoryRepo(db.Pool)
 		appRepo = postgres.NewAppRepo(db.Pool)
+		favoriteRepo = postgres.NewFavoriteRepo(db.Pool)
+		clickLogRepo = postgres.NewClickLogRepo(db.Pool)
 	}
 
-	// 4. Initialize Services & Usecases
+	// 4. Initialize Background Workers & Services
+	clickWorker := worker.NewClickWorker(clickLogRepo, 1000, 3)
 	jwtService := jwt.NewJWTService(&cfg.JWT)
 	ssoClient := sso.NewClient(&cfg.SSO)
+
 	authUsecase := usecase.NewAuthUsecase(userRepo, ssoClient, jwtService)
 	catalogUsecase := usecase.NewCatalogUsecase(categoryRepo, appRepo, userRepo)
+	interactionUsecase := usecase.NewInteractionUsecase(favoriteRepo, clickLogRepo, appRepo, clickWorker)
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
-	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, catalogHandler, jwtService)
+	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
+
+	router := deliveryHTTP.SetupRouter(
+		cfg,
+		healthHandler,
+		authHandler,
+		catalogHandler,
+		interactionHandler,
+		jwtService,
+	)
 
 	// 6. Configure HTTP Server
 	serverAddr := fmt.Sprintf(":%s", cfg.App.Port)
@@ -98,6 +115,9 @@ func main() {
 	<-quit
 
 	log.Warn().Msg("Shutdown signal received, shutting down gracefully...")
+
+	// Stop background click worker
+	clickWorker.Stop()
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

@@ -17,6 +17,7 @@ func SetupRouter(
 	healthHandler *HealthHandler,
 	authHandler *AuthHandler,
 	catalogHandler *CatalogHandler,
+	interactionHandler *InteractionHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -54,6 +55,14 @@ func SetupRouter(
 			auth.GET("/me", middleware.AuthRequired(jwtService), authHandler.Me)
 		}
 
+		// User Personalization Routes
+		users := v1.Group("/users")
+		users.Use(middleware.AuthRequired(jwtService))
+		{
+			users.GET("/me/favorites", interactionHandler.ListFavorites)
+			users.GET("/me/recents", interactionHandler.ListRecents)
+		}
+
 		// Category Routes
 		categories := v1.Group("/categories")
 		{
@@ -61,13 +70,14 @@ func SetupRouter(
 			categories.GET("/:slug", catalogHandler.GetCategoryBySlug)
 		}
 
-		// Application Catalog Routes (Supports optional auth for personalized roles/favorites)
+		// Application Catalog & Interaction Routes
 		apps := v1.Group("/apps")
-		apps.Use(middleware.OptionalAuth(jwtService))
 		{
-			apps.GET("", catalogHandler.ListApps)
-			apps.GET("/search", catalogHandler.SearchApps)
-			apps.GET("/:slug", catalogHandler.GetAppBySlug)
+			apps.GET("", middleware.OptionalAuth(jwtService), catalogHandler.ListApps)
+			apps.GET("/search", middleware.OptionalAuth(jwtService), catalogHandler.SearchApps)
+			apps.GET("/:slug", middleware.OptionalAuth(jwtService), catalogHandler.GetAppBySlug)
+			apps.POST("/:id/click", middleware.OptionalAuth(jwtService), interactionHandler.RecordClick)
+			apps.POST("/:id/favorite", middleware.AuthRequired(jwtService), interactionHandler.ToggleFavorite)
 		}
 	}
 
