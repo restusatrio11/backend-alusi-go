@@ -1,15 +1,13 @@
 package http_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
-	"backend-alusi-go/internal/delivery/http/response"
+	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/ai"
 	"backend-alusi-go/pkg/exporter"
@@ -17,7 +15,7 @@ import (
 	"backend-alusi-go/pkg/sso"
 )
 
-func TestAIEndpoints_Routing(t *testing.T) {
+func TestReportEndpoints_Routing(t *testing.T) {
 	cfg := &config.Config{
 		App:  config.AppConfig{Name: "test-app", Env: "test", Debug: true},
 		JWT:  config.JWTConfig{Secret: "test-secret-at-least-32-chars-long", ExpirationHours: 24},
@@ -36,9 +34,10 @@ func TestAIEndpoints_Routing(t *testing.T) {
 	feedbackUsecase := usecase.NewFeedbackUsecase(nil, nil)
 	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
 	auditUsecase := usecase.NewAuditUsecase(nil)
-	aiService := ai.NewAssistantService(nil, nil, nil)
-	aiUsecase := usecase.NewAIUsecase(aiService, nil)
-	reportUsecase := usecase.NewReportUsecase(nil, nil, exporter.NewReportExporter())
+	aiUsecase := usecase.NewAIUsecase(ai.NewAssistantService(nil, nil, nil), nil)
+
+	reportExporter := exporter.NewReportExporter()
+	reportUsecase := usecase.NewReportUsecase(nil, nil, reportExporter)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
@@ -70,27 +69,34 @@ func TestAIEndpoints_Routing(t *testing.T) {
 		jwtService,
 	)
 
-	// 1. Test POST /api/v1/ai/ask -> 200 OK
-	payload := map[string]interface{}{
-		"question": "Aplikasi apa yang digunakan untuk input presensi dan cuti pegawai?",
-	}
-	body, _ := json.Marshal(payload)
-
+	// 1. Test GET /api/v1/openapi/apps -> 200 OK
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodPost, "/api/v1/ai/ask", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/openapi/apps", nil)
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK for /api/v1/ai/ask, got %d", w.Code)
+		t.Fatalf("Expected 200 OK for /openapi/apps, got %d", w.Code)
 	}
 
-	var resp response.StandardResponse
-	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
-		t.Fatalf("Failed to parse JSON response: %v", err)
+	// 2. Test Admin Export with Admin Token
+	adminUser := &domain.User{
+		ID:       1,
+		SSOSub:   "19950101",
+		Nama:     "Admin BPS",
+		Email:    "admin@bps.go.id",
+		UserType: "internal",
+		Roles: []domain.Role{
+			{ID: 1, Nama: "admin"},
+		},
 	}
+	adminToken, _, _ := jwtService.GenerateSessionToken(adminUser, "1200")
 
-	if !resp.Success {
-		t.Errorf("Expected success = true for /api/v1/ai/ask")
+	w2 := httptest.NewRecorder()
+	req2, _ := http.NewRequest(http.MethodGet, "/api/v1/admin/reports/catalog/export", nil)
+	req2.Header.Set("Authorization", "Bearer "+adminToken)
+	router.ServeHTTP(w2, req2)
+
+	if w2.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for /admin/reports/catalog/export, got %d", w2.Code)
 	}
 }

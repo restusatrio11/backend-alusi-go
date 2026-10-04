@@ -25,6 +25,7 @@ func SetupRouter(
 	analyticsHandler *AnalyticsHandler,
 	auditHandler *AuditHandler,
 	aiHandler *AIHandler,
+	reportHandler *ReportHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -107,6 +108,12 @@ func SetupRouter(
 			ai.POST("/ask", middleware.OptionalAuth(jwtService), aiHandler.Ask)
 		}
 
+		// Open API Standard Metadata (Public / Satu Data Indonesia)
+		openapi := v1.Group("/openapi")
+		{
+			openapi.GET("/apps", reportHandler.GetOpenAPICatalog)
+		}
+
 		// Public Service Monitoring
 		services := v1.Group("/services")
 		{
@@ -125,6 +132,13 @@ func SetupRouter(
 				analytics.GET("/top-apps", analyticsHandler.GetTopApps)
 				analytics.GET("/trends", analyticsHandler.GetTrends)
 				analytics.GET("/disruptions", analyticsHandler.GetDisruptions)
+			}
+
+			// Executive Report Exports (CSV/Excel)
+			reports := admin.Group("/reports")
+			{
+				reports.GET("/analytics/export", reportHandler.ExportAnalyticsCSV)
+				reports.GET("/catalog/export", reportHandler.ExportCatalogCSV)
 			}
 
 			// Apps, Audit & Category CRUD (Admin Only)

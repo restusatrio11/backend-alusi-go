@@ -12,6 +12,7 @@ import (
 	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/ai"
+	"backend-alusi-go/pkg/exporter"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/sso"
 
@@ -54,8 +55,10 @@ func TestCatalogEndpoints_Routing(t *testing.T) {
 	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
 	aiUsecase := usecase.NewAIUsecase(ai.NewAssistantService(nil, nil, nil), nil)
 	aiHandler := deliveryHTTP.NewAIHandler(aiUsecase)
+	reportUsecase := usecase.NewReportUsecase(nil, nil, exporter.NewReportExporter())
+	reportHandler := deliveryHTTP.NewReportHandler(reportUsecase)
 
-	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, catalogHandler, interactionHandler, adminHandler, monitoringHandler, announcementHandler, feedbackHandler, analyticsHandler, auditHandler, aiHandler, jwtService)
+	router := deliveryHTTP.SetupRouter(cfg, healthHandler, authHandler, catalogHandler, interactionHandler, adminHandler, monitoringHandler, announcementHandler, feedbackHandler, analyticsHandler, auditHandler, aiHandler, reportHandler, jwtService)
 
 	// 1. Test GET /api/v1/apps/search with empty query -> 400 Bad Request
 	w := httptest.NewRecorder()

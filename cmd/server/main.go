@@ -16,6 +16,7 @@ import (
 	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/ai"
 	"backend-alusi-go/pkg/database"
+	"backend-alusi-go/pkg/exporter"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/logger"
 	"backend-alusi-go/pkg/sso"
@@ -97,6 +98,8 @@ func main() {
 	auditUsecase := usecase.NewAuditUsecase(auditLogRepo)
 	aiService := ai.NewAssistantService(appRepo, categoryRepo, guideRepo)
 	aiUsecase := usecase.NewAIUsecase(aiService, userRepo)
+	reportExporter := exporter.NewReportExporter()
+	reportUsecase := usecase.NewReportUsecase(appRepo, analyticsRepo, reportExporter)
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
@@ -110,6 +113,7 @@ func main() {
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
 	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
 	aiHandler := deliveryHTTP.NewAIHandler(aiUsecase)
+	reportHandler := deliveryHTTP.NewReportHandler(reportUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -124,6 +128,7 @@ func main() {
 		analyticsHandler,
 		auditHandler,
 		aiHandler,
+		reportHandler,
 		jwtService,
 	)
 
