@@ -60,10 +60,19 @@ export function UserRoleManagement() {
         rbacApi.getRoles(),
       ])
 
-      setUsers(usersData.users)
-      setRoles(rolesData)
+      setUsers(usersData?.users || [])
+      const safeRoles = (rolesData || []).map((r) => ({
+        ...r,
+        permissions: r.permissions || [],
+      }))
+      setRoles(safeRoles)
     } catch (err: any) {
-      toast.error('Gagal memuat daftar pengguna: ' + (err.message || 'Terjadi kesalahan'))
+      const errorMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error?.message ||
+        err.message ||
+        'Terjadi kesalahan saat memuat data pengguna'
+      toast.error('Gagal memuat daftar pengguna: ' + errorMsg)
     } finally {
       setIsLoading(false)
     }

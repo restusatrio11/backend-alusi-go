@@ -102,18 +102,29 @@ export function RolesPermissionMatrix() {
         rbacApi.getPermissions(),
       ])
 
-      setRoles(fetchedRoles)
-      setAllPermissions(fetchedPerms)
+      const safeRoles = (fetchedRoles || []).map((r) => ({
+        ...r,
+        permissions: r.permissions || [],
+      }))
+      const safePerms = fetchedPerms || []
 
-      if (fetchedRoles.length > 0) {
-        const defaultRole = fetchedRoles[0]
+      setRoles(safeRoles)
+      setAllPermissions(safePerms)
+
+      if (safeRoles.length > 0) {
+        const defaultRole = safeRoles[0]
         setSelectedRoleId(defaultRole.id)
-        const currentPermCodes = new Set(defaultRole.permissions.map((p) => p.kode))
+        const currentPermCodes = new Set((defaultRole.permissions || []).map((p) => p.kode))
         setSelectedCodes(new Set(currentPermCodes))
         setInitialCodes(new Set(currentPermCodes))
       }
     } catch (err: any) {
-      toast.error('Gagal memuat data role dan permission: ' + (err.message || 'Terjadi kesalahan'))
+      const errorMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error?.message ||
+        err.message ||
+        'Terjadi kesalahan saat memuat data'
+      toast.error('Gagal memuat data role dan permission: ' + errorMsg)
     } finally {
       setIsLoading(false)
     }
@@ -129,7 +140,7 @@ export function RolesPermissionMatrix() {
     setSelectedRoleId(roleId)
     const targetRole = roles.find((r) => r.id === roleId)
     if (targetRole) {
-      const codes = new Set(targetRole.permissions.map((p) => p.kode))
+      const codes = new Set((targetRole.permissions || []).map((p) => p.kode))
       setSelectedCodes(new Set(codes))
       setInitialCodes(new Set(codes))
     }
