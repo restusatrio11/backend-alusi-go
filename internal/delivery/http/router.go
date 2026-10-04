@@ -19,6 +19,7 @@ func SetupRouter(
 	catalogHandler *CatalogHandler,
 	interactionHandler *InteractionHandler,
 	adminHandler *AdminHandler,
+	monitoringHandler *MonitoringHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -77,8 +78,15 @@ func SetupRouter(
 			apps.GET("", middleware.OptionalAuth(jwtService), catalogHandler.ListApps)
 			apps.GET("/search", middleware.OptionalAuth(jwtService), catalogHandler.SearchApps)
 			apps.GET("/:slug", middleware.OptionalAuth(jwtService), catalogHandler.GetAppBySlug)
+			apps.GET("/:slug/status-history", monitoringHandler.GetAppStatusHistory)
 			apps.POST("/:id/click", middleware.OptionalAuth(jwtService), interactionHandler.RecordClick)
 			apps.POST("/:id/favorite", middleware.AuthRequired(jwtService), interactionHandler.ToggleFavorite)
+		}
+
+		// Public Service Monitoring
+		services := v1.Group("/services")
+		{
+			services.GET("/status", monitoringHandler.GetServiceUptimeSummary)
 		}
 
 		// Admin Management Routes (Protected by Admin Role)
@@ -90,6 +98,7 @@ func SetupRouter(
 			admin.PUT("/apps/reorder", adminHandler.ReorderApps)
 			admin.PUT("/apps/:id", adminHandler.UpdateApp)
 			admin.DELETE("/apps/:id", adminHandler.DeleteApp)
+			admin.POST("/apps/:id/probe", monitoringHandler.ManualProbeApp)
 
 			admin.POST("/categories", adminHandler.CreateCategory)
 			admin.PUT("/categories/:id", adminHandler.UpdateCategory)

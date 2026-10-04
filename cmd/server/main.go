@@ -50,6 +50,7 @@ func main() {
 	var appRepo *postgres.AppRepo
 	var favoriteRepo *postgres.FavoriteRepo
 	var clickLogRepo *postgres.ClickLogRepo
+	var statusCheckRepo *postgres.StatusCheckRepo
 
 	if err != nil {
 		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
@@ -65,10 +66,12 @@ func main() {
 		appRepo = postgres.NewAppRepo(db.Pool)
 		favoriteRepo = postgres.NewFavoriteRepo(db.Pool)
 		clickLogRepo = postgres.NewClickLogRepo(db.Pool)
+		statusCheckRepo = postgres.NewStatusCheckRepo(db.Pool)
 	}
 
 	// 4. Initialize Background Workers & Services
 	clickWorker := worker.NewClickWorker(clickLogRepo, 1000, 3)
+	healthProbeWorker := worker.NewHealthProbeWorker(appRepo, statusCheckRepo, 5*time.Minute)
 	jwtService := jwt.NewJWTService(&cfg.JWT)
 	ssoClient := sso.NewClient(&cfg.SSO)
 
@@ -76,6 +79,7 @@ func main() {
 	catalogUsecase := usecase.NewCatalogUsecase(categoryRepo, appRepo, userRepo)
 	interactionUsecase := usecase.NewInteractionUsecase(favoriteRepo, clickLogRepo, appRepo, clickWorker)
 	adminUsecase := usecase.NewAdminUsecase(appRepo, categoryRepo)
+	monitoringUsecase := usecase.NewMonitoringUsecase(statusCheckRepo, appRepo, healthProbeWorker)
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
@@ -83,6 +87,7 @@ func main() {
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
+	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -91,8 +96,12 @@ func main() {
 		catalogHandler,
 		interactionHandler,
 		adminHandler,
+		monitoringHandler,
 		jwtService,
 	)
+
+	// Start health probe worker
+	healthProbeWorker.Start()
 
 	// 6. Configure HTTP Server
 	serverAddr := fmt.Sprintf(":%s", cfg.App.Port)
@@ -119,8 +128,9 @@ func main() {
 
 	log.Warn().Msg("Shutdown signal received, shutting down gracefully...")
 
-	// Stop background click worker
+	// Stop background workers
 	clickWorker.Stop()
+	healthProbeWorker.Stop()
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
