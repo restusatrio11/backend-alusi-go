@@ -23,6 +23,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { PermissionGuard } from '@/components/permission-guard'
 import { AnnouncementFormDialog } from './components/announcement-form-dialog'
 import { AnnouncementDeleteDialog } from './components/announcement-delete-dialog'
 
@@ -136,10 +137,12 @@ export function Announcements() {
                 <RefreshCw className={`mr-1.5 size-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button size='sm' onClick={handleOpenCreate}>
-                <Plus className='mr-1.5 size-4' />
-                Buat Pengumuman
-              </Button>
+              <PermissionGuard permission='announcements:manage'>
+                <Button size='sm' onClick={handleOpenCreate}>
+                  <Plus className='mr-1.5 size-4' />
+                  Buat Pengumuman
+                </Button>
+              </PermissionGuard>
             </div>
           </div>
 
@@ -185,22 +188,24 @@ export function Announcements() {
                       </div>
 
                       <div className='flex items-center gap-1 self-end sm:self-auto'>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='size-7'
-                          onClick={() => handleOpenEdit(ann)}
-                        >
-                          <Edit className='size-3.5' />
-                        </Button>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='size-7 text-destructive hover:text-destructive'
-                          onClick={() => handleOpenDelete(ann)}
-                        >
-                          <Trash2 className='size-3.5' />
-                        </Button>
+                        <PermissionGuard permission='announcements:manage'>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='size-7'
+                            onClick={() => handleOpenEdit(ann)}
+                          >
+                            <Edit className='size-3.5' />
+                          </Button>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='size-7 text-destructive hover:text-destructive'
+                            onClick={() => handleOpenDelete(ann)}
+                          >
+                            <Trash2 className='size-3.5' />
+                          </Button>
+                        </PermissionGuard>
                       </div>
                     </div>
                   </CardHeader>

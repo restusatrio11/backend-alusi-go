@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner'
 import { Feedback, FeedbackStatus, UpdateFeedbackStatusPayload } from '@/types/feedbacks'
 import { feedbacksApi } from '../api/feedbacks-api'
+import { PermissionGuard } from '@/components/permission-guard'
 import {
   Dialog,
   DialogContent,
@@ -275,15 +276,17 @@ export function FeedbackDetailDialog({
           >
             Tutup
           </Button>
-          <Button
-            type='button'
-            onClick={handleUpdate}
-            disabled={isUpdating}
-            className='h-10 px-5 text-xs font-semibold shadow-xs'
-          >
-            {isUpdating && <Loader2 className='mr-2 size-4 animate-spin' />}
-            Simpan Status Tiket
-          </Button>
+          <PermissionGuard permission='feedbacks:manage'>
+            <Button
+              type='button'
+              onClick={handleUpdate}
+              disabled={isUpdating}
+              className='h-10 px-5 text-xs font-semibold shadow-xs'
+            >
+              {isUpdating && <Loader2 className='mr-2 size-4 animate-spin' />}
+              Simpan Status Tiket
+            </Button>
+          </PermissionGuard>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { PermissionGuard } from '@/components/permission-guard'
 import { CategoryFormDialog } from './components/category-form-dialog'
 import { CategoryDeleteDialog } from './components/category-delete-dialog'
 
@@ -93,10 +94,12 @@ export function Categories() {
                 <RefreshCw className={`mr-1.5 size-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button size='sm' onClick={handleOpenCreate}>
-                <Plus className='mr-1.5 size-4' />
-                Tambah Kategori
-              </Button>
+              <PermissionGuard permission='categories:manage'>
+                <Button size='sm' onClick={handleOpenCreate}>
+                  <Plus className='mr-1.5 size-4' />
+                  Tambah Kategori
+                </Button>
+              </PermissionGuard>
             </div>
           </div>
 
@@ -150,22 +153,24 @@ export function Categories() {
                       </TableCell>
                       <TableCell className='text-end'>
                         <div className='flex items-center justify-end gap-1'>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            className='size-7'
-                            onClick={() => handleOpenEdit(cat)}
-                          >
-                            <Edit className='size-3.5' />
-                          </Button>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            className='size-7 text-destructive hover:text-destructive'
-                            onClick={() => handleOpenDelete(cat)}
-                          >
-                            <Trash2 className='size-3.5' />
-                          </Button>
+                          <PermissionGuard permission='categories:manage'>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='size-7'
+                              onClick={() => handleOpenEdit(cat)}
+                            >
+                              <Edit className='size-3.5' />
+                            </Button>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='size-7 text-destructive hover:text-destructive'
+                              onClick={() => handleOpenDelete(cat)}
+                            >
+                              <Trash2 className='size-3.5' />
+                            </Button>
+                          </PermissionGuard>
                         </div>
                       </TableCell>
                     </TableRow>

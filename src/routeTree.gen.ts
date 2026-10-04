@@ -46,6 +46,8 @@ import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authentic
 import { Route as ClerkauthSignInRouteImport } from './routes/clerk/(auth)/sign-in'
 import { Route as ClerkauthSignUpRouteImport } from './routes/clerk/(auth)/sign-up'
 import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/clerk/_authenticated/user-management'
+import { Route as AuthenticatedRbacRolesIndexRouteImport } from './routes/_authenticated/rbac/roles/index'
+import { Route as AuthenticatedRbacUsersIndexRouteImport } from './routes/_authenticated/rbac/users/index'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -244,6 +246,18 @@ const ClerkAuthenticatedUserManagementRoute =
     path: '/user-management',
     getParentRoute: () => ClerkAuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRbacRolesIndexRoute =
+  AuthenticatedRbacRolesIndexRouteImport.update({
+    id: '/rbac/roles/',
+    path: '/rbac/roles/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRbacUsersIndexRoute =
+  AuthenticatedRbacUsersIndexRouteImport.update({
+    id: '/rbac/users/',
+    path: '/rbac/users/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -280,6 +294,8 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
+  '/rbac/roles/': typeof AuthenticatedRbacRolesIndexRoute
+  '/rbac/users/': typeof AuthenticatedRbacUsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/clerk': typeof ClerkauthRouteRouteWithChildren
@@ -315,6 +331,8 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/rbac/roles': typeof AuthenticatedRbacRolesIndexRoute
+  '/rbac/users': typeof AuthenticatedRbacUsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -355,6 +373,8 @@ export interface FileRoutesById {
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/rbac/roles/': typeof AuthenticatedRbacRolesIndexRoute
+  '/_authenticated/rbac/users/': typeof AuthenticatedRbacUsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -393,6 +413,8 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/tasks/'
     | '/users/'
+    | '/rbac/roles/'
+    | '/rbac/users/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/clerk'
@@ -428,6 +450,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/tasks'
     | '/users'
+    | '/rbac/roles'
+    | '/rbac/users'
   id:
     | '__root__'
     | '/_authenticated'
@@ -467,6 +491,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
+    | '/_authenticated/rbac/roles/'
+    | '/_authenticated/rbac/users/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -746,6 +772,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClerkAuthenticatedUserManagementRouteImport
       parentRoute: typeof ClerkAuthenticatedRouteRoute
     }
+    '/_authenticated/rbac/roles/': {
+      id: '/_authenticated/rbac/roles/'
+      path: '/rbac/roles'
+      fullPath: '/rbac/roles/'
+      preLoaderRoute: typeof AuthenticatedRbacRolesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rbac/users/': {
+      id: '/_authenticated/rbac/users/'
+      path: '/rbac/users'
+      fullPath: '/rbac/users/'
+      preLoaderRoute: typeof AuthenticatedRbacUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -787,6 +827,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMonitoringIndexRoute: typeof AuthenticatedMonitoringIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedRbacRolesIndexRoute: typeof AuthenticatedRbacRolesIndexRoute
+  AuthenticatedRbacUsersIndexRoute: typeof AuthenticatedRbacUsersIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -804,6 +846,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMonitoringIndexRoute: AuthenticatedMonitoringIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedRbacRolesIndexRoute: AuthenticatedRbacRolesIndexRoute,
+  AuthenticatedRbacUsersIndexRoute: AuthenticatedRbacUsersIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

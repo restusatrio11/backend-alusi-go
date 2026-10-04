@@ -26,6 +26,7 @@ export interface User {
   satker_id?: number
   satker?: Satker
   roles?: Role[]
+  permissions?: string[]
   status: string // "active" | "inactive"
   metadata?: Record<string, any>
   last_login_at?: string

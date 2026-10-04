@@ -18,6 +18,7 @@ import {
 import { toast } from 'sonner'
 import { App, Category, StatusLayanan } from '@/types/apps'
 import { appsApi } from '../api/apps-api'
+import { PermissionGuard } from '@/components/permission-guard'
 import {
   Table,
   TableBody,
@@ -292,35 +293,43 @@ export function AppsTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align='end' className='w-48'>
                         <DropdownMenuLabel className='text-xs'>Aksi Aplikasi</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => onEdit(app)}>
-                          <Edit className='mr-2 size-3.5' /> Edit Metadata
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onUploadLogo(app)}>
-                          <Upload className='mr-2 size-3.5' /> Upload Logo
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onManageGuides(app)}>
-                          <BookOpen className='mr-2 size-3.5' /> Panduan & FAQ
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleProbe(app)}
-                          disabled={probingId === app.id}
-                        >
-                          <Activity className='mr-2 size-3.5' />
-                          {probingId === app.id ? 'Memeriksa...' : 'Uji Probe Status'}
-                        </DropdownMenuItem>
+                        <PermissionGuard permission='apps:update'>
+                          <DropdownMenuItem onClick={() => onEdit(app)}>
+                            <Edit className='mr-2 size-3.5' /> Edit Metadata
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onUploadLogo(app)}>
+                            <Upload className='mr-2 size-3.5' /> Upload Logo
+                          </DropdownMenuItem>
+                        </PermissionGuard>
+                        <PermissionGuard permission='apps:guides'>
+                          <DropdownMenuItem onClick={() => onManageGuides(app)}>
+                            <BookOpen className='mr-2 size-3.5' /> Panduan & FAQ
+                          </DropdownMenuItem>
+                        </PermissionGuard>
+                        <PermissionGuard permission='monitoring:manage'>
+                          <DropdownMenuItem
+                            onClick={() => handleProbe(app)}
+                            disabled={probingId === app.id}
+                          >
+                            <Activity className='mr-2 size-3.5' />
+                            {probingId === app.id ? 'Memeriksa...' : 'Uji Probe Status'}
+                          </DropdownMenuItem>
+                        </PermissionGuard>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => window.open(app.url, '_blank')}
                         >
                           <ExternalLink className='mr-2 size-3.5' /> Kunjungi Web
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          variant='destructive'
-                          onClick={() => onDelete(app)}
-                        >
-                          <Trash2 className='mr-2 size-3.5' /> Nonaktifkan
-                        </DropdownMenuItem>
+                        <PermissionGuard permission='apps:delete'>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            variant='destructive'
+                            onClick={() => onDelete(app)}
+                          >
+                            <Trash2 className='mr-2 size-3.5' /> Nonaktifkan
+                          </DropdownMenuItem>
+                        </PermissionGuard>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

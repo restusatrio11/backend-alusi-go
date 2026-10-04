@@ -11,6 +11,8 @@ import {
   Palette,
   Monitor,
   Building2,
+  KeyRound,
+  Users2,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -40,11 +42,13 @@ export const sidebarData: SidebarData = {
           title: 'Katalog Aplikasi',
           url: '/apps',
           icon: Layers,
+          permission: 'apps:view',
         },
         {
           title: 'Kategori Aplikasi',
           url: '/categories',
           icon: FolderTree,
+          permission: 'categories:view',
         },
       ],
     },
@@ -55,16 +59,19 @@ export const sidebarData: SidebarData = {
           title: 'Monitoring Layanan',
           url: '/monitoring',
           icon: Activity,
+          permission: 'monitoring:view',
         },
         {
           title: 'Pengumuman',
           url: '/announcements',
           icon: Megaphone,
+          permission: 'announcements:view',
         },
         {
           title: 'Umpan Balik & Isu',
           url: '/feedbacks',
           icon: MessageSquareWarning,
+          permission: 'feedbacks:view',
         },
       ],
     },
@@ -75,11 +82,31 @@ export const sidebarData: SidebarData = {
           title: 'Analitik Penggunaan',
           url: '/analytics',
           icon: LineChart,
+          permission: 'analytics:view',
         },
         {
           title: 'Audit Trail',
           url: '/audit-logs',
           icon: ShieldCheck,
+          permission: 'audit:view',
+        },
+      ],
+    },
+    {
+      title: 'Manajemen Akses & RBAC',
+      permissions: ['rbac:view', 'users:view'],
+      items: [
+        {
+          title: 'Role & Hak Akses',
+          url: '/rbac/roles',
+          icon: KeyRound,
+          permission: 'rbac:view',
+        },
+        {
+          title: 'Pengguna & Peran',
+          url: '/rbac/users',
+          icon: Users2,
+          permission: 'users:view',
         },
       ],
     },

@@ -9,6 +9,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PermissionGuard } from '@/components/permission-guard'
 import { AppsTable } from './components/apps-table'
 import { AppFormDialog } from './components/app-form-dialog'
 import { AppLogoDialog } from './components/app-logo-dialog'
@@ -117,10 +118,12 @@ export function Apps() {
                 <RefreshCw className={`mr-1.5 size-3.5 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button size='sm' onClick={handleOpenCreate}>
-                <Plus className='mr-1.5 size-4' />
-                Tambah Aplikasi
-              </Button>
+              <PermissionGuard permission='apps:create'>
+                <Button size='sm' onClick={handleOpenCreate}>
+                  <Plus className='mr-1.5 size-4' />
+                  Tambah Aplikasi
+                </Button>
+              </PermissionGuard>
             </div>
           </div>
 
@@ -132,10 +135,12 @@ export function Apps() {
                   <List className='size-3.5' />
                   Daftar Tabel
                 </TabsTrigger>
-                <TabsTrigger value='reorder' className='flex items-center gap-1.5'>
-                  <ArrowUpDown className='size-3.5' />
-                  Urutan Tampilan
-                </TabsTrigger>
+                <PermissionGuard permission='apps:reorder'>
+                  <TabsTrigger value='reorder' className='flex items-center gap-1.5'>
+                    <ArrowUpDown className='size-3.5' />
+                    Urutan Tampilan
+                  </TabsTrigger>
+                </PermissionGuard>
               </TabsList>
             </div>
 

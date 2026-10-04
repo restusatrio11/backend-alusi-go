@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { useAuthStore } from '@/stores/auth-store'
 import {
   type NavCollapsible,
   type NavItem,
@@ -33,25 +34,61 @@ import {
   type NavGroup as NavGroupProps,
 } from './types'
 
-export function NavGroup({ title, items }: NavGroupProps) {
+function checkItemAccess(
+  item: { permission?: string; permissions?: string[]; role?: string; roles?: string[] },
+  auth: ReturnType<typeof useAuthStore.getState>['auth']
+) {
+  if (item.role && !auth.hasRole(item.role)) return false
+  if (item.roles && item.roles.length > 0 && !auth.hasAnyRole(item.roles)) return false
+  if (item.permission && !auth.hasPermission(item.permission)) return false
+  if (item.permissions && item.permissions.length > 0 && !auth.hasAnyPermission(item.permissions)) return false
+  return true
+}
+
+export function NavGroup({ title, items, permission, permissions, role, roles }: NavGroupProps) {
   const { state, isMobile } = useSidebar()
   const href = useLocation({ select: (location) => location.href })
+  const auth = useAuthStore((s) => s.auth)
+
+  // Check group level access
+  if (!checkItemAccess({ permission, permissions, role, roles }, auth)) {
+    return null
+  }
+
+  // Filter items
+  const visibleItems = items.filter((item) => {
+    if (!checkItemAccess(item, auth)) return false
+    if (item.items) {
+      const activeSubItems = item.items.filter((sub) => checkItemAccess(sub, auth))
+      return activeSubItems.length > 0
+    }
+    return true
+  })
+
+  if (visibleItems.length === 0) return null
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const key = `${item.title}-${item.url}`
 
           if (!item.items)
             return <SidebarMenuLink key={key} item={item} href={href} />
 
+          // Filter subitems for collapsible and dropdown
+          const filteredCollapsibleItem: NavCollapsible = {
+            ...item,
+            items: item.items.filter((sub) => checkItemAccess(sub, auth)),
+          }
+
           if (state === 'collapsed' && !isMobile)
             return (
-              <SidebarMenuCollapsedDropdown key={key} item={item} href={href} />
+              <SidebarMenuCollapsedDropdown key={key} item={filteredCollapsibleItem} href={href} />
             )
 
-          return <SidebarMenuCollapsible key={key} item={item} href={href} />
+          return <SidebarMenuCollapsible key={key} item={filteredCollapsibleItem} href={href} />
         })}
       </SidebarMenu>
     </SidebarGroup>

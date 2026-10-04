@@ -21,6 +21,9 @@ const sampleUser = {
 describe('useAuthStore', () => {
   beforeEach(() => {
     clearCookies()
+    if (typeof window !== 'undefined') {
+      localStorage.clear()
+    }
     vi.resetModules()
   })
 
@@ -77,5 +80,37 @@ describe('useAuthStore', () => {
 
     expect(useAuthStoreAfterReload.getState().auth.user).toBeNull()
     expect(useAuthStoreAfterReload.getState().auth.accessToken).toBe('')
+  })
+
+  it('correctly evaluates roles and permissions for admin and regular users', async () => {
+    const useAuthStore = await importAuthStore()
+
+    // 1. Admin user bypass
+    useAuthStore.getState().auth.setUser({
+      ...sampleUser,
+      roles: [{ id: 1, nama: 'admin', created_at: '2026-01-01' }],
+      permissions: [],
+    })
+
+    expect(useAuthStore.getState().auth.isAdmin()).toBe(true)
+    expect(useAuthStore.getState().auth.hasRole('admin')).toBe(true)
+    expect(useAuthStore.getState().auth.hasPermission('apps:create')).toBe(true)
+    expect(useAuthStore.getState().auth.hasPermission('anything:custom')).toBe(true)
+
+    // 2. Regular staff with specific permissions
+    useAuthStore.getState().auth.setUser({
+      ...sampleUser,
+      roles: [{ id: 3, nama: 'pegawai', created_at: '2026-01-01' }],
+      permissions: ['apps:view', 'announcements:view'],
+    })
+
+    expect(useAuthStore.getState().auth.isAdmin()).toBe(false)
+    expect(useAuthStore.getState().auth.hasRole('pegawai')).toBe(true)
+    expect(useAuthStore.getState().auth.hasRole('admin')).toBe(false)
+    expect(useAuthStore.getState().auth.hasPermission('apps:view')).toBe(true)
+    expect(useAuthStore.getState().auth.hasPermission('apps:create')).toBe(false)
+    expect(useAuthStore.getState().auth.hasAnyPermission(['apps:create', 'apps:view'])).toBe(true)
+    expect(useAuthStore.getState().auth.hasAllPermissions(['apps:view', 'announcements:view'])).toBe(true)
+    expect(useAuthStore.getState().auth.hasAllPermissions(['apps:view', 'apps:create'])).toBe(false)
   })
 })

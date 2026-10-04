@@ -1,15 +1,15 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { Analytics } from '@/features/analytics'
+import { RolesPermissionMatrix } from '@/features/rbac/roles'
 import { useAuthStore } from '@/stores/auth-store'
 
-export const Route = createFileRoute('/_authenticated/analytics/')({
+export const Route = createFileRoute('/_authenticated/rbac/roles/')({
   beforeLoad: () => {
     const auth = useAuthStore.getState().auth
-    if (!auth.hasPermission('analytics:view')) {
+    if (!auth.hasPermission('rbac:view')) {
       throw redirect({
         to: '/403',
       })
     }
   },
-  component: Analytics,
+  component: RolesPermissionMatrix,
 })

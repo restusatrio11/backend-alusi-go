@@ -17,6 +17,11 @@ interface AuthState {
     isAuthenticated: () => boolean
     isAdmin: () => boolean
     isPimpinan: () => boolean
+    hasRole: (roleName: string) => boolean
+    hasAnyRole: (roleNames: string[]) => boolean
+    hasPermission: (permissionCode: string) => boolean
+    hasAnyPermission: (permissionCodes: string[]) => boolean
+    hasAllPermissions: (permissionCodes: string[]) => boolean
   }
 }
 
@@ -96,6 +101,46 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         const user = get().auth.user
         if (!user || !user.roles) return false
         return user.roles.some((r) => r.nama === 'pimpinan' || r.nama === 'admin')
+      },
+      hasRole: (roleName: string) => {
+        const user = get().auth.user
+        if (!user || !user.roles) return false
+        return user.roles.some((r) => r.nama.toLowerCase() === roleName.toLowerCase())
+      },
+      hasAnyRole: (roleNames: string[]) => {
+        const user = get().auth.user
+        if (!user || !user.roles) return false
+        return user.roles.some((r) =>
+          roleNames.map((n) => n.toLowerCase()).includes(r.nama.toLowerCase())
+        )
+      },
+      hasPermission: (permissionCode: string) => {
+        const user = get().auth.user
+        if (!user) return false
+        // Admin always has full access
+        if (user.roles?.some((r) => r.nama === 'admin' || r.nama === 'superadmin')) {
+          return true
+        }
+        if (!user.permissions) return false
+        return user.permissions.includes(permissionCode)
+      },
+      hasAnyPermission: (permissionCodes: string[]) => {
+        const user = get().auth.user
+        if (!user) return false
+        if (user.roles?.some((r) => r.nama === 'admin' || r.nama === 'superadmin')) {
+          return true
+        }
+        if (!user.permissions || user.permissions.length === 0) return false
+        return permissionCodes.some((code) => user.permissions?.includes(code))
+      },
+      hasAllPermissions: (permissionCodes: string[]) => {
+        const user = get().auth.user
+        if (!user) return false
+        if (user.roles?.some((r) => r.nama === 'admin' || r.nama === 'superadmin')) {
+          return true
+        }
+        if (!user.permissions) return false
+        return permissionCodes.every((code) => user.permissions?.includes(code))
       },
     },
   }

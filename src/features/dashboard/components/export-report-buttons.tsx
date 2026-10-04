@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
+import { PermissionGuard } from '@/components/permission-guard'
 
 export function ExportReportButtons() {
   const [isExportingCatalog, setIsExportingCatalog] = useState(false)
@@ -41,8 +42,9 @@ export function ExportReportButtons() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <PermissionGuard permission='reports:export'>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
         <Button variant='outline' size='sm' className='gap-1.5 h-8 text-xs font-medium'>
           {isExportingCatalog || isExportingAnalytics ? (
             <Loader2 className='size-3.5 animate-spin' />
@@ -73,5 +75,6 @@ export function ExportReportButtons() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  </PermissionGuard>
   )
 }
