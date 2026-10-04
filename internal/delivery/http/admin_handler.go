@@ -151,3 +151,65 @@ func (h *AdminHandler) DeleteCategory(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "Kategori berhasil dihapus", nil, nil)
 }
+
+// CreateGuide handles guide/FAQ creation for an app
+func (h *AdminHandler) CreateGuide(c *gin.Context) {
+	appID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "ID aplikasi tidak valid.", nil)
+		return
+	}
+
+	var input usecase.GuideInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(c, "Payload panduan tidak valid: "+err.Error(), nil)
+		return
+	}
+
+	guide, err := h.adminUsecase.CreateGuide(c.Request.Context(), appID, input)
+	if err != nil {
+		response.InternalServerError(c, err.Error())
+		return
+	}
+
+	response.Success(c, http.StatusCreated, "Panduan aplikasi berhasil ditambahkan", guide, nil)
+}
+
+// UpdateGuide handles guide/FAQ update
+func (h *AdminHandler) UpdateGuide(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "ID panduan tidak valid.", nil)
+		return
+	}
+
+	var input usecase.GuideInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.BadRequest(c, "Payload panduan tidak valid: "+err.Error(), nil)
+		return
+	}
+
+	guide, err := h.adminUsecase.UpdateGuide(c.Request.Context(), id, input)
+	if err != nil {
+		response.InternalServerError(c, err.Error())
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Panduan aplikasi berhasil diperbarui", guide, nil)
+}
+
+// DeleteGuide handles guide/FAQ deletion
+func (h *AdminHandler) DeleteGuide(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "ID panduan tidak valid.", nil)
+		return
+	}
+
+	if err := h.adminUsecase.DeleteGuide(c.Request.Context(), id); err != nil {
+		response.InternalServerError(c, "Gagal menghapus panduan: "+err.Error())
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Panduan aplikasi berhasil dihapus", nil, nil)
+}

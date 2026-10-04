@@ -32,14 +32,14 @@ func TestCatalogEndpoints_Routing(t *testing.T) {
 	jwtService := jwt.NewJWTService(&cfg.JWT)
 	ssoClient := sso.NewClient(&cfg.SSO)
 	authUsecase := usecase.NewAuthUsecase(nil, ssoClient, jwtService)
-	catalogUsecase := usecase.NewCatalogUsecase(nil, nil, nil)
+	catalogUsecase := usecase.NewCatalogUsecase(nil, nil, nil, nil)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionUsecase := usecase.NewInteractionUsecase(nil, nil, nil, nil)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
-	adminUsecase := usecase.NewAdminUsecase(nil, nil)
+	adminUsecase := usecase.NewAdminUsecase(nil, nil, nil)
 	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
@@ -66,6 +66,15 @@ func TestCatalogEndpoints_Routing(t *testing.T) {
 	if resp.Error == nil || resp.Error.Code != "BAD_REQUEST" {
 		t.Errorf("Expected error code BAD_REQUEST, got %v", resp.Error)
 	}
+
+	// 2. Test GET /api/v1/apps/simbatik/guides -> 200 OK (empty list in mock)
+	w2 := httptest.NewRecorder()
+	req2, _ := http.NewRequest(http.MethodGet, "/api/v1/apps/simbatik/guides", nil)
+	router.ServeHTTP(w2, req2)
+
+	if w2.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for /apps/simbatik/guides, got %d", w2.Code)
+	}
 }
 
 func TestDomainEntities(t *testing.T) {
@@ -73,6 +82,14 @@ func TestDomainEntities(t *testing.T) {
 		ID:   1,
 		Nama: "Survei & Sensus",
 		Slug: "survei-sensus",
+	}
+
+	guide := domain.Guide{
+		ID:     1,
+		AppID:  1,
+		Judul:  "Panduan Login SIMBATIK",
+		Konten: "Gunakan SSO BPS untuk masuk...",
+		Urutan: 1,
 	}
 
 	app := domain.App{
@@ -86,6 +103,7 @@ func TestDomainEntities(t *testing.T) {
 		StatusLayanan:  "online",
 		IsPublic:       true,
 		Aktif:          true,
+		Guides:         []domain.Guide{guide},
 	}
 
 	if app.Category.Nama != "Survei & Sensus" {
@@ -93,5 +111,8 @@ func TestDomainEntities(t *testing.T) {
 	}
 	if !app.IsPublic || !app.Aktif {
 		t.Errorf("Expected app to be active and public")
+	}
+	if len(app.Guides) != 1 || app.Guides[0].Judul != "Panduan Login SIMBATIK" {
+		t.Errorf("Expected app to have 1 guide with title 'Panduan Login SIMBATIK'")
 	}
 }

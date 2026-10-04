@@ -21,6 +21,7 @@ type App struct {
 	IsFavorite     bool      `json:"is_favorite"`
 	TotalClicks    int64     `json:"total_clicks,omitempty"`
 	AllowedRoles   []Role    `json:"allowed_roles,omitempty"`
+	Guides         []Guide   `json:"guides,omitempty"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

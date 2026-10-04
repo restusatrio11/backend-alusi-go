@@ -25,9 +25,9 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	jwtService := jwt.NewJWTService(&cfg.JWT)
 	ssoClient := sso.NewClient(&cfg.SSO)
 	authUsecase := usecase.NewAuthUsecase(nil, ssoClient, jwtService)
-	catalogUsecase := usecase.NewCatalogUsecase(nil, nil, nil)
+	catalogUsecase := usecase.NewCatalogUsecase(nil, nil, nil, nil)
 	interactionUsecase := usecase.NewInteractionUsecase(nil, nil, nil, nil)
-	adminUsecase := usecase.NewAdminUsecase(nil, nil)
+	adminUsecase := usecase.NewAdminUsecase(nil, nil, nil)
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)

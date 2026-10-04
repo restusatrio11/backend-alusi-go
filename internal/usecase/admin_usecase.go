@@ -12,12 +12,18 @@ import (
 type AdminUsecase struct {
 	appRepo      *postgres.AppRepo
 	categoryRepo *postgres.CategoryRepo
+	guideRepo    *postgres.GuideRepo
 }
 
-func NewAdminUsecase(appRepo *postgres.AppRepo, categoryRepo *postgres.CategoryRepo) *AdminUsecase {
+func NewAdminUsecase(
+	appRepo *postgres.AppRepo,
+	categoryRepo *postgres.CategoryRepo,
+	guideRepo *postgres.GuideRepo,
+) *AdminUsecase {
 	return &AdminUsecase{
 		appRepo:      appRepo,
 		categoryRepo: categoryRepo,
+		guideRepo:    guideRepo,
 	}
 }
 
@@ -193,6 +199,48 @@ func (u *AdminUsecase) UpdateCategory(ctx context.Context, id int, input Categor
 
 func (u *AdminUsecase) DeleteCategory(ctx context.Context, id int) error {
 	return u.categoryRepo.Delete(ctx, id)
+}
+
+type GuideInput struct {
+	Judul  string `json:"judul" binding:"required"`
+	Konten string `json:"konten" binding:"required"`
+	Urutan int    `json:"urutan"`
+}
+
+func (u *AdminUsecase) CreateGuide(ctx context.Context, appID int, input GuideInput) (*domain.Guide, error) {
+	guide := &domain.Guide{
+		AppID:  appID,
+		Judul:  input.Judul,
+		Konten: input.Konten,
+		Urutan: input.Urutan,
+	}
+
+	if err := u.guideRepo.Create(ctx, guide); err != nil {
+		return nil, fmt.Errorf("gagal menambahkan panduan: %w", err)
+	}
+
+	return guide, nil
+}
+
+func (u *AdminUsecase) UpdateGuide(ctx context.Context, id int, input GuideInput) (*domain.Guide, error) {
+	guide, err := u.guideRepo.GetByID(ctx, id)
+	if err != nil || guide == nil {
+		return nil, fmt.Errorf("panduan tidak ditemukan")
+	}
+
+	guide.Judul = input.Judul
+	guide.Konten = input.Konten
+	guide.Urutan = input.Urutan
+
+	if err := u.guideRepo.Update(ctx, guide); err != nil {
+		return nil, fmt.Errorf("gagal memperbarui panduan: %w", err)
+	}
+
+	return guide, nil
+}
+
+func (u *AdminUsecase) DeleteGuide(ctx context.Context, id int) error {
+	return u.guideRepo.Delete(ctx, id)
 }
 
 func generateSlug(text string) string {

@@ -115,3 +115,15 @@ func (h *CatalogHandler) SearchApps(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "Hasil pencarian aplikasi berhasil dimuat", apps, nil)
 }
+
+// GetAppGuides returns guides and FAQ documentation for an application
+func (h *CatalogHandler) GetAppGuides(c *gin.Context) {
+	slug := c.Param("slug")
+	guides, err := h.catalogUsecase.GetGuidesByAppSlug(c.Request.Context(), slug)
+	if err != nil {
+		response.NotFound(c, err.Error())
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Panduan aplikasi berhasil dimuat", guides, nil)
+}

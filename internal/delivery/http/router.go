@@ -78,6 +78,7 @@ func SetupRouter(
 			apps.GET("", middleware.OptionalAuth(jwtService), catalogHandler.ListApps)
 			apps.GET("/search", middleware.OptionalAuth(jwtService), catalogHandler.SearchApps)
 			apps.GET("/:slug", middleware.OptionalAuth(jwtService), catalogHandler.GetAppBySlug)
+			apps.GET("/:slug/guides", catalogHandler.GetAppGuides)
 			apps.GET("/:slug/status-history", monitoringHandler.GetAppStatusHistory)
 			apps.POST("/:id/click", middleware.OptionalAuth(jwtService), interactionHandler.RecordClick)
 			apps.POST("/:id/favorite", middleware.AuthRequired(jwtService), interactionHandler.ToggleFavorite)
@@ -99,6 +100,11 @@ func SetupRouter(
 			admin.PUT("/apps/:id", adminHandler.UpdateApp)
 			admin.DELETE("/apps/:id", adminHandler.DeleteApp)
 			admin.POST("/apps/:id/probe", monitoringHandler.ManualProbeApp)
+
+			// App Guides & FAQ Management
+			admin.POST("/apps/:id/guides", adminHandler.CreateGuide)
+			admin.PUT("/guides/:id", adminHandler.UpdateGuide)
+			admin.DELETE("/guides/:id", adminHandler.DeleteGuide)
 
 			admin.POST("/categories", adminHandler.CreateCategory)
 			admin.PUT("/categories/:id", adminHandler.UpdateCategory)

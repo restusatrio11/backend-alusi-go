@@ -15,25 +15,34 @@ type CatalogUsecase struct {
 	categoryRepo *postgres.CategoryRepo
 	appRepo      *postgres.AppRepo
 	userRepo     *postgres.UserRepo
+	guideRepo    *postgres.GuideRepo
 }
 
 func NewCatalogUsecase(
 	categoryRepo *postgres.CategoryRepo,
-	appRepo      *postgres.AppRepo,
-	userRepo     *postgres.UserRepo,
+	appRepo *postgres.AppRepo,
+	userRepo *postgres.UserRepo,
+	guideRepo *postgres.GuideRepo,
 ) *CatalogUsecase {
 	return &CatalogUsecase{
 		categoryRepo: categoryRepo,
 		appRepo:      appRepo,
 		userRepo:     userRepo,
+		guideRepo:    guideRepo,
 	}
 }
 
 func (u *CatalogUsecase) ListCategories(ctx context.Context) ([]domain.Category, error) {
+	if u.categoryRepo == nil {
+		return []domain.Category{}, nil
+	}
 	return u.categoryRepo.List(ctx)
 }
 
 func (u *CatalogUsecase) GetCategoryBySlug(ctx context.Context, slug string) (*domain.Category, error) {
+	if u.categoryRepo == nil {
+		return nil, nil
+	}
 	return u.categoryRepo.GetBySlug(ctx, slug)
 }
 
@@ -138,7 +147,34 @@ func (u *CatalogUsecase) ListApps(
 }
 
 func (u *CatalogUsecase) GetAppBySlug(ctx context.Context, slug string, userID *int) (*domain.App, error) {
-	return u.appRepo.GetBySlug(ctx, slug, userID)
+	if u.appRepo == nil {
+		return nil, nil
+	}
+	app, err := u.appRepo.GetBySlug(ctx, slug, userID)
+	if err != nil || app == nil {
+		return nil, err
+	}
+
+	if u.guideRepo != nil {
+		guides, err := u.guideRepo.ListByAppID(ctx, app.ID)
+		if err == nil {
+			app.Guides = guides
+		}
+	}
+
+	return app, nil
+}
+
+func (u *CatalogUsecase) GetGuidesByAppSlug(ctx context.Context, slug string) ([]domain.Guide, error) {
+	if u.appRepo == nil || u.guideRepo == nil {
+		return []domain.Guide{}, nil
+	}
+	app, err := u.appRepo.GetBySlug(ctx, slug, nil)
+	if err != nil || app == nil {
+		return nil, fmt.Errorf("aplikasi '%s' tidak ditemukan", slug)
+	}
+
+	return u.guideRepo.ListByAppID(ctx, app.ID)
 }
 
 func (u *CatalogUsecase) SearchApps(

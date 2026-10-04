@@ -51,6 +51,7 @@ func main() {
 	var favoriteRepo *postgres.FavoriteRepo
 	var clickLogRepo *postgres.ClickLogRepo
 	var statusCheckRepo *postgres.StatusCheckRepo
+	var guideRepo *postgres.GuideRepo
 
 	if err != nil {
 		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
@@ -67,6 +68,7 @@ func main() {
 		favoriteRepo = postgres.NewFavoriteRepo(db.Pool)
 		clickLogRepo = postgres.NewClickLogRepo(db.Pool)
 		statusCheckRepo = postgres.NewStatusCheckRepo(db.Pool)
+		guideRepo = postgres.NewGuideRepo(db.Pool)
 	}
 
 	// 4. Initialize Background Workers & Services
@@ -76,9 +78,9 @@ func main() {
 	ssoClient := sso.NewClient(&cfg.SSO)
 
 	authUsecase := usecase.NewAuthUsecase(userRepo, ssoClient, jwtService)
-	catalogUsecase := usecase.NewCatalogUsecase(categoryRepo, appRepo, userRepo)
+	catalogUsecase := usecase.NewCatalogUsecase(categoryRepo, appRepo, userRepo, guideRepo)
 	interactionUsecase := usecase.NewInteractionUsecase(favoriteRepo, clickLogRepo, appRepo, clickWorker)
-	adminUsecase := usecase.NewAdminUsecase(appRepo, categoryRepo)
+	adminUsecase := usecase.NewAdminUsecase(appRepo, categoryRepo, guideRepo)
 	monitoringUsecase := usecase.NewMonitoringUsecase(statusCheckRepo, appRepo, healthProbeWorker)
 
 	// 5. Setup Delivery & Handlers
