@@ -137,11 +137,41 @@ func (u *AdminUsecase) UpdateApp(ctx context.Context, id int, input UpdateAppInp
 }
 
 func (u *AdminUsecase) DeleteApp(ctx context.Context, id int) error {
+	if u.appRepo == nil {
+		return nil
+	}
 	return u.appRepo.Delete(ctx, id)
 }
 
 func (u *AdminUsecase) ReorderApps(ctx context.Context, appIDs []int) error {
+	if u.appRepo == nil {
+		return nil
+	}
 	return u.appRepo.Reorder(ctx, appIDs)
+}
+
+func (u *AdminUsecase) UpdateAppLogo(ctx context.Context, id int, logoURL string) (*domain.App, error) {
+	if u.appRepo == nil {
+		return nil, fmt.Errorf("aplikasi tidak ditemukan")
+	}
+	app, err := u.appRepo.GetByID(ctx, id, nil)
+	if err != nil || app == nil {
+		return nil, fmt.Errorf("aplikasi tidak ditemukan")
+	}
+
+	app.IkonURL = &logoURL
+	if err := u.appRepo.Update(ctx, app, nil); err != nil {
+		return nil, fmt.Errorf("gagal memperbarui logo aplikasi: %w", err)
+	}
+
+	return app, nil
+}
+
+func (u *AdminUsecase) GetAppByID(ctx context.Context, id int) (*domain.App, error) {
+	if u.appRepo == nil {
+		return nil, fmt.Errorf("aplikasi tidak ditemukan")
+	}
+	return u.appRepo.GetByID(ctx, id, nil)
 }
 
 type CategoryInput struct {

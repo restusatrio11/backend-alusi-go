@@ -44,7 +44,7 @@ func TestAIEndpoints_Routing(t *testing.T) {
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
-	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
+	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase, nil)
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase, nil)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)

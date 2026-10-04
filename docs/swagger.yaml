@@ -719,6 +719,55 @@ paths:
       summary: Tambah panduan / FAQ aplikasi
       tags:
       - Admin - Guides
+  /admin/apps/{id}/logo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Mengunggah file gambar logo aplikasi (PNG/JPG/JPEG/WebP/SVG, maks
+        2MB), otomatis di-resize maks 512x512 dan dikompresi (Admin)
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: File logo gambar (PNG, JPG, JPEG, WebP, SVG maks 2MB)
+        in: formData
+        name: logo
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload dan kompresi logo aplikasi
+      tags:
+      - Admin - Catalog
   /admin/apps/{id}/probe:
     post:
       description: Memaksa pemeriksaan langsung (live HTTP ping) pada endpoint health

@@ -19,6 +19,7 @@ import (
 	"backend-alusi-go/pkg/exporter"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/logger"
+	"backend-alusi-go/pkg/media"
 	"backend-alusi-go/pkg/realtime"
 	"backend-alusi-go/pkg/sso"
 	"backend-alusi-go/pkg/worker"
@@ -123,13 +124,14 @@ func main() {
 	aiUsecase := usecase.NewAIUsecase(aiService, userRepo)
 	reportExporter := exporter.NewReportExporter()
 	reportUsecase := usecase.NewReportUsecase(appRepo, analyticsRepo, reportExporter)
+	imageOptimizer := media.NewImageOptimizer("./uploads/logos", "/uploads/logos")
 
 	// 5. Setup Delivery & Handlers
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
 	catalogHandler := deliveryHTTP.NewCatalogHandler(catalogUsecase)
 	interactionHandler := deliveryHTTP.NewInteractionHandler(interactionUsecase)
-	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase)
+	adminHandler := deliveryHTTP.NewAdminHandler(adminUsecase, imageOptimizer)
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase, sseHub)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)

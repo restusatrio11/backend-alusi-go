@@ -6,17 +6,20 @@ import (
 
 	"backend-alusi-go/internal/delivery/http/response"
 	"backend-alusi-go/internal/usecase"
+	"backend-alusi-go/pkg/media"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AdminHandler struct {
-	adminUsecase *usecase.AdminUsecase
+	adminUsecase   *usecase.AdminUsecase
+	imageOptimizer *media.ImageOptimizer
 }
 
-func NewAdminHandler(adminUsecase *usecase.AdminUsecase) *AdminHandler {
+func NewAdminHandler(adminUsecase *usecase.AdminUsecase, imageOptimizer *media.ImageOptimizer) *AdminHandler {
 	return &AdminHandler{
-		adminUsecase: adminUsecase,
+		adminUsecase:   adminUsecase,
+		imageOptimizer: imageOptimizer,
 	}
 }
 
@@ -344,3 +347,68 @@ func (h *AdminHandler) DeleteGuide(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "Panduan aplikasi berhasil dihapus", nil, nil)
 }
+
+// UploadAppLogo godoc
+// @Summary      Upload dan kompresi logo aplikasi
+// @Description  Mengunggah file gambar logo aplikasi (PNG/JPG/JPEG/WebP/SVG, maks 2MB), otomatis di-resize maks 512x512 dan dikompresi (Admin)
+// @Tags         Admin - Catalog
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id    path      int   true  "ID Aplikasi"
+// @Param        logo  formData  file  true  "File logo gambar (PNG, JPG, JPEG, WebP, SVG maks 2MB)"
+// @Success      200   {object}  response.StandardResponse
+// @Failure      400   {object}  response.StandardResponse
+// @Failure      401   {object}  response.StandardResponse
+// @Failure      403   {object}  response.StandardResponse
+// @Failure      404   {object}  response.StandardResponse
+// @Failure      500   {object}  response.StandardResponse
+// @Router       /admin/apps/{id}/logo [post]
+func (h *AdminHandler) UploadAppLogo(c *gin.Context) {
+	appID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.BadRequest(c, "ID aplikasi tidak valid.", nil)
+		return
+	}
+
+	app, err := h.adminUsecase.GetAppByID(c.Request.Context(), appID)
+	if err != nil || app == nil {
+		response.NotFound(c, "Aplikasi tidak ditemukan.")
+		return
+	}
+
+	if h.imageOptimizer == nil {
+		response.InternalServerError(c, "Image optimizer service belum dikonfigurasi.")
+		return
+	}
+
+	fileHeader, err := c.FormFile("logo")
+	if err != nil {
+		fileHeader, err = c.FormFile("file")
+	}
+	if err != nil {
+		fileHeader, err = c.FormFile("image")
+	}
+	if err != nil || fileHeader == nil {
+		response.BadRequest(c, "File logo tidak ditemukan dalam request form (field 'logo')", nil)
+		return
+	}
+
+	logoURL, err := h.imageOptimizer.ProcessAndSave(fileHeader, app.Slug)
+	if err != nil {
+		response.BadRequest(c, err.Error(), nil)
+		return
+	}
+
+	updatedApp, err := h.adminUsecase.UpdateAppLogo(c.Request.Context(), appID, logoURL)
+	if err != nil {
+		response.InternalServerError(c, "Gagal memperbarui URL logo aplikasi: "+err.Error())
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Logo aplikasi berhasil diunggah dan dikompresi", map[string]interface{}{
+		"app":      updatedApp,
+		"logo_url": logoURL,
+	}, nil)
+}
+

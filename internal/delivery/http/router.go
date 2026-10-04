@@ -59,6 +59,9 @@ func SetupRouter(
 		c.Redirect(302, "/swagger/index.html")
 	})
 
+	// Static file serving for uploads (logos, attachments)
+	router.Static("/uploads", "./uploads")
+
 	// API v1 group
 	v1 := router.Group("/api/v1")
 	{
@@ -159,6 +162,7 @@ func SetupRouter(
 				adminApps.PUT("/apps/reorder", adminHandler.ReorderApps)
 				adminApps.PUT("/apps/:id", adminHandler.UpdateApp)
 				adminApps.DELETE("/apps/:id", adminHandler.DeleteApp)
+				adminApps.POST("/apps/:id/logo", adminHandler.UploadAppLogo)
 				adminApps.POST("/apps/:id/probe", monitoringHandler.ManualProbeApp)
 
 				// App Guides & FAQ Management
