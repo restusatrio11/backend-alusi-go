@@ -1,7 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/stores/auth-store'
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'
+const envUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+const baseURL = envUrl.replace(/\/api\/v1\/?$/, '').replace(/\/+$/, '')
 
 export const apiClient = axios.create({
   baseURL,
@@ -11,9 +12,12 @@ export const apiClient = axios.create({
   },
 })
 
-// Request Interceptor: Attach Bearer JWT token if available
+// Request Interceptor: Attach Bearer JWT token if available & normalize URL path
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (config.url && !config.url.startsWith('/api/v1') && !config.url.startsWith('http')) {
+      config.url = `/api/v1${config.url.startsWith('/') ? config.url : '/' + config.url}`
+    }
     const token = useAuthStore.getState().auth.accessToken
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
