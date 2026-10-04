@@ -22,7 +22,16 @@ func NewInteractionHandler(interactionUsecase *usecase.InteractionUsecase) *Inte
 	}
 }
 
-// RecordClick handles click tracking for opening an application
+// RecordClick godoc
+// @Summary      Catat klik / akses aplikasi (Asinkron)
+// @Description  Mencatat riwayat klik pengguna dan menambah counter total hits secara non-blocking
+// @Tags         Interactions
+// @Produce      json
+// @Param        id   path      int  true  "ID Aplikasi"
+// @Success      200  {object}  response.StandardResponse
+// @Failure      400  {object}  response.StandardResponse
+// @Failure      404  {object}  response.StandardResponse
+// @Router       /apps/{id}/click [post]
 func (h *InteractionHandler) RecordClick(c *gin.Context) {
 	appID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -51,7 +60,18 @@ func (h *InteractionHandler) RecordClick(c *gin.Context) {
 	}, nil)
 }
 
-// ToggleFavorite adds or removes an app from user favorites
+// ToggleFavorite godoc
+// @Summary      Tambah / Hapus favorit pengguna
+// @Description  Melakukan toggle status bookmark / favorit aplikasi untuk pengguna yang login
+// @Tags         Interactions
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "ID Aplikasi"
+// @Success      200  {object}  response.StandardResponse
+// @Failure      400  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /apps/{id}/favorite [post]
 func (h *InteractionHandler) ToggleFavorite(c *gin.Context) {
 	appID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -82,7 +102,16 @@ func (h *InteractionHandler) ToggleFavorite(c *gin.Context) {
 	}, nil)
 }
 
-// ListFavorites returns all favorite apps of the logged in user
+// ListFavorites godoc
+// @Summary      Daftar aplikasi favorit pengguna
+// @Description  Mengambil semua aplikasi yang ditandai sebagai favorit oleh pengguna yang sedang login
+// @Tags         Interactions
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /users/me/favorites [get]
 func (h *InteractionHandler) ListFavorites(c *gin.Context) {
 	userID := c.GetInt(middleware.CtxUserID)
 	if userID == 0 {
@@ -99,7 +128,17 @@ func (h *InteractionHandler) ListFavorites(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Daftar aplikasi favorit berhasil dimuat", apps, nil)
 }
 
-// ListRecents returns recently clicked apps of the logged in user
+// ListRecents godoc
+// @Summary      Riwayat aplikasi terakhir dibuka
+// @Description  Mengambil daftar riwayat aplikasi yang baru saja diakses oleh pengguna
+// @Tags         Interactions
+// @Produce      json
+// @Security     BearerAuth
+// @Param        limit  query     int  false  "Batas jumlah item (default 10)"
+// @Success      200    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /users/me/recents [get]
 func (h *InteractionHandler) ListRecents(c *gin.Context) {
 	userID := c.GetInt(middleware.CtxUserID)
 	if userID == 0 {

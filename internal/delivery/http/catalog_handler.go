@@ -22,7 +22,14 @@ func NewCatalogHandler(catalogUsecase *usecase.CatalogUsecase) *CatalogHandler {
 	}
 }
 
-// ListCategories returns all application categories
+// ListCategories godoc
+// @Summary      Daftar kategori aplikasi
+// @Description  Mengambil seluruh kategori aplikasi yang aktif
+// @Tags         Catalog
+// @Produce      json
+// @Success      200  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /categories [get]
 func (h *CatalogHandler) ListCategories(c *gin.Context) {
 	categories, err := h.catalogUsecase.ListCategories(c.Request.Context())
 	if err != nil {
@@ -33,7 +40,15 @@ func (h *CatalogHandler) ListCategories(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Daftar kategori berhasil dimuat", categories, nil)
 }
 
-// GetCategoryBySlug returns category details by slug
+// GetCategoryBySlug godoc
+// @Summary      Detail kategori berdasarkan slug
+// @Description  Mengambil detail data sebuah kategori aplikasi
+// @Tags         Catalog
+// @Produce      json
+// @Param        slug  path      string  true  "Slug kategori"
+// @Success      200   {object}  response.StandardResponse
+// @Failure      404   {object}  response.StandardResponse
+// @Router       /categories/{slug} [get]
 func (h *CatalogHandler) GetCategoryBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	category, err := h.catalogUsecase.GetCategoryBySlug(c.Request.Context(), slug)
@@ -45,7 +60,20 @@ func (h *CatalogHandler) GetCategoryBySlug(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Detail kategori berhasil dimuat", category, nil)
 }
 
-// ListApps returns application catalog with filtering and pagination
+// ListApps godoc
+// @Summary      Daftar katalog aplikasi
+// @Description  Mengambil daftar aplikasi dengan filter kategori, target pengguna, status, persona, dan pagination
+// @Tags         Catalog
+// @Produce      json
+// @Param        category         query     string  false  "Filter slug kategori"
+// @Param        target_pengguna  query     string  false  "Filter target pengguna (semua, internal, internal_bps, mitra, pimpinan)"
+// @Param        status           query     string  false  "Filter status operasional (operasional, pemeliharaan, kendala)"
+// @Param        persona          query     string  false  "Filter persona / tag"
+// @Param        page             query     int     false  "Halaman (default 1)"
+// @Param        per_page         query     int     false  "Jumlah item per halaman (default 20)"
+// @Success      200              {object}  response.StandardResponse
+// @Failure      500              {object}  response.StandardResponse
+// @Router       /apps [get]
 func (h *CatalogHandler) ListApps(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "20"))
@@ -73,7 +101,15 @@ func (h *CatalogHandler) ListApps(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Katalog aplikasi berhasil dimuat", apps, meta)
 }
 
-// GetAppBySlug returns detailed application metadata by slug
+// GetAppBySlug godoc
+// @Summary      Detail aplikasi berdasarkan slug
+// @Description  Mengambil metadata lengkap, deskripsi, panduan, dan status sebuah aplikasi
+// @Tags         Catalog
+// @Produce      json
+// @Param        slug  path      string  true  "Slug aplikasi"
+// @Success      200   {object}  response.StandardResponse
+// @Failure      404   {object}  response.StandardResponse
+// @Router       /apps/{slug} [get]
 func (h *CatalogHandler) GetAppBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	var userID *int
@@ -91,7 +127,18 @@ func (h *CatalogHandler) GetAppBySlug(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Detail aplikasi berhasil dimuat", app, nil)
 }
 
-// SearchApps handles full text and trigram search with typo tolerance
+// SearchApps godoc
+// @Summary      Pencarian cerdas aplikasi (Trigram pg_trgm)
+// @Description  Pencarian aplikasi dengan toleransi typo, sinonim kata kunci, dan filter kategori
+// @Tags         Catalog
+// @Produce      json
+// @Param        q         query     string  true   "Kata kunci pencarian"
+// @Param        category  query     string  false  "Filter slug kategori"
+// @Param        limit     query     int     false  "Batas jumlah hasil (default 20)"
+// @Success      200       {object}  response.StandardResponse
+// @Failure      400       {object}  response.StandardResponse
+// @Failure      500       {object}  response.StandardResponse
+// @Router       /apps/search [get]
 func (h *CatalogHandler) SearchApps(c *gin.Context) {
 	query := c.Query("q")
 	if query == "" {
@@ -116,7 +163,15 @@ func (h *CatalogHandler) SearchApps(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Hasil pencarian aplikasi berhasil dimuat", apps, nil)
 }
 
-// GetAppGuides returns guides and FAQ documentation for an application
+// GetAppGuides godoc
+// @Summary      Panduan dan FAQ aplikasi
+// @Description  Mengambil daftar petunjuk teknis / user manual / FAQ untuk aplikasi terkait
+// @Tags         Catalog
+// @Produce      json
+// @Param        slug  path      string  true  "Slug aplikasi"
+// @Success      200   {object}  response.StandardResponse
+// @Failure      404   {object}  response.StandardResponse
+// @Router       /apps/{slug}/guides [get]
 func (h *CatalogHandler) GetAppGuides(c *gin.Context) {
 	slug := c.Param("slug")
 	guides, err := h.catalogUsecase.GetGuidesByAppSlug(c.Request.Context(), slug)

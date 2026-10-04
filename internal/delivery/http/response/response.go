@@ -15,6 +15,9 @@ type StandardResponse struct {
 	Error   *ErrorData  `json:"error,omitempty"`
 }
 
+// Response is an alias for StandardResponse for Swagger documentation
+type Response = StandardResponse
+
 // ErrorData detailed error structure
 type ErrorData struct {
 	Code    string      `json:"code"`

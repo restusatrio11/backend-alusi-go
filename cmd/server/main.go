@@ -25,6 +25,26 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// @title           Portal Aplikasi BPS Provinsi Sumatera Utara (ALUSI) API
+// @version         1.2.0
+// @description     Backend RESTful API untuk Portal Aplikasi Terintegrasi BPS Provinsi Sumatera Utara.
+// @termsOfService  https://sumut.bps.go.id
+
+// @contact.name    Tim Inovasi BPS Provinsi Sumatera Utara
+// @contact.url     https://sumut.bps.go.id
+// @contact.email   bps1200@bps.go.id
+
+// @license.name    MIT
+// @license.url     https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Masukkan JWT token dengan format: Bearer <token>
+
 func main() {
 	// 1. Load Configurations
 	cfg, err := config.LoadConfig()

@@ -25,7 +25,14 @@ func NewHealthHandler(appName, appEnv string, db *database.PostgresDB) *HealthHa
 	}
 }
 
-// Check handles /healthz endpoint
+// Check godoc
+// @Summary      Health check status
+// @Description  Memeriksa status operasional backend API dan koneksi database PostgreSQL
+// @Tags         System
+// @Produce      json
+// @Success      200  {object}  response.Response
+// @Failure      503  {object}  response.Response
+// @Router       /healthz [get]
 func (h *HealthHandler) Check(c *gin.Context) {
 	dbStatus := "DISCONNECTED"
 	if h.db != nil && h.db.Pool != nil {

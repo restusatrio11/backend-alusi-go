@@ -3,11 +3,14 @@ package http
 import (
 	"time"
 
+	_ "backend-alusi-go/docs"
 	"backend-alusi-go/config"
 	"backend-alusi-go/internal/delivery/http/middleware"
 	"backend-alusi-go/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/time/rate"
 )
 
@@ -49,6 +52,12 @@ func SetupRouter(
 
 	// Health check route
 	router.GET("/healthz", healthHandler.Check)
+
+	// Interactive Swagger API Documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger/doc.json")))
+	router.GET("/docs", func(c *gin.Context) {
+		c.Redirect(302, "/swagger/index.html")
+	})
 
 	// API v1 group
 	v1 := router.Group("/api/v1")

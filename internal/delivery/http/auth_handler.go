@@ -30,7 +30,15 @@ func NewAuthHandler(authUsecase *usecase.AuthUsecase, cfg *config.Config) *AuthH
 	}
 }
 
-// Login handles initiation of SSO authentication
+// Login godoc
+// @Summary      Inisiasi login SSO BPS Sumut
+// @Description  Mengarahkan browser pengguna ke halaman login SSO BPS Sumut OIDC provider atau mengembalikan auth URL
+// @Tags         Auth
+// @Produce      json
+// @Param        redirect  query     bool  false  "Jika false, mengembalikan URL JSON tanpa redirect 302"
+// @Success      200       {object}  response.Response
+// @Success      302       {string}  string  "Redirect to SSO Provider"
+// @Router       /auth/login [get]
 func (h *AuthHandler) Login(c *gin.Context) {
 	// Generate random 16-byte state string
 	b := make([]byte, 16)
@@ -62,7 +70,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	c.Redirect(http.StatusFound, authURL)
 }
 
-// Callback handles authorization code exchange from SSO Sumut
+// Callback godoc
+// @Summary      OAuth2 / SSO Callback handler
+// @Description  Menerima authorization code dari SSO BPS Sumut, menukar dengan token, dan melakukan JIT provisioning
+// @Tags         Auth
+// @Produce      json
+// @Param        code   query     string  true   "Authorization code dari SSO"
+// @Param        state  query     string  false  "State token proteksi CSRF"
+// @Param        format query     string  false  "Set ke 'json' untuk mendapatkan JSON token langsung"
+// @Success      200    {object}  response.Response
+// @Failure      400    {object}  response.Response
+// @Failure      500    {object}  response.Response
+// @Router       /auth/callback [get]
 func (h *AuthHandler) Callback(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {
@@ -122,7 +141,16 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 	c.Redirect(http.StatusFound, frontendOrigin+"?login=success")
 }
 
-// Me returns currently authenticated user details
+// Me godoc
+// @Summary      Profil pengguna saat ini
+// @Description  Mengembalikan informasi profil, role, dan izin pengguna yang sedang login
+// @Tags         Auth
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      404  {object}  response.StandardResponse
+// @Router       /auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	claimsVal, exists := c.Get(middleware.CtxUserClaims)
 	if !exists {
@@ -140,7 +168,17 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Profil pengguna berhasil dimuat", user, nil)
 }
 
-// Logout handles Single Log Out (SLO)
+// Logout godoc
+// @Summary      Single Log Out (SLO)
+// @Description  Menghapus cookie sesi lokal dan mengarahkan ke Single Log Out SSO BPS Sumut
+// @Tags         Auth
+// @Produce      json
+// @Param        post_logout_redirect_uri  query     string  false  "URL tujuan setelah logout selesai"
+// @Param        redirect                  query     bool    false  "Jika false, mengembalikan URL JSON tanpa redirect"
+// @Success      200                       {object}  response.StandardResponse
+// @Success      302                       {string}  string  "Redirect to SSO Logout"
+// @Router       /auth/logout [get]
+// @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// 1. Clear local application session cookie
 	c.SetCookie(

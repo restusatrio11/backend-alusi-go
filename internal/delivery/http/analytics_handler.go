@@ -20,7 +20,17 @@ func NewAnalyticsHandler(analyticsUsecase *usecase.AnalyticsUsecase) *AnalyticsH
 	}
 }
 
-// GetDashboardSummary returns high-level KPI rollups (DAU, MAU, Clicks, Totals)
+// GetDashboardSummary godoc
+// @Summary      Ringkasan metrik eksekutif (KPI Rollup)
+// @Description  Mengambil agregasi total pengguna, total aplikasi aktif, total klik, serta DAU dan MAU (Admin)
+// @Tags         Admin - Analytics
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      403  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /admin/analytics/summary [get]
 func (h *AnalyticsHandler) GetDashboardSummary(c *gin.Context) {
 	summary, err := h.analyticsUsecase.GetDashboardSummary(c.Request.Context())
 	if err != nil {
@@ -31,7 +41,19 @@ func (h *AnalyticsHandler) GetDashboardSummary(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Ringkasan metrik analitik berhasil dimuat", summary, nil)
 }
 
-// GetTopApps returns top application ranking by clicks
+// GetTopApps godoc
+// @Summary      Ranking aplikasi paling sering diakses
+// @Description  Mengambil daftar peringkat aplikasi terpopuler berdasarkan jumlah klik (Admin)
+// @Tags         Admin - Analytics
+// @Produce      json
+// @Security     BearerAuth
+// @Param        days   query     int  false  "Rentang hari ke belakang (default 30)"
+// @Param        limit  query     int  false  "Jumlah item ranking (default 10)"
+// @Success      200    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/analytics/top-apps [get]
 func (h *AnalyticsHandler) GetTopApps(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -45,7 +67,18 @@ func (h *AnalyticsHandler) GetTopApps(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Ranking aplikasi terpopuler berhasil dimuat", topApps, nil)
 }
 
-// GetTrends returns daily click & user trends
+// GetTrends godoc
+// @Summary      Tren trafik dan aktivitas harian
+// @Description  Mengambil data tren grafik klik harian dan jumlah pengguna aktif unik (Admin)
+// @Tags         Admin - Analytics
+// @Produce      json
+// @Security     BearerAuth
+// @Param        days  query     int  false  "Rentang hari ke belakang (default 30)"
+// @Success      200   {object}  response.StandardResponse
+// @Failure      401   {object}  response.StandardResponse
+// @Failure      403   {object}  response.StandardResponse
+// @Failure      500   {object}  response.StandardResponse
+// @Router       /admin/analytics/trends [get]
 func (h *AnalyticsHandler) GetTrends(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
 
@@ -58,7 +91,18 @@ func (h *AnalyticsHandler) GetTrends(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Tren penggunaan aplikasi berhasil dimuat", trends, nil)
 }
 
-// GetDisruptions returns 30-day disruption and SLA uptime summary
+// GetDisruptions godoc
+// @Summary      Rekapitulasi gangguan layanan dan SLA
+// @Description  Mengambil riwayat insiden kendala operasional dan persentase uptime SLA per layanan (Admin)
+// @Tags         Admin - Analytics
+// @Produce      json
+// @Security     BearerAuth
+// @Param        days  query     int  false  "Rentang hari ke belakang (default 30)"
+// @Success      200   {object}  response.StandardResponse
+// @Failure      401   {object}  response.StandardResponse
+// @Failure      403   {object}  response.StandardResponse
+// @Failure      500   {object}  response.StandardResponse
+// @Router       /admin/analytics/disruptions [get]
 func (h *AnalyticsHandler) GetDisruptions(c *gin.Context) {
 	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
 

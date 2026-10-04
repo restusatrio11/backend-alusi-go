@@ -1,0 +1,1808 @@
+basePath: /api/v1
+definitions:
+  http.AskRequest:
+    properties:
+      question:
+        type: string
+    required:
+    - question
+    type: object
+  http.ReorderRequest:
+    properties:
+      app_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - app_ids
+    type: object
+  response.ErrorData:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/response.ErrorData'
+      message:
+        type: string
+      meta: {}
+      success:
+        type: boolean
+    type: object
+  response.StandardResponse:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/response.ErrorData'
+      message:
+        type: string
+      meta: {}
+      success:
+        type: boolean
+    type: object
+  usecase.CategoryInput:
+    properties:
+      deskripsi:
+        type: string
+      ikon:
+        type: string
+      nama:
+        type: string
+      slug:
+        type: string
+      urutan:
+        type: integer
+    required:
+    - nama
+    type: object
+  usecase.CreateAnnouncementInput:
+    properties:
+      app_id:
+        type: integer
+      ends_at:
+        type: string
+      is_active:
+        type: boolean
+      judul:
+        type: string
+      konten:
+        type: string
+      starts_at:
+        type: string
+      tipe:
+        description: info, warning, maintenance, urgent
+        type: string
+    required:
+    - judul
+    - konten
+    type: object
+  usecase.CreateAppInput:
+    properties:
+      category_id:
+        type: integer
+      deskripsi:
+        type: string
+      ikon_url:
+        type: string
+      is_public:
+        type: boolean
+      kontak_admin:
+        type: string
+      nama:
+        type: string
+      pemilik:
+        type: string
+      role_ids:
+        items:
+          type: integer
+        type: array
+      slug:
+        type: string
+      status_layanan:
+        type: string
+      target_pengguna:
+        type: string
+      url:
+        type: string
+      urutan:
+        type: integer
+    required:
+    - category_id
+    - nama
+    - url
+    type: object
+  usecase.GuideInput:
+    properties:
+      judul:
+        type: string
+      konten:
+        type: string
+      urutan:
+        type: integer
+    required:
+    - judul
+    - konten
+    type: object
+  usecase.OpenAPICatalogResponse:
+    properties:
+      dataset:
+        items:
+          $ref: '#/definitions/usecase.OpenAPIMetadataItem'
+        type: array
+      description:
+        type: string
+      license:
+        type: string
+      publisher:
+        type: string
+      title:
+        type: string
+      total_items:
+        type: integer
+    type: object
+  usecase.OpenAPIMetadataItem:
+    properties:
+      access_rights:
+        type: string
+      description:
+        type: string
+      identifier:
+        type: string
+      issued:
+        type: string
+      landing_page:
+        type: string
+      modified:
+        type: string
+      publisher:
+        type: string
+      service_status:
+        type: string
+      target_audience:
+        type: string
+      theme:
+        type: string
+      title:
+        type: string
+    type: object
+  usecase.SubmitFeedbackInput:
+    properties:
+      app_id:
+        type: integer
+      kategori:
+        description: kendala, saran, data
+        type: string
+      pesan:
+        type: string
+    required:
+    - pesan
+    type: object
+  usecase.UpdateAnnouncementInput:
+    properties:
+      app_id:
+        type: integer
+      ends_at:
+        type: string
+      is_active:
+        type: boolean
+      judul:
+        type: string
+      konten:
+        type: string
+      starts_at:
+        type: string
+      tipe:
+        type: string
+    required:
+    - judul
+    - konten
+    type: object
+  usecase.UpdateAppInput:
+    properties:
+      aktif:
+        type: boolean
+      category_id:
+        type: integer
+      deskripsi:
+        type: string
+      ikon_url:
+        type: string
+      is_public:
+        type: boolean
+      kontak_admin:
+        type: string
+      nama:
+        type: string
+      pemilik:
+        type: string
+      role_ids:
+        items:
+          type: integer
+        type: array
+      slug:
+        type: string
+      status_layanan:
+        type: string
+      target_pengguna:
+        type: string
+      url:
+        type: string
+      urutan:
+        type: integer
+    required:
+    - category_id
+    - nama
+    - url
+    type: object
+  usecase.UpdateFeedbackStatusInput:
+    properties:
+      catatan_admin:
+        type: string
+      status:
+        description: pending, in_progress, resolved, closed
+        type: string
+    required:
+    - status
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: bps1200@bps.go.id
+    name: Tim Inovasi BPS Provinsi Sumatera Utara
+    url: https://sumut.bps.go.id
+  description: Backend RESTful API untuk Portal Aplikasi Terintegrasi BPS Provinsi
+    Sumatera Utara.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sumut.bps.go.id
+  title: Portal Aplikasi BPS Provinsi Sumatera Utara (ALUSI) API
+  version: 1.2.0
+paths:
+  /admin/analytics/disruptions:
+    get:
+      description: Mengambil riwayat insiden kendala operasional dan persentase uptime
+        SLA per layanan (Admin)
+      parameters:
+      - description: Rentang hari ke belakang (default 30)
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Rekapitulasi gangguan layanan dan SLA
+      tags:
+      - Admin - Analytics
+  /admin/analytics/summary:
+    get:
+      description: Mengambil agregasi total pengguna, total aplikasi aktif, total
+        klik, serta DAU dan MAU (Admin)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Ringkasan metrik eksekutif (KPI Rollup)
+      tags:
+      - Admin - Analytics
+  /admin/analytics/top-apps:
+    get:
+      description: Mengambil daftar peringkat aplikasi terpopuler berdasarkan jumlah
+        klik (Admin)
+      parameters:
+      - description: Rentang hari ke belakang (default 30)
+        in: query
+        name: days
+        type: integer
+      - description: Jumlah item ranking (default 10)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Ranking aplikasi paling sering diakses
+      tags:
+      - Admin - Analytics
+  /admin/analytics/trends:
+    get:
+      description: Mengambil data tren grafik klik harian dan jumlah pengguna aktif
+        unik (Admin)
+      parameters:
+      - description: Rentang hari ke belakang (default 30)
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Tren trafik dan aktivitas harian
+      tags:
+      - Admin - Analytics
+  /admin/announcements:
+    get:
+      description: Mengambil seluruh riwayat pengumuman baik yang aktif maupun nonaktif
+        (Admin)
+      parameters:
+      - description: Halaman (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah item per halaman (default 20)
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Daftar seluruh pengumuman (Admin)
+      tags:
+      - Admin - Announcements
+    post:
+      consumes:
+      - application/json
+      description: Membuat pengumuman broadcast atau banner pemeliharaan baru (Admin)
+      parameters:
+      - description: Data pengumuman baru
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CreateAnnouncementInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Buat pengumuman baru
+      tags:
+      - Admin - Announcements
+  /admin/announcements/{id}:
+    delete:
+      description: Menghapus pengumuman dari sistem (Admin)
+      parameters:
+      - description: ID Pengumuman
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus pengumuman
+      tags:
+      - Admin - Announcements
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui judul, pesan, tipe, atau masa tayang pengumuman (Admin)
+      parameters:
+      - description: ID Pengumuman
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data perubahan pengumuman
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.UpdateAnnouncementInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui pengumuman
+      tags:
+      - Admin - Announcements
+  /admin/apps:
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data aplikasi baru ke dalam katalog (Admin)
+      parameters:
+      - description: Data aplikasi baru
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CreateAppInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah aplikasi baru
+      tags:
+      - Admin - Catalog
+  /admin/apps/{id}:
+    delete:
+      description: Menonaktifkan aplikasi dari tampilan katalog pengguna (Admin)
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus (Soft Delete) aplikasi
+      tags:
+      - Admin - Catalog
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui informasi metadata aplikasi yang sudah ada (Admin)
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data perubahan aplikasi
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.UpdateAppInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui data aplikasi
+      tags:
+      - Admin - Catalog
+  /admin/apps/{id}/guides:
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan panduan atau FAQ baru untuk sebuah aplikasi (Admin)
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data panduan baru
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.GuideInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah panduan / FAQ aplikasi
+      tags:
+      - Admin - Guides
+  /admin/apps/{id}/probe:
+    post:
+      description: Memaksa pemeriksaan langsung (live HTTP ping) pada endpoint health
+        check aplikasi (Admin)
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Trigger manual probe kesehatan aplikasi
+      tags:
+      - Admin - Monitoring
+  /admin/apps/reorder:
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui urutan sequence posisi tampilan katalog aplikasi (Admin)
+      parameters:
+      - description: Daftar ID aplikasi sesuai urutan baru
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.ReorderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Ubah urutan (Drag & Drop) aplikasi
+      tags:
+      - Admin - Catalog
+  /admin/audit-logs:
+    get:
+      description: Mengambil log aktivitas operasional, perubahan data, dan akses
+        administrator (Admin)
+      parameters:
+      - description: Filter ID pengguna/admin
+        in: query
+        name: user_id
+        type: integer
+      - description: Filter aksi (CREATE, UPDATE, DELETE, PROBE)
+        in: query
+        name: action
+        type: string
+      - description: Filter entitas target (app, category, guide, announcement)
+        in: query
+        name: entity
+        type: string
+      - description: Filter ID entitas spesifik
+        in: query
+        name: entity_id
+        type: string
+      - description: Filter tanggal awal (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: Filter tanggal akhir (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      - description: Halaman (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah item per halaman (default 20)
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Jejak aktivitas admin (Audit Trail)
+      tags:
+      - Admin - Audit Trail
+  /admin/categories:
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan kategori kelompok aplikasi baru (Admin)
+      parameters:
+      - description: Data kategori baru
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CategoryInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah kategori baru
+      tags:
+      - Admin - Catalog
+  /admin/categories/{id}:
+    delete:
+      description: Menghapus kategori aplikasi (Admin)
+      parameters:
+      - description: ID Kategori
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus kategori
+      tags:
+      - Admin - Catalog
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui nama, deskripsi, ikon, atau warna kategori (Admin)
+      parameters:
+      - description: ID Kategori
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data perubahan kategori
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.CategoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui kategori
+      tags:
+      - Admin - Catalog
+  /admin/feedbacks:
+    get:
+      description: Mengambil seluruh tiket laporan kendala, saran, dan pertanyaan
+        pengguna (Admin)
+      parameters:
+      - description: Filter status tiket (pending, in_progress, resolved, closed)
+        in: query
+        name: status
+        type: string
+      - description: Filter ID aplikasi
+        in: query
+        name: app_id
+        type: integer
+      - description: Halaman (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah per halaman (default 20)
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Daftar laporan feedback (Admin)
+      tags:
+      - Admin - Feedback
+  /admin/feedbacks/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Mengubah status dan menambahkan catatan respon tindak lanjut pada
+        tiket laporan (Admin)
+      parameters:
+      - description: ID Feedback
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data status dan respon tanggapan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.UpdateFeedbackStatusInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui status tindak lanjut tiket feedback (Admin)
+      tags:
+      - Admin - Feedback
+  /admin/guides/{id}:
+    delete:
+      description: Menghapus data panduan atau FAQ (Admin)
+      parameters:
+      - description: ID Panduan
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus panduan / FAQ
+      tags:
+      - Admin - Guides
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui judul, konten markdown, tipe, atau urutan panduan (Admin)
+      parameters:
+      - description: ID Panduan
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data perubahan panduan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.GuideInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui panduan / FAQ
+      tags:
+      - Admin - Guides
+  /admin/reports/analytics/export:
+    get:
+      description: Mengunduh file laporan rekapitulasi statistik penggunaan dan SLA
+        dalam format CSV (Admin)
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Ekspor laporan analitik (CSV / Excel)
+      tags:
+      - Admin - Reports
+  /admin/reports/catalog/export:
+    get:
+      description: Mengunduh file inventaris lengkap katalog aplikasi, URL, dan status
+        dalam format CSV (Admin)
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Ekspor inventaris katalog aplikasi (CSV / Excel)
+      tags:
+      - Admin - Reports
+  /ai/ask:
+    post:
+      consumes:
+      - application/json
+      description: Memproses pertanyaan natural bahasa Indonesia untuk merekomendasikan
+        aplikasi BPS yang relevan
+      parameters:
+      - description: Pertanyaan pengguna
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/http.AskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Tanya Asisten AI & Rekomendasi Cerdas
+      tags:
+      - AI Assistant
+  /announcements:
+    get:
+      description: Mengambil pengumuman broadcast sistem atau banner pemeliharaan
+        spesifik aplikasi
+      parameters:
+      - description: Filter spesifik ID aplikasi (opsional)
+        in: query
+        name: app_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Daftar pengumuman / banner aktif
+      tags:
+      - Announcements
+  /apps:
+    get:
+      description: Mengambil daftar aplikasi dengan filter kategori, target pengguna,
+        status, persona, dan pagination
+      parameters:
+      - description: Filter slug kategori
+        in: query
+        name: category
+        type: string
+      - description: Filter target pengguna (semua, internal, internal_bps, mitra,
+          pimpinan)
+        in: query
+        name: target_pengguna
+        type: string
+      - description: Filter status operasional (operasional, pemeliharaan, kendala)
+        in: query
+        name: status
+        type: string
+      - description: Filter persona / tag
+        in: query
+        name: persona
+        type: string
+      - description: Halaman (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah item per halaman (default 20)
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Daftar katalog aplikasi
+      tags:
+      - Catalog
+  /apps/{id}/click:
+    post:
+      description: Mencatat riwayat klik pengguna dan menambah counter total hits
+        secara non-blocking
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Catat klik / akses aplikasi (Asinkron)
+      tags:
+      - Interactions
+  /apps/{id}/favorite:
+    post:
+      description: Melakukan toggle status bookmark / favorit aplikasi untuk pengguna
+        yang login
+      parameters:
+      - description: ID Aplikasi
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah / Hapus favorit pengguna
+      tags:
+      - Interactions
+  /apps/{slug}:
+    get:
+      description: Mengambil metadata lengkap, deskripsi, panduan, dan status sebuah
+        aplikasi
+      parameters:
+      - description: Slug aplikasi
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Detail aplikasi berdasarkan slug
+      tags:
+      - Catalog
+  /apps/{slug}/guides:
+    get:
+      description: Mengambil daftar petunjuk teknis / user manual / FAQ untuk aplikasi
+        terkait
+      parameters:
+      - description: Slug aplikasi
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Panduan dan FAQ aplikasi
+      tags:
+      - Catalog
+  /apps/{slug}/status-history:
+    get:
+      description: Mengambil riwayat log ping & health check uptime sebuah aplikasi
+      parameters:
+      - description: Slug atau ID aplikasi
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Batas jumlah riwayat (default 30)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Riwayat status kesehatan aplikasi
+      tags:
+      - Monitoring
+  /apps/search:
+    get:
+      description: Pencarian aplikasi dengan toleransi typo, sinonim kata kunci, dan
+        filter kategori
+      parameters:
+      - description: Kata kunci pencarian
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Filter slug kategori
+        in: query
+        name: category
+        type: string
+      - description: Batas jumlah hasil (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Pencarian cerdas aplikasi (Trigram pg_trgm)
+      tags:
+      - Catalog
+  /auth/callback:
+    get:
+      description: Menerima authorization code dari SSO BPS Sumut, menukar dengan
+        token, dan melakukan JIT provisioning
+      parameters:
+      - description: Authorization code dari SSO
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: State token proteksi CSRF
+        in: query
+        name: state
+        type: string
+      - description: Set ke 'json' untuk mendapatkan JSON token langsung
+        in: query
+        name: format
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: OAuth2 / SSO Callback handler
+      tags:
+      - Auth
+  /auth/login:
+    get:
+      description: Mengarahkan browser pengguna ke halaman login SSO BPS Sumut OIDC
+        provider atau mengembalikan auth URL
+      parameters:
+      - description: Jika false, mengembalikan URL JSON tanpa redirect 302
+        in: query
+        name: redirect
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "302":
+          description: Redirect to SSO Provider
+          schema:
+            type: string
+      summary: Inisiasi login SSO BPS Sumut
+      tags:
+      - Auth
+  /auth/logout:
+    get:
+      description: Menghapus cookie sesi lokal dan mengarahkan ke Single Log Out SSO
+        BPS Sumut
+      parameters:
+      - description: URL tujuan setelah logout selesai
+        in: query
+        name: post_logout_redirect_uri
+        type: string
+      - description: Jika false, mengembalikan URL JSON tanpa redirect
+        in: query
+        name: redirect
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "302":
+          description: Redirect to SSO Logout
+          schema:
+            type: string
+      summary: Single Log Out (SLO)
+      tags:
+      - Auth
+    post:
+      description: Menghapus cookie sesi lokal dan mengarahkan ke Single Log Out SSO
+        BPS Sumut
+      parameters:
+      - description: URL tujuan setelah logout selesai
+        in: query
+        name: post_logout_redirect_uri
+        type: string
+      - description: Jika false, mengembalikan URL JSON tanpa redirect
+        in: query
+        name: redirect
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "302":
+          description: Redirect to SSO Logout
+          schema:
+            type: string
+      summary: Single Log Out (SLO)
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      description: Mengembalikan informasi profil, role, dan izin pengguna yang sedang
+        login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Profil pengguna saat ini
+      tags:
+      - Auth
+  /categories:
+    get:
+      description: Mengambil seluruh kategori aplikasi yang aktif
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Daftar kategori aplikasi
+      tags:
+      - Catalog
+  /categories/{slug}:
+    get:
+      description: Mengambil detail data sebuah kategori aplikasi
+      parameters:
+      - description: Slug kategori
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Detail kategori berdasarkan slug
+      tags:
+      - Catalog
+  /feedbacks:
+    post:
+      consumes:
+      - application/json
+      description: Mengirim formulir laporan kendala atau usulan fitur untuk aplikasi
+        tertentu atau portal secara umum
+      parameters:
+      - description: Data formulir feedback
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.SubmitFeedbackInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Kirim kritik, saran, atau laporan kendala
+      tags:
+      - Feedback
+  /healthz:
+    get:
+      description: Memeriksa status operasional backend API dan koneksi database PostgreSQL
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Health check status
+      tags:
+      - System
+  /openapi/apps:
+    get:
+      description: Mengambil katalog aplikasi dalam format standar metadata terbuka
+        Satu Data Indonesia & DCAT-AP
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecase.OpenAPICatalogResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Metadata Katalog Open API (Satu Data Indonesia / DCAT-AP)
+      tags:
+      - Open Data / SDI
+  /services/status:
+    get:
+      description: Mengambil status operasional, SLA uptime persentase, dan latensi
+        rata-rata seluruh aplikasi
+      parameters:
+      - description: Jumlah hari rekapitulasi (default 30)
+        in: query
+        name: days
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      summary: Ringkasan uptime seluruh layanan (Service Status)
+      tags:
+      - Monitoring
+  /users/me/favorites:
+    get:
+      description: Mengambil semua aplikasi yang ditandai sebagai favorit oleh pengguna
+        yang sedang login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Daftar aplikasi favorit pengguna
+      tags:
+      - Interactions
+  /users/me/recents:
+    get:
+      description: Mengambil daftar riwayat aplikasi yang baru saja diakses oleh pengguna
+      parameters:
+      - description: Batas jumlah item (default 10)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.StandardResponse'
+      security:
+      - BearerAuth: []
+      summary: Riwayat aplikasi terakhir dibuka
+      tags:
+      - Interactions
+securityDefinitions:
+  BearerAuth:
+    description: 'Masukkan JWT token dengan format: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

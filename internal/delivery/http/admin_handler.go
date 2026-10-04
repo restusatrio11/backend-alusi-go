@@ -20,7 +20,20 @@ func NewAdminHandler(adminUsecase *usecase.AdminUsecase) *AdminHandler {
 	}
 }
 
-// CreateApp handles application creation
+// CreateApp godoc
+// @Summary      Tambah aplikasi baru
+// @Description  Menambahkan data aplikasi baru ke dalam katalog (Admin)
+// @Tags         Admin - Catalog
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        input  body      usecase.CreateAppInput  true  "Data aplikasi baru"
+// @Success      201    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/apps [post]
 func (h *AdminHandler) CreateApp(c *gin.Context) {
 	var input usecase.CreateAppInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -37,7 +50,21 @@ func (h *AdminHandler) CreateApp(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Aplikasi berhasil ditambahkan", app, nil)
 }
 
-// UpdateApp handles application update
+// UpdateApp godoc
+// @Summary      Perbarui data aplikasi
+// @Description  Memperbarui informasi metadata aplikasi yang sudah ada (Admin)
+// @Tags         Admin - Catalog
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id     path      int                     true  "ID Aplikasi"
+// @Param        input  body      usecase.UpdateAppInput  true  "Data perubahan aplikasi"
+// @Success      200    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/apps/{id} [put]
 func (h *AdminHandler) UpdateApp(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -60,7 +87,19 @@ func (h *AdminHandler) UpdateApp(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Aplikasi berhasil diperbarui", app, nil)
 }
 
-// DeleteApp handles application soft deletion
+// DeleteApp godoc
+// @Summary      Hapus (Soft Delete) aplikasi
+// @Description  Menonaktifkan aplikasi dari tampilan katalog pengguna (Admin)
+// @Tags         Admin - Catalog
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "ID Aplikasi"
+// @Success      200  {object}  response.StandardResponse
+// @Failure      400  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      403  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /admin/apps/{id} [delete]
 func (h *AdminHandler) DeleteApp(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -80,7 +119,20 @@ type ReorderRequest struct {
 	AppIDs []int `json:"app_ids" binding:"required"`
 }
 
-// ReorderApps handles drag and drop reordering of applications
+// ReorderApps godoc
+// @Summary      Ubah urutan (Drag & Drop) aplikasi
+// @Description  Memperbarui urutan sequence posisi tampilan katalog aplikasi (Admin)
+// @Tags         Admin - Catalog
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        input  body      ReorderRequest  true  "Daftar ID aplikasi sesuai urutan baru"
+// @Success      200    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/apps/reorder [put]
 func (h *AdminHandler) ReorderApps(c *gin.Context) {
 	var req ReorderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -96,7 +148,20 @@ func (h *AdminHandler) ReorderApps(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Urutan aplikasi berhasil diperbarui", nil, nil)
 }
 
-// CreateCategory handles category creation
+// CreateCategory godoc
+// @Summary      Tambah kategori baru
+// @Description  Menambahkan kategori kelompok aplikasi baru (Admin)
+// @Tags         Admin - Catalog
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        input  body      usecase.CategoryInput  true  "Data kategori baru"
+// @Success      201    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/categories [post]
 func (h *AdminHandler) CreateCategory(c *gin.Context) {
 	var input usecase.CategoryInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -113,7 +178,21 @@ func (h *AdminHandler) CreateCategory(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Kategori berhasil dibuat", cat, nil)
 }
 
-// UpdateCategory handles category update
+// UpdateCategory godoc
+// @Summary      Perbarui kategori
+// @Description  Memperbarui nama, deskripsi, ikon, atau warna kategori (Admin)
+// @Tags         Admin - Catalog
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id     path      int                    true  "ID Kategori"
+// @Param        input  body      usecase.CategoryInput  true  "Data perubahan kategori"
+// @Success      200    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/categories/{id} [put]
 func (h *AdminHandler) UpdateCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -136,7 +215,19 @@ func (h *AdminHandler) UpdateCategory(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Kategori berhasil diperbarui", cat, nil)
 }
 
-// DeleteCategory handles category deletion
+// DeleteCategory godoc
+// @Summary      Hapus kategori
+// @Description  Menghapus kategori aplikasi (Admin)
+// @Tags         Admin - Catalog
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "ID Kategori"
+// @Success      200  {object}  response.StandardResponse
+// @Failure      400  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      403  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /admin/categories/{id} [delete]
 func (h *AdminHandler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -152,7 +243,21 @@ func (h *AdminHandler) DeleteCategory(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Kategori berhasil dihapus", nil, nil)
 }
 
-// CreateGuide handles guide/FAQ creation for an app
+// CreateGuide godoc
+// @Summary      Tambah panduan / FAQ aplikasi
+// @Description  Menambahkan panduan atau FAQ baru untuk sebuah aplikasi (Admin)
+// @Tags         Admin - Guides
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id     path      int                 true  "ID Aplikasi"
+// @Param        input  body      usecase.GuideInput  true  "Data panduan baru"
+// @Success      201    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/apps/{id}/guides [post]
 func (h *AdminHandler) CreateGuide(c *gin.Context) {
 	appID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -175,7 +280,21 @@ func (h *AdminHandler) CreateGuide(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Panduan aplikasi berhasil ditambahkan", guide, nil)
 }
 
-// UpdateGuide handles guide/FAQ update
+// UpdateGuide godoc
+// @Summary      Perbarui panduan / FAQ
+// @Description  Memperbarui judul, konten markdown, tipe, atau urutan panduan (Admin)
+// @Tags         Admin - Guides
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id     path      int                 true  "ID Panduan"
+// @Param        input  body      usecase.GuideInput  true  "Data perubahan panduan"
+// @Success      200    {object}  response.StandardResponse
+// @Failure      400    {object}  response.StandardResponse
+// @Failure      401    {object}  response.StandardResponse
+// @Failure      403    {object}  response.StandardResponse
+// @Failure      500    {object}  response.StandardResponse
+// @Router       /admin/guides/{id} [put]
 func (h *AdminHandler) UpdateGuide(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -198,7 +317,19 @@ func (h *AdminHandler) UpdateGuide(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Panduan aplikasi berhasil diperbarui", guide, nil)
 }
 
-// DeleteGuide handles guide/FAQ deletion
+// DeleteGuide godoc
+// @Summary      Hapus panduan / FAQ
+// @Description  Menghapus data panduan atau FAQ (Admin)
+// @Tags         Admin - Guides
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "ID Panduan"
+// @Success      200  {object}  response.StandardResponse
+// @Failure      400  {object}  response.StandardResponse
+// @Failure      401  {object}  response.StandardResponse
+// @Failure      403  {object}  response.StandardResponse
+// @Failure      500  {object}  response.StandardResponse
+// @Router       /admin/guides/{id} [delete]
 func (h *AdminHandler) DeleteGuide(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
