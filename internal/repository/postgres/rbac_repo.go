@@ -30,7 +30,7 @@ func (r *RBACRepo) ListPermissions(ctx context.Context) ([]domain.Permission, er
 	}
 	defer rows.Close()
 
-	var perms []domain.Permission
+	perms := make([]domain.Permission, 0)
 	for rows.Next() {
 		var p domain.Permission
 		if err := rows.Scan(&p.ID, &p.Kode, &p.Nama, &p.Modul, &p.Deskripsi, &p.CreatedAt); err != nil {
@@ -52,16 +52,18 @@ func (r *RBACRepo) ListRolesWithPermissions(ctx context.Context) ([]domain.RoleW
 	if err != nil {
 		return nil, fmt.Errorf("failed to list roles: %w", err)
 	}
-	defer rows.Close()
 
-	var roles []domain.RoleWithPermissions
+	roles := make([]domain.RoleWithPermissions, 0)
 	for rows.Next() {
 		var role domain.RoleWithPermissions
 		if err := rows.Scan(&role.ID, &role.Nama, &role.Deskripsi, &role.CreatedAt); err != nil {
+			rows.Close()
 			return nil, fmt.Errorf("failed to scan role: %w", err)
 		}
+		role.Permissions = make([]domain.Permission, 0)
 		roles = append(roles, role)
 	}
+	rows.Close()
 
 	for i := range roles {
 		permQuery := `
@@ -73,7 +75,7 @@ func (r *RBACRepo) ListRolesWithPermissions(ctx context.Context) ([]domain.RoleW
 		`
 		pRows, err := r.pool.Query(ctx, permQuery, roles[i].ID)
 		if err == nil {
-			var rolePerms []domain.Permission
+			rolePerms := make([]domain.Permission, 0)
 			for pRows.Next() {
 				var p domain.Permission
 				if err := pRows.Scan(&p.ID, &p.Kode, &p.Nama, &p.Modul, &p.Deskripsi, &p.CreatedAt); err == nil {
