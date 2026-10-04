@@ -12,6 +12,7 @@ import (
 
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
+	"backend-alusi-go/pkg/database"
 	"backend-alusi-go/pkg/logger"
 
 	"github.com/rs/zerolog/log"
@@ -33,11 +34,27 @@ func main() {
 		Str("port", cfg.App.Port).
 		Msg("Starting Portal BPS Sumut Backend API...")
 
-	// 3. Setup Delivery & Handlers
-	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env)
+	// 3. Initialize PostgreSQL Database Connection Pool
+	ctx, cancelInit := context.WithTimeout(context.Background(), 15*time.Second)
+	db, err := database.NewPostgresDB(ctx, &cfg.Database)
+	cancelInit()
+
+	if err != nil {
+		log.Warn().Err(err).Msg("Database connection failed or not available yet. Server starting in offline DB mode.")
+	} else {
+		// Run migrations automatically
+		if err := database.RunMigrations(context.Background(), db.Pool, "migrations"); err != nil {
+			log.Error().Err(err).Msg("Database migration failed")
+		} else {
+			log.Info().Msg("All database migrations verified and applied")
+		}
+	}
+
+	// 4. Setup Delivery & Handlers
+	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, db)
 	router := deliveryHTTP.SetupRouter(cfg, healthHandler)
 
-	// 4. Configure HTTP Server
+	// 5. Configure HTTP Server
 	serverAddr := fmt.Sprintf(":%s", cfg.App.Port)
 	srv := &http.Server{
 		Addr:         serverAddr,
@@ -47,7 +64,7 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	// 5. Start Server in Goroutine
+	// 6. Start Server in Goroutine
 	go func() {
 		log.Info().Str("addr", serverAddr).Msg("HTTP Server is listening and serving requests")
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -55,19 +72,24 @@ func main() {
 		}
 	}()
 
-	// 6. Graceful Shutdown Listener
+	// 7. Graceful Shutdown Listener
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
 	log.Warn().Msg("Shutdown signal received, shutting down gracefully...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Error().Err(err).Msg("Server forced to shutdown")
 	} else {
-		log.Info().Msg("Server exiting cleanly")
+		log.Info().Msg("HTTP Server shut down cleanly")
+	}
+
+	// Close database connection pool
+	if db != nil {
+		db.Close()
 	}
 }
