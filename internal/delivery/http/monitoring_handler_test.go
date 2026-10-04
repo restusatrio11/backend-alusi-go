@@ -10,6 +10,7 @@ import (
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
 	"backend-alusi-go/internal/delivery/http/response"
 	"backend-alusi-go/internal/usecase"
+	"backend-alusi-go/pkg/ai"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/sso"
 )
@@ -44,6 +45,8 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
 	auditUsecase := usecase.NewAuditUsecase(nil)
 	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
+	aiUsecase := usecase.NewAIUsecase(ai.NewAssistantService(nil, nil, nil), nil)
+	aiHandler := deliveryHTTP.NewAIHandler(aiUsecase)
 
 	router := deliveryHTTP.SetupRouter(
 		cfg,
@@ -57,6 +60,7 @@ func TestMonitoringEndpoints_Routing(t *testing.T) {
 		feedbackHandler,
 		analyticsHandler,
 		auditHandler,
+		aiHandler,
 		jwtService,
 	)
 

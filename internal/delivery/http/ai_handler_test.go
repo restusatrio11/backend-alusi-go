@@ -10,14 +10,13 @@ import (
 	"backend-alusi-go/config"
 	deliveryHTTP "backend-alusi-go/internal/delivery/http"
 	"backend-alusi-go/internal/delivery/http/response"
-	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/usecase"
 	"backend-alusi-go/pkg/ai"
 	"backend-alusi-go/pkg/jwt"
 	"backend-alusi-go/pkg/sso"
 )
 
-func TestFeedbackEndpoints_Routing(t *testing.T) {
+func TestAIEndpoints_Routing(t *testing.T) {
 	cfg := &config.Config{
 		App:  config.AppConfig{Name: "test-app", Env: "test", Debug: true},
 		JWT:  config.JWTConfig{Secret: "test-secret-at-least-32-chars-long", ExpirationHours: 24},
@@ -34,6 +33,11 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 	monitoringUsecase := usecase.NewMonitoringUsecase(nil, nil, nil)
 	announcementUsecase := usecase.NewAnnouncementUsecase(nil, nil)
 	feedbackUsecase := usecase.NewFeedbackUsecase(nil, nil)
+	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
+	auditUsecase := usecase.NewAuditUsecase(nil)
+
+	aiService := ai.NewAssistantService(nil, nil, nil)
+	aiUsecase := usecase.NewAIUsecase(aiService, nil)
 
 	healthHandler := deliveryHTTP.NewHealthHandler(cfg.App.Name, cfg.App.Env, nil)
 	authHandler := deliveryHTTP.NewAuthHandler(authUsecase, cfg)
@@ -43,11 +47,8 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 	monitoringHandler := deliveryHTTP.NewMonitoringHandler(monitoringUsecase)
 	announcementHandler := deliveryHTTP.NewAnnouncementHandler(announcementUsecase)
 	feedbackHandler := deliveryHTTP.NewFeedbackHandler(feedbackUsecase)
-	analyticsUsecase := usecase.NewAnalyticsUsecase(nil)
 	analyticsHandler := deliveryHTTP.NewAnalyticsHandler(analyticsUsecase)
-	auditUsecase := usecase.NewAuditUsecase(nil)
 	auditHandler := deliveryHTTP.NewAuditHandler(auditUsecase)
-	aiUsecase := usecase.NewAIUsecase(ai.NewAssistantService(nil, nil, nil), nil)
 	aiHandler := deliveryHTTP.NewAIHandler(aiUsecase)
 
 	router := deliveryHTTP.SetupRouter(
@@ -66,20 +67,19 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 		jwtService,
 	)
 
-	// 1. Test POST /api/v1/feedbacks -> 201 Created
+	// 1. Test POST /api/v1/ai/ask -> 200 OK
 	payload := map[string]interface{}{
-		"kategori": "kendala",
-		"pesan":    "Tidak bisa mengakses halaman login SIMBATIK",
+		"question": "Aplikasi apa yang digunakan untuk input presensi dan cuti pegawai?",
 	}
 	body, _ := json.Marshal(payload)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodPost, "/api/v1/feedbacks", bytes.NewBuffer(body))
+	req, _ := http.NewRequest(http.MethodPost, "/api/v1/ai/ask", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
-	if w.Code != http.StatusCreated {
-		t.Fatalf("Expected 201 Created for POST /feedbacks, got %d", w.Code)
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected 200 OK for /api/v1/ai/ask, got %d", w.Code)
 	}
 
 	var resp response.StandardResponse
@@ -88,19 +88,6 @@ func TestFeedbackEndpoints_Routing(t *testing.T) {
 	}
 
 	if !resp.Success {
-		t.Errorf("Expected success = true for POST /feedbacks")
-	}
-}
-
-func TestFeedbackDomain(t *testing.T) {
-	fb := domain.Feedback{
-		ID:       1,
-		Kategori: "kendala",
-		Pesan:    "Error loading map",
-		Status:   "pending",
-	}
-
-	if fb.Kategori != "kendala" || fb.Status != "pending" {
-		t.Errorf("Unexpected feedback domain data")
+		t.Errorf("Expected success = true for /api/v1/ai/ask")
 	}
 }

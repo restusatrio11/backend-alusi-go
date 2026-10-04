@@ -24,6 +24,7 @@ func SetupRouter(
 	feedbackHandler *FeedbackHandler,
 	analyticsHandler *AnalyticsHandler,
 	auditHandler *AuditHandler,
+	aiHandler *AIHandler,
 	jwtService *jwt.JWTService,
 ) *gin.Engine {
 	if !cfg.App.Debug {
@@ -98,6 +99,12 @@ func SetupRouter(
 		feedbacks := v1.Group("/feedbacks")
 		{
 			feedbacks.POST("", middleware.OptionalAuth(jwtService), feedbackHandler.SubmitFeedback)
+		}
+
+		// AI Assistant Recommendation Endpoint (Public / User)
+		ai := v1.Group("/ai")
+		{
+			ai.POST("/ask", middleware.OptionalAuth(jwtService), aiHandler.Ask)
 		}
 
 		// Public Service Monitoring
