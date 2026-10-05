@@ -4,15 +4,14 @@ After=network.target
 
 [Service]
 Type=simple
-User=alusi
-Group=alusi
-WorkingDirectory=/var/www/alusi-backend
-ExecStart=/var/www/alusi-backend/backend-alusi
+User=root
+WorkingDirectory=/www/wwwroot/GO/AlusiAPI
+ExecStart=/www/wwwroot/GO/AlusiAPI/backend-alusi
 Restart=always
 RestartSec=5s
 
 # Environment File
-EnvironmentFile=/var/www/alusi-backend/.env
+EnvironmentFile=/www/wwwroot/GO/AlusiAPI/.env
 
 # Security Sandbox (Optional but Recommended)
 ProtectSystem=full
