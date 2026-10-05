@@ -12,10 +12,14 @@ func CORS(allowedOrigins []string) gin.HandlerFunc {
 		origin := c.Request.Header.Get("Origin")
 		allowOrigin := ""
 
-		for _, o := range allowedOrigins {
-			if o == "*" || o == origin {
-				allowOrigin = origin
-				break
+		if origin == "" {
+			allowOrigin = "*"
+		} else {
+			for _, o := range allowedOrigins {
+				if o == "*" || o == origin {
+					allowOrigin = origin
+					break
+				}
 			}
 		}
 

@@ -3,8 +3,8 @@ package http
 import (
 	"time"
 
-	_ "backend-alusi-go/docs"
 	"backend-alusi-go/config"
+	"backend-alusi-go/docs"
 	"backend-alusi-go/internal/delivery/http/middleware"
 	"backend-alusi-go/pkg/jwt"
 
@@ -80,7 +80,10 @@ func SetupRouter(
 	router.GET("/healthz", healthHandler.Check)
 
 	// Interactive Swagger API Documentation
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger/doc.json")))
+	docs.SwaggerInfo.Host = ""
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"https", "http"}
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/docs", func(c *gin.Context) {
 		c.Redirect(302, "/swagger/index.html")
 	})
