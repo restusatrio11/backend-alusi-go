@@ -139,11 +139,22 @@ func initApp() {
 
 // Handler is the entrypoint for Vercel Serverless Functions
 func Handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			log.Error().Interface("panic", rec).Msg("Serverless handler panic recovered")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"success":false,"message":"Internal server error during serverless execution"}`))
+		}
+	}()
+
 	initOnce.Do(initApp)
 
 	if appRouter != nil {
 		appRouter.ServeHTTP(w, r)
 	} else {
-		http.Error(w, "Server initialization failed", http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"success":false,"message":"Server initialization failed"}`))
 	}
 }

@@ -51,7 +51,32 @@ func SetupRouter(
 	router.Use(middleware.CORS(cfg.CORS.AllowedOrigins))
 	router.Use(middleware.RateLimit(ipLimiter))
 
-	// Health check route
+	// Root & Health check routes
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "healthy",
+			"app":     cfg.App.Name,
+			"version": "1.2.0",
+			"message": "ALUSI Backend API is operational",
+			"docs":    "/swagger/index.html",
+		})
+	})
+	router.GET("/api", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "healthy",
+			"app":     cfg.App.Name,
+			"version": "1.2.0",
+			"message": "ALUSI Backend API is operational",
+		})
+	})
+	router.GET("/api/index.go", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "healthy",
+			"app":     cfg.App.Name,
+			"version": "1.2.0",
+			"message": "ALUSI Serverless Backend API is operational",
+		})
+	})
 	router.GET("/healthz", healthHandler.Check)
 
 	// Interactive Swagger API Documentation

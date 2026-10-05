@@ -26,6 +26,15 @@ func EnsureMigrationTable(ctx context.Context, pool *pgxpool.Pool) error {
 
 // RunMigrations executes all unapplied .up.sql migration files in the migrations directory
 func RunMigrations(ctx context.Context, pool *pgxpool.Pool, migrationsDir string) error {
+	if pool == nil {
+		return nil
+	}
+
+	if _, err := os.Stat(migrationsDir); os.IsNotExist(err) {
+		log.Debug().Str("dir", migrationsDir).Msg("Migrations directory not found, skipping runtime migrations")
+		return nil
+	}
+
 	if err := EnsureMigrationTable(ctx, pool); err != nil {
 		return fmt.Errorf("failed to ensure schema_migrations table: %w", err)
 	}

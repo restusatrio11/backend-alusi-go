@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -54,6 +55,13 @@ type CORSConfig struct {
 	AllowedOrigins []string
 }
 
+func getEnv(key, defaultVal string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return defaultVal
+}
+
 // LoadConfig loads application configuration from .env or environment variables
 func LoadConfig() (*Config, error) {
 	v := viper.New()
@@ -87,52 +95,59 @@ func LoadConfig() (*Config, error) {
 
 	_ = v.ReadInConfig()
 
-	idleTime, err := time.ParseDuration(v.GetString("DB_MAX_IDLE_TIME"))
+	idleTimeStr := getEnv("DB_MAX_IDLE_TIME", v.GetString("DB_MAX_IDLE_TIME"))
+	idleTime, err := time.ParseDuration(idleTimeStr)
 	if err != nil {
 		idleTime = 15 * time.Minute
 	}
 
-	originsRaw := v.GetString("CORS_ALLOWED_ORIGINS")
+	originsRaw := getEnv("CORS_ALLOWED_ORIGINS", v.GetString("CORS_ALLOWED_ORIGINS"))
 	origins := strings.Split(originsRaw, ",")
 	for i := range origins {
 		origins[i] = strings.TrimSpace(origins[i])
 	}
 
-	dbDSN := v.GetString("DATABASE_URL")
+	dbDSN := os.Getenv("DATABASE_URL")
+	if dbDSN == "" {
+		dbDSN = os.Getenv("DB_DSN")
+	}
+	if dbDSN == "" {
+		dbDSN = v.GetString("DATABASE_URL")
+	}
 	if dbDSN == "" {
 		dbDSN = v.GetString("DB_DSN")
 	}
 
 	cfg := &Config{
 		App: AppConfig{
-			Name:  v.GetString("APP_NAME"),
-			Env:   v.GetString("APP_ENV"),
-			Port:  v.GetString("APP_PORT"),
+			Name:  getEnv("APP_NAME", v.GetString("APP_NAME")),
+			Env:   getEnv("APP_ENV", v.GetString("APP_ENV")),
+			Port:  getEnv("APP_PORT", v.GetString("APP_PORT")),
 			Debug: v.GetBool("APP_DEBUG"),
 		},
 		Database: DatabaseConfig{
 			DSN:          dbDSN,
-			Host:         v.GetString("DB_HOST"),
-			Port:         v.GetString("DB_PORT"),
-			User:         v.GetString("DB_USER"),
-			Password:     v.GetString("DB_PASSWORD"),
-			Name:         v.GetString("DB_NAME"),
-			SSLMode:      v.GetString("DB_SSLMODE"),
+			Host:         getEnv("DB_HOST", v.GetString("DB_HOST")),
+			Port:         getEnv("DB_PORT", v.GetString("DB_PORT")),
+			User:         getEnv("DB_USER", v.GetString("DB_USER")),
+			Password:     getEnv("DB_PASSWORD", v.GetString("DB_PASSWORD")),
+			Name:         getEnv("DB_NAME", v.GetString("DB_NAME")),
+			SSLMode:      getEnv("DB_SSLMODE", v.GetString("DB_SSLMODE")),
 			MaxOpenConns: v.GetInt("DB_MAX_OPEN_CONNS"),
 			MaxIdleConns: v.GetInt("DB_MAX_IDLE_CONNS"),
 			MaxIdleTime:  idleTime,
 		},
 		SSO: SSOConfig{
-			ClientID:     v.GetString("SSO_CLIENT_ID"),
-			ClientSecret: v.GetString("SSO_CLIENT_SECRET"),
-			RedirectURI:  v.GetString("SSO_REDIRECT_URI"),
-			IssuerURL:    v.GetString("SSO_ISSUER_URL"),
-			JWKSURI:      v.GetString("SSO_JWKS_URI"),
+			ClientID:     getEnv("SSO_CLIENT_ID", v.GetString("SSO_CLIENT_ID")),
+			ClientSecret: getEnv("SSO_CLIENT_SECRET", v.GetString("SSO_CLIENT_SECRET")),
+			RedirectURI:  getEnv("SSO_REDIRECT_URI", v.GetString("SSO_REDIRECT_URI")),
+			IssuerURL:    getEnv("SSO_ISSUER_URL", v.GetString("SSO_ISSUER_URL")),
+			JWKSURI:      getEnv("SSO_JWKS_URI", v.GetString("SSO_JWKS_URI")),
 		},
 		JWT: JWTConfig{
-			Secret:          v.GetString("JWT_SECRET"),
+			Secret:          getEnv("JWT_SECRET", v.GetString("JWT_SECRET")),
 			ExpirationHours: v.GetInt("JWT_EXPIRATION_HOURS"),
-			CookieDomain:    v.GetString("COOKIE_DOMAIN"),
+			CookieDomain:    getEnv("COOKIE_DOMAIN", v.GetString("COOKIE_DOMAIN")),
 			CookieSecure:    v.GetBool("COOKIE_SECURE"),
 		},
 		CORS: CORSConfig{
