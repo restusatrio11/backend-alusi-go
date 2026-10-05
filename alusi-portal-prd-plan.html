@@ -35,28 +35,29 @@
     :root {
       --bg-dark: #080E1A;
       --bg-surface: #0F172A;
-      --bg-card: rgba(15, 23, 42, 0.75);
+      --bg-card: rgba(15, 23, 42, 0.78);
       --border-color: rgba(255, 255, 255, 0.08);
-      --border-focus: rgba(0, 212, 178, 0.4);
+      --border-focus: rgba(0, 212, 178, 0.45);
       
       --primary: #00D4B2;
       --primary-glow: rgba(0, 212, 178, 0.25);
       --accent-blue: #38BDF8;
-      --accent-indigo: #6366F1;
+      --accent-indigo: #818CF8;
       --accent-amber: #F59E0B;
       --accent-rose: #F43F5E;
+      --accent-emerald: #10B981;
       --text-muted: #94A3B8;
 
-      --title-size: clamp(1.6rem, 3.8vw, 3.2rem);
-      --h2-size: clamp(1.2rem, 2.5vw, 2rem);
-      --h3-size: clamp(0.95rem, 1.6vw, 1.25rem);
-      --body-size: clamp(0.75rem, 1.1vw, 0.95rem);
-      --small-size: clamp(0.65rem, 0.85vw, 0.8rem);
-      --mono-size: clamp(0.7rem, 0.95vw, 0.85rem);
+      --title-size: clamp(1.4rem, 2.8vw, 2.6rem);
+      --h2-size: clamp(1.15rem, 2.2vw, 1.85rem);
+      --h3-size: clamp(0.88rem, 1.35vw, 1.15rem);
+      --body-size: clamp(0.72rem, 0.95vw, 0.88rem);
+      --small-size: clamp(0.62rem, 0.78vw, 0.75rem);
+      --mono-size: clamp(0.65rem, 0.85vw, 0.8rem);
 
-      --slide-padding: clamp(1.2rem, 3.5vw, 3.5rem);
-      --content-gap: clamp(0.6rem, 1.5vw, 1.5rem);
-      --element-gap: clamp(0.4rem, 1vw, 0.85rem);
+      --slide-padding: clamp(1rem, 2.8vw, 2.8rem);
+      --content-gap: clamp(0.5rem, 1.2vw, 1.2rem);
+      --element-gap: clamp(0.35rem, 0.8vw, 0.7rem);
     }
 
     /* SLIDE CONTAINER */
@@ -82,7 +83,7 @@
       max-height: 100%;
       overflow: hidden;
       padding: var(--slide-padding);
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
       width: 100%;
     }
@@ -91,18 +92,18 @@
     .slide-tag {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.3rem 0.75rem;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
       border-radius: 9999px;
       font-size: var(--small-size);
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       background: rgba(0, 212, 178, 0.1);
       border: 1px solid rgba(0, 212, 178, 0.3);
       color: var(--primary);
       width: fit-content;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
     }
 
     .slide-title {
@@ -113,13 +114,13 @@
       background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.25rem;
     }
 
     .slide-subtitle {
       font-size: var(--body-size);
       color: var(--text-muted);
-      line-height: 1.45;
+      line-height: 1.4;
       max-width: 950px;
       margin-bottom: var(--content-gap);
     }
@@ -146,13 +147,20 @@
       align-items: stretch;
     }
 
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--content-gap);
+      align-items: stretch;
+    }
+
     /* CARDS */
     .card {
       background: var(--bg-card);
       backdrop-filter: blur(12px);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: clamp(0.75rem, 1.5vw, 1.25rem);
+      border-radius: 10px;
+      padding: clamp(0.65rem, 1.2vw, 1.1rem);
       display: flex;
       flex-direction: column;
       position: relative;
@@ -163,7 +171,7 @@
     .card:hover {
       border-color: var(--border-focus);
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px -5px rgba(0, 212, 178, 0.08);
+      box-shadow: 0 8px 20px -4px rgba(0, 212, 178, 0.08);
     }
 
     .card-title {
@@ -172,14 +180,14 @@
       color: #FFFFFF;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.4rem;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
     }
 
     .card-desc {
       font-size: var(--body-size);
       color: var(--text-muted);
-      line-height: 1.45;
+      line-height: 1.4;
       flex: 1;
     }
 
@@ -190,9 +198,9 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: var(--small-size);
       font-weight: 600;
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-      margin-top: 0.5rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
+      margin-top: 0.4rem;
       width: fit-content;
     }
 
@@ -203,12 +211,12 @@
     .code-block {
       background: #050911;
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 8px;
-      padding: 0.6rem 0.85rem;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: var(--mono-size);
       color: #E2E8F0;
-      line-height: 1.4;
+      line-height: 1.35;
       overflow-x: auto;
     }
 
@@ -217,7 +225,7 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: clamp(0.3rem, 0.7vh, 0.6rem);
+      gap: clamp(0.25rem, 0.5vh, 0.45rem);
     }
 
     .feature-list li {
@@ -225,7 +233,7 @@
       color: #CBD5E1;
       display: flex;
       align-items: flex-start;
-      gap: 0.5rem;
+      gap: 0.4rem;
       line-height: 1.35;
     }
 
@@ -237,22 +245,131 @@
       flex-shrink: 0;
     }
 
+    /* ===========================================
+       DIAGRAM & UML SPECIFIC STYLES
+       =========================================== */
+    .diagram-container {
+      background: rgba(11, 19, 38, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: clamp(0.75rem, 1.3vw, 1.25rem);
+      display: flex;
+      flex-direction: column;
+      gap: var(--element-gap);
+      position: relative;
+    }
+
+    /* Flowchart nodes */
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 0.55rem 0.85rem;
+      position: relative;
+    }
+
+    .flow-step.highlight {
+      border-color: var(--primary);
+      background: rgba(0, 212, 178, 0.06);
+    }
+
+    .flow-step.auth-check {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.06);
+    }
+
+    .flow-step.deny {
+      border-color: var(--accent-rose);
+      background: rgba(244, 63, 94, 0.06);
+    }
+
+    .flow-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: var(--small-size);
+      flex-shrink: 0;
+    }
+
+    .flow-badge.cyan { background: var(--primary); color: #080E1A; }
+    .flow-badge.blue { background: var(--accent-blue); color: #080E1A; }
+    .flow-badge.amber { background: var(--accent-amber); color: #080E1A; }
+    .flow-badge.rose { background: var(--accent-rose); color: #FFFFFF; }
+    .flow-badge.green { background: var(--accent-emerald); color: #080E1A; }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Sequence Diagram Lifelines */
+    .seq-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: var(--body-size);
+    }
+
+    .seq-actor {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: var(--small-size);
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .seq-actor.user { background: rgba(56, 189, 248, 0.15); border: 1px solid #38BDF8; color: #38BDF8; }
+    .seq-actor.frontend { background: rgba(0, 212, 178, 0.15); border: 1px solid #00D4B2; color: #00D4B2; }
+    .seq-actor.backend { background: rgba(129, 140, 248, 0.15); border: 1px solid #818CF8; color: #818CF8; }
+    .seq-actor.sso { background: rgba(245, 158, 11, 0.15); border: 1px solid #F59E0B; color: #F59E0B; }
+    .seq-actor.target { background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #10B981; }
+
+    .seq-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--mono-size);
+    }
+
+    .seq-dir {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
     /* NAVIGATION CONTROLS */
     .nav-bar {
       position: fixed;
-      bottom: 1.25rem;
+      bottom: 1rem;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 9999px;
-      padding: 0.4rem 1rem;
+      padding: 0.35rem 0.9rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.85rem;
       z-index: 100;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     }
 
     .nav-btn {
@@ -260,8 +377,8 @@
       border: none;
       color: #94A3B8;
       cursor: pointer;
-      font-size: 0.9rem;
-      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.5rem;
       border-radius: 6px;
       font-weight: 600;
       display: flex;
@@ -276,7 +393,7 @@
     }
 
     .progress-track {
-      width: 120px;
+      width: 130px;
       height: 4px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 9999px;
@@ -300,8 +417,8 @@
     /* REVEAL ANIMATIONS */
     .reveal {
       opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(14px);
+      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .slide.active .reveal {
@@ -309,14 +426,13 @@
       transform: translateY(0);
     }
 
-    .delay-1 { transition-delay: 0.1s; }
-    .delay-2 { transition-delay: 0.2s; }
-    .delay-3 { transition-delay: 0.3s; }
-    .delay-4 { transition-delay: 0.4s; }
+    .delay-1 { transition-delay: 0.08s; }
+    .delay-2 { transition-delay: 0.16s; }
+    .delay-3 { transition-delay: 0.24s; }
+    .delay-4 { transition-delay: 0.32s; }
 
-    /* RESPONSIVE TWEAKS */
     @media (max-width: 960px) {
-      .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3, .grid-4, .grid-5 { grid-template-columns: repeat(2, 1fr); }
       .grid-2 { grid-template-columns: 1fr; }
     }
   </style>
@@ -329,24 +445,24 @@
       <div class="reveal">
         <span class="slide-tag">✨ Product Requirement Document (PRD)</span>
       </div>
-      <h1 class="slide-title reveal delay-1" style="font-size: clamp(2rem, 4.5vw, 4rem); max-width: 1100px;">
+      <h1 class="slide-title reveal delay-1" style="font-size: clamp(1.8rem, 4vw, 3.6rem); max-width: 1100px;">
         Blueprint & Rencana Pembangunan <span style="color: var(--primary); -webkit-text-fill-color: initial;">Frontend Portal Publik ALUSI</span>
       </h1>
-      <p class="slide-subtitle reveal delay-2" style="font-size: clamp(0.9rem, 1.4vw, 1.2rem); max-width: 850px;">
-        Portal Terpadu Akses Layanan & Katalog Aplikasi Terintegrasi Badan Pusat Statistik Provinsi Sumatera Utara.
+      <p class="slide-subtitle reveal delay-2">
+        Portal Terpadu Akses Layanan & Single Launchpad Aplikasi Terintegrasi Badan Pusat Statistik Provinsi Sumatera Utara.
       </p>
 
-      <div class="grid-3 reveal delay-3" style="margin-top: 1rem;">
+      <div class="grid-3 reveal delay-3" style="margin-top: 0.75rem;">
         <div class="card" style="border-left: 3px solid var(--primary);">
           <span style="font-size: var(--small-size); text-transform: uppercase; color: var(--primary); font-weight: 700;">Target Pengguna</span>
           <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Internal BPS & Eksternal Publik</h3>
-          <p class="card-desc">Pegawai BPS Sumut, Satker Kab/Kota, Pemda/OPD, Peneliti & Mahasiswa.</p>
+          <p class="card-desc">Pegawai BPS Sumut, Satker Kab/Kota, Pemda/OPD, Peneliti, dan Pengguna Data Statistik.</p>
         </div>
 
         <div class="card" style="border-left: 3px solid var(--accent-blue);">
           <span style="font-size: var(--small-size); text-transform: uppercase; color: var(--accent-blue); font-weight: 700;">Arsitektur Integrasi</span>
-          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">REST API + SSE Streaming</h3>
-          <p class="card-desc">Berbasis Go Gin RESTful Backend dengan Live Status Monitoring & AI Assistant.</p>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">REST API + SSE + SSO OIDC</h3>
+          <p class="card-desc">Go Gin RESTful Backend, Live Status SSE Streaming, Integrasi SSO Keycloak & AI Assistant.</p>
         </div>
 
         <div class="card" style="border-left: 3px solid var(--accent-indigo);">
@@ -370,24 +486,24 @@
       </p>
 
       <div class="grid-2 reveal delay-3">
-        <div class="card" style="background: rgba(0, 212, 178, 0.04); border-color: rgba(0, 212, 178, 0.2);">
-          <h3 class="card-title" style="color: var(--primary);">🌐 Portal Publik ALUSI (Fokus Utama)</h3>
-          <ul class="feature-list" style="margin-top: 0.5rem;">
-            <li><strong>Omnibox Search (Cmd+K)</strong>: Pencarian instan fuzzy katalog aplikasi & panduan operasional.</li>
-            <li><strong>AI Asisten Cerdas</strong>: Tanya jawab kebutuhan statistik & rekomendasi aplikasi secara natural.</li>
-            <li><strong>Quick Launcher</strong>: Modul favorit personal, riwayat akses terakhir, dan navigasi 1-klik.</li>
-            <li><strong>Live Health Indicator</strong>: Indikator live status operasional sistem tanpa reload (via SSE).</li>
-            <li><strong>Tiket Bantuan Terbuka</strong>: Pelaporan kendala dan pengajuan saran fitur langsung ke tim IT.</li>
+        <div class="card" style="background: rgba(0, 212, 178, 0.04); border-color: rgba(0, 212, 178, 0.25);">
+          <h3 class="card-title" style="color: var(--primary);">🌐 Portal Publik ALUSI (Fokus Dokumen Ini)</h3>
+          <ul class="feature-list" style="margin-top: 0.4rem;">
+            <li><strong>Omnibox Search (Cmd+K)</strong>: Pencarian instan katalog aplikasi & dokumen panduan.</li>
+            <li><strong>AI Asisten Cerdas (Gemini)</strong>: Tanya jawab kebutuhan statistik & rekomendasi modul instan.</li>
+            <li><strong>Proteksi SSO JIT</strong>: Login otomatis satu pintu untuk membuka modul internal BPS Sumut.</li>
+            <li><strong>Live Health Indicator (SSE)</strong>: Indikator status operasional sistem tanpa reload browser.</li>
+            <li><strong>Personalisasi Pegawai</strong>: Pin aplikasi favorit, riwayat akses terakhir, dan tiket bantuan terbuka.</li>
           </ul>
         </div>
 
         <div class="card" style="background: rgba(15, 23, 42, 0.5); opacity: 0.85;">
-          <h3 class="card-title" style="color: var(--text-muted);">🔒 Admin & Executive Panel (Sudah Tersedia)</h3>
-          <ul class="feature-list" style="margin-top: 0.5rem;">
+          <h3 class="card-title" style="color: var(--text-muted);">🔒 Admin & Executive Panel (Tersedia Terpisah)</h3>
+          <ul class="feature-list" style="margin-top: 0.4rem;">
             <li>Manajemen Metadata Katalog, Kategori & Urutan Prioritas Aplikasi.</li>
             <li>Manajemen Hak Akses Matriks RBAC (Role-Based Access Control).</li>
             <li>Monitoring Kesehatan Probe Server & Broadcast Pengumuman Terjadwal.</li>
-            <li>Dasbor Analitik Eksekutif: DAU/MAU, ranking klik, dan ekspor laporan CSV/Excel.</li>
+            <li>Dasbor Analitik Eksekutif: DAU/MAU, ranking klik, dan ekspor laporan.</li>
             <li>Penanganan Respon Tiket Feedback dan Audit Trail Forensik.</li>
           </ul>
         </div>
@@ -395,8 +511,308 @@
     </div>
   </section>
 
-  <!-- SLIDE 3: STRUKTUR TAMPILAN & USER EXPERIENCE -->
+  <!-- SLIDE 3: FLOWCHART AKSES PUBLIK VS PROTEKSI INTERNAL -->
   <section class="slide" id="slide-3">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🔀 User Flowchart</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Flowchart Alur Pengguna: Publik vs Proteksi Modul Internal</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Pengguna publik bebas mengeksplorasi katalog, search, AI, dan status layanan tanpa login. Modul berlabel <strong>Internal BPS</strong> diproteksi secara cerdas melalui Single Sign-On (SSO) & Validasi RBAC.
+      </p>
+
+      <div class="grid-2 reveal delay-3" style="align-items: start;">
+        <!-- Jalur Publik -->
+        <div class="diagram-container" style="border-left: 3px solid var(--accent-blue);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+            <span style="font-weight: 700; color: var(--accent-blue); font-size: var(--body-size);">🟢 JALUR PENGGUNA PUBLIK (Bebas Akses)</span>
+            <span style="font-size: var(--small-size); background: rgba(56, 189, 248, 0.15); color: #38BDF8; padding: 2px 6px; border-radius: 4px;">Unauthenticated</span>
+          </div>
+
+          <div class="flow-step">
+            <div class="flow-badge blue">1</div>
+            <div>
+              <strong style="color: #fff; font-size: var(--body-size);">Akses Landing Page Portal</strong>
+              <p style="font-size: var(--small-size); color: var(--text-muted);">Melihat katalog aplikasi, kategori, dan banner pengumuman publik.</p>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="flow-badge blue">2</div>
+            <div>
+              <strong style="color: #fff; font-size: var(--body-size);">Pencarian / Tanya AI Assistant</strong>
+              <p style="font-size: var(--small-size); color: var(--text-muted);">Omnibox <code>Cmd+K</code> atau ajukan pertanyaan kebutuhan data ke AI Assistant.</p>
+            </div>
+          </div>
+
+          <div class="flow-step highlight">
+            <div class="flow-badge green">3</div>
+            <div>
+              <strong style="color: var(--primary); font-size: var(--body-size);">Klik Aplikasi Publik (<code>is_public = true</code>)</strong>
+              <p style="font-size: var(--small-size); color: var(--text-muted);">Langsung terbuka di tab baru + background click telemetry dicatat di backend.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jalur Internal BPS -->
+        <div class="diagram-container" style="border-left: 3px solid var(--accent-amber);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+            <span style="font-weight: 700; color: var(--accent-amber); font-size: var(--body-size);">🔒 JALUR MODUL INTERNAL BPS (Role Protected)</span>
+            <span style="font-size: var(--small-size); background: rgba(245, 158, 11, 0.15); color: #F59E0B; padding: 2px 6px; border-radius: 4px;">SSO Guarded</span>
+          </div>
+
+          <div class="flow-step auth-check">
+            <div class="flow-badge amber">A</div>
+            <div>
+              <strong style="color: #fff; font-size: var(--body-size);">Klik Modul Internal (<code>is_public = false</code>)</strong>
+              <p style="font-size: var(--small-size); color: var(--text-muted);">Sistem memeriksa ketersediaan Active JWT Session Cookie di browser.</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div class="flow-step" style="border-color: rgba(245, 158, 11, 0.4);">
+              <div class="flow-badge amber" style="font-size: 0.65rem;">Belum</div>
+              <div>
+                <strong style="color: #F59E0B; font-size: var(--small-size);">Login SSO BPS</strong>
+                <p style="font-size: 0.65rem; color: var(--text-muted);">Redirect ke OAuth SSO ➔ JIT Sync Profil & Role Pegawai.</p>
+              </div>
+            </div>
+
+            <div class="flow-step" style="border-color: rgba(0, 212, 178, 0.4);">
+              <div class="flow-badge cyan" style="font-size: 0.65rem;">Sudah</div>
+              <div>
+                <strong style="color: var(--primary); font-size: var(--small-size);">Cek Matriks RBAC</strong>
+                <p style="font-size: 0.65rem; color: var(--text-muted);">Apakah Role/Satker pengguna cocok dengan target aplikasi?</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.5rem;">
+            <div class="flow-step highlight">
+              <div class="flow-badge green">✓</div>
+              <div>
+                <strong style="color: var(--primary); font-size: var(--small-size);">Akses Diberikan (Launch)</strong>
+                <p style="font-size: 0.65rem; color: var(--text-muted);">Buka modul internal + simpan riwayat <code>Recents</code>.</p>
+              </div>
+            </div>
+
+            <div class="flow-step deny">
+              <div class="flow-badge rose">✕</div>
+              <div>
+                <strong style="color: var(--accent-rose); font-size: var(--small-size);">Akses Ditolak</strong>
+                <p style="font-size: 0.65rem; color: var(--text-muted);">Modal Otorisasi Terbatas.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: UML SEQUENCE DIAGRAM AUTENTIKASI SSO & PELUNCURAN -->
+  <section class="slide" id="slide-4">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">📊 UML Sequence Diagram</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Alur Autentikasi SSO & Peluncuran Aplikasi Terproteksi</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Interaksi terperinci antara Klien Frontend, Go Backend API, SSO BPS Sumut (OAuth 2.0 / OIDC), dan Aplikasi Internal Target.
+      </p>
+
+      <div class="diagram-container reveal delay-3" style="gap: 0.4rem; padding: 0.6rem 0.9rem;">
+        <!-- Step 1: Request Launch -->
+        <div class="seq-grid">
+          <div class="seq-actor user">👤 Pegawai BPS</div>
+          <div class="seq-bar">
+            <span class="seq-dir">➔ Klik Modul Internal</span> [Aplikasi X - Butuh Hak Akses Role]
+          </div>
+        </div>
+
+        <!-- Step 2: Session Check -->
+        <div class="seq-grid">
+          <div class="seq-actor frontend">⚛️ Frontend Portal</div>
+          <div class="seq-bar">
+            <span class="seq-dir">➔ Cek Token Session:</span> <span style="color: #F59E0B;">Tidak ada JWT valid di Cookie/Memory</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Redirect to SSO -->
+        <div class="seq-grid">
+          <div class="seq-actor backend">🚀 Backend Go</div>
+          <div class="seq-bar">
+            <span class="seq-dir">➔ GET /api/v1/auth/login</span> Redirect ke <code>https://otp-dev.bps.web.id/auth</code>
+          </div>
+        </div>
+
+        <!-- Step 4: SSO Auth & Code -->
+        <div class="seq-grid">
+          <div class="seq-actor sso">🔑 SSO BPS Sumut</div>
+          <div class="seq-bar">
+            <span class="seq-dir">➔ Validasi Kredensial SSO</span> Mengembalikan Auth Code ke Callback URL
+          </div>
+        </div>
+
+        <!-- Step 5: Callback & JIT Sync -->
+        <div class="seq-grid">
+          <div class="seq-actor backend">🚀 Backend Go</div>
+          <div class="seq-bar">
+            <span class="seq-dir">➔ GET /api/v1/auth/callback</span> Exchange Token ➔ <strong>JIT Sync PostgreSQL</strong> (Role, Satker, NIP) ➔ Terbitkan JWT Cookie
+          </div>
+        </div>
+
+        <!-- Step 6: RBAC Verification & Telemetry -->
+        <div class="seq-grid">
+          <div class="seq-actor frontend">⚛️ Frontend Portal</div>
+          <div class="seq-bar">
+            <span class="seq-dir">➔ Validasi RBAC</span> Roles User mencakup Modul X ➔ <span style="color: var(--primary);">POST /api/v1/apps/:id/click</span>
+          </div>
+        </div>
+
+        <!-- Step 7: Launch Target App -->
+        <div class="seq-grid">
+          <div class="seq-actor target">🌐 Modul Target</div>
+          <div class="seq-bar" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08);">
+            <span style="color: #10B981; font-weight: bold;">✔ Modul Terbuka Mulus</span> Melalui Seamless SSO Session Handshake
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: UML KOMPONEN & ARSITEKTUR DATA FLOW -->
+  <section class="slide" id="slide-5">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🏗️ UML Component & Data Flow</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Arsitektur Komponen & Aliran Data Sistem ALUSI</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Hubungan ketergantungan antar-komponen modular mulai dari Presentation Tier, Gateway & Business Logic, hingga Integration Provider.
+      </p>
+
+      <div class="grid-3 reveal delay-3">
+        <!-- Tier 1: Client Presentation -->
+        <div class="card" style="border-top: 3px solid var(--primary);">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3 class="card-title" style="color: var(--primary); font-size: var(--body-size);">📱 Client Layer (React 19)</h3>
+            <span class="api-badge" style="background: rgba(0, 212, 178, 0.15); color: var(--primary);">SPA / PWA</span>
+          </div>
+          <ul class="feature-list" style="margin-top: 0.4rem; font-size: var(--small-size);">
+            <li><strong>AppLauncher & Omnibox</strong>: Fuzzy search query dispatcher.</li>
+            <li><strong>SSE Stream Listener</strong>: Menerima status live probe tanpa reload.</li>
+            <li><strong>AI Chat Interface</strong>: Chat bubble & card generator.</li>
+            <li><strong>Auth Guard Hook</strong>: Evaluator JWT & RBAC role validator.</li>
+            <li><strong>TanStack Cache</strong>: 5m stale-time memory caching.</li>
+          </ul>
+        </div>
+
+        <!-- Tier 2: Backend API Gateway -->
+        <div class="card" style="border-top: 3px solid var(--accent-blue);">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3 class="card-title" style="color: var(--accent-blue); font-size: var(--body-size);">⚙️ Backend Layer (Go Gin)</h3>
+            <span class="api-badge" style="background: rgba(56, 189, 248, 0.15); color: #38BDF8;">REST + SSE</span>
+          </div>
+          <ul class="feature-list" style="margin-top: 0.4rem; font-size: var(--small-size);">
+            <li><strong>CORS & Security MW</strong>: Validasi Origin & Secure Headers.</li>
+            <li><strong>JWT & RBAC MW</strong>: Token parser & authorization handler.</li>
+            <li><strong>SSE Realtime Hub</strong>: Channel broadcaster ke seluruh connected clients.</li>
+            <li><strong>AI Proxy Service</strong>: Sanitizer & Gemini prompt dispatcher.</li>
+            <li><strong>Telemetry Worker</strong>: Async click logger & recent tracker.</li>
+          </ul>
+        </div>
+
+        <!-- Tier 3: Data & Integrations -->
+        <div class="card" style="border-top: 3px solid var(--accent-indigo);">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3 class="card-title" style="color: var(--accent-indigo); font-size: var(--body-size);">🗄️ Persistence & External</h3>
+            <span class="api-badge" style="background: rgba(129, 140, 248, 0.15); color: #818CF8;">Data Store</span>
+          </div>
+          <ul class="feature-list" style="margin-top: 0.4rem; font-size: var(--small-size);">
+            <li><strong>PostgreSQL (Neon Cloud)</strong>: Catalog, Users, Roles, Logs, Trigram index.</li>
+            <li><strong>SSO BPS Sumut</strong>: OIDC Provider (OTP Dev / Keycloak).</li>
+            <li><strong>Gemini 2.5 Flash</strong>: NLP Reasoning & Recommendation Engine.</li>
+            <li><strong>Internal Micro-apps</strong>: Target web modules BPS Sumut.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-block reveal delay-4" style="margin-top: 0.6rem;">
+        <span style="color: var(--accent-blue);">Protokol Aliran Data:</span> HTTPS/JSON (REST) ➔ text/event-stream (SSE) ➔ OAuth2 PKCE (SSO Auth) ➔ pgxpool TLS (Database)
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: UML STATE MACHINE - SIKLUS AKSES & LIVE STATUS -->
+  <section class="slide" id="slide-6">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🔄 UML State Machine</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Siklus Status Layanan & Aksesibilitas Aplikasi</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Diagram status (State Diagram) mendefinisikan perubahan status operasional modul secara realtime serta transisi izin akses pengguna.
+      </p>
+
+      <div class="grid-2 reveal delay-3">
+        <!-- State Machine: Status Operasional Layanan -->
+        <div class="card">
+          <h3 class="card-title" style="color: var(--primary);">🟢 1. State Mesin: Status Kesehatan Server (SSE)</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.3rem;">
+            <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #10B981; font-size: var(--small-size);">[State: OPERASIONAL (Hijau)]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Probe ping &lt; 500ms, error rate 0%. Aplikasi dapat dibuka normal.</p>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #F59E0B; font-size: var(--small-size);">[State: DEGRADED / GANGGUAN (Kuning)]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Latensi tinggi / server lambat. Ditampilkan tooltip peringatan ke pengguna.</p>
+            </div>
+
+            <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #38BDF8; font-size: var(--small-size);">[State: MAINTENANCE (Biru)]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Pemeliharaan terjadwal. Tombol luncur digantikan badge jadwal rilis.</p>
+            </div>
+
+            <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #F43F5E; font-size: var(--small-size);">[State: OUTAGE / DOWN (Merah)]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Server tidak merespon probe. Toast alert peringatan otomatis ditampilkan.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- State Machine: Siklus Izin Akses Pengguna -->
+        <div class="card">
+          <h3 class="card-title" style="color: var(--accent-blue);">🔐 2. State Mesin: Otorisasi Akses Pengguna</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.3rem;">
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #94A3B8; font-size: var(--small-size);">[State: ANONYMOUS]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Dapat membuka aplikasi bertipe Publik. Akses modul internal memicu transisi ke SSO.</p>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #F59E0B; font-size: var(--small-size);">[State: AUTHENTICATING (SSO Handshake)]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Proses tukar OAuth code di callback endpoint, pembentukan token session.</p>
+            </div>
+
+            <div style="background: rgba(0, 212, 178, 0.1); border: 1px solid rgba(0, 212, 178, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: var(--primary); font-size: var(--small-size);">[State: AUTHORIZED]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Role Pegawai cocok ➔ Full access ke modul target, favorit, dan riwayat personal.</p>
+            </div>
+
+            <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem;">
+              <strong style="color: #F43F5E; font-size: var(--small-size);">[State: FORBIDDEN (Role Mismatch)]</strong>
+              <p style="font-size: var(--small-size); color: #CBD5E1;">Pegawai login namun tidak memiliki wewenang pada satker/modul khusus tersebut.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: STRUKTUR TAMPILAN & USER EXPERIENCE -->
+  <section class="slide" id="slide-7">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">📐 Layout & Wireframe Strategy</span>
@@ -408,7 +824,7 @@
 
       <div class="grid-3 reveal delay-3">
         <div class="card">
-          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🚀</div>
+          <div style="font-size: 1.3rem; margin-bottom: 0.2rem;">🚀</div>
           <h3 class="card-title">1. Hero & Omnibox Launcher</h3>
           <p class="card-desc">
             Header interaktif dengan input pencarian sentral <code>Ctrl+K</code>, tombol aktivasi AI Assistant, banner siaran pengumuman aktif, dan pin aplikasi favorit pengguna.
@@ -416,7 +832,7 @@
         </div>
 
         <div class="card">
-          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">📑</div>
+          <div style="font-size: 1.3rem; margin-bottom: 0.2rem;">📑</div>
           <h3 class="card-title">2. Categorized Explorer Grid</h3>
           <p class="card-desc">
             Tab filter kategori (Statistik Sosial, Produksi, Nerwilis, IPDS, Umum), kartu aplikasi modern dengan logo resmi, badge status live, dan tombol peluncur URL langsung.
@@ -424,7 +840,7 @@
         </div>
 
         <div class="card">
-          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">⚡</div>
+          <div style="font-size: 1.3rem; margin-bottom: 0.2rem;">⚡</div>
           <h3 class="card-title">3. Drawer Panduan & Feedback</h3>
           <p class="card-desc">
             Slide-over drawer untuk FAQ & dokumen panduan aplikasi, riwayat uptime SLA, serta formulir pengajuan tiket kendala layanan secara instan.
@@ -432,14 +848,14 @@
         </div>
       </div>
 
-      <div class="code-block reveal delay-4" style="margin-top: 0.75rem;">
+      <div class="code-block reveal delay-4" style="margin-top: 0.6rem;">
         <span style="color: var(--accent-blue);">Layout Hierarchy:</span> TopNav (SSO / Theme) ➔ Announcement Banner ➔ Hero Search / AI Prompt ➔ Favorites Bar ➔ Category Tabs ➔ App Card Grid ➔ Live Uptime Footer
       </div>
     </div>
   </section>
 
-  <!-- SLIDE 4: API INTEGRATION - KATALOG & PENCARIAN -->
-  <section class="slide" id="slide-4">
+  <!-- SLIDE 8: API INTEGRATION - KATALOG & PENCARIAN -->
+  <section class="slide" id="slide-8">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">🔌 API Integration 01</span>
@@ -452,29 +868,29 @@
       <div class="grid-2 reveal delay-3">
         <div class="card">
           <h3 class="card-title">Daftar Endpoint Terkait</h3>
-          <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.25rem;">
+          <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.2rem;">
             <div>
               <span class="api-badge api-get">GET /api/v1/categories</span>
-              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Memuat seluruh kelompok kategori aplikasi dan metadata ikon.</p>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.1rem;">Memuat seluruh kelompok kategori aplikasi dan metadata ikon.</p>
             </div>
             <div>
               <span class="api-badge api-get">GET /api/v1/apps</span>
-              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Daftar aplikasi terfilter kategori, target pengguna, dan status aktif.</p>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.1rem;">Daftar aplikasi terfilter kategori, target pengguna, dan status aktif.</p>
             </div>
             <div>
               <span class="api-badge api-get">GET /api/v1/apps/search?q={query}</span>
-              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Pencarian cepat berbasis <em>trigram similarity ranking</em> nama/deskripsi.</p>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.1rem;">Pencarian cepat berbasis <em>trigram similarity ranking</em> nama/deskripsi.</p>
             </div>
             <div>
               <span class="api-badge api-get">GET /api/v1/apps/:slug/guides</span>
-              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Mengambil dokumen petunjuk teknis dan FAQ aplikasi.</p>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.1rem;">Mengambil dokumen petunjuk teknis dan FAQ aplikasi.</p>
             </div>
           </div>
         </div>
 
         <div class="card">
           <h3 class="card-title">Fitur UI Frontend</h3>
-          <ul class="feature-list" style="margin-top: 0.25rem;">
+          <ul class="feature-list" style="margin-top: 0.2rem;">
             <li><strong>Instant Client Filtering</strong>: Kombinasi filter kategori & pencarian kata kunci dengan debounce 200ms.</li>
             <li><strong>Target Audience Badge</strong>: Penanda visual modul internal (Pegawai BPS) vs portal publik/eksternal.</li>
             <li><strong>App Guide Modal</strong>: Menampilkan petunjuk langkah kerja dan kontak PIC pengelola aplikasi.</li>
@@ -485,8 +901,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 5: API INTEGRATION - AI ASSISTANT -->
-  <section class="slide" id="slide-5">
+  <!-- SLIDE 9: API INTEGRATION - AI ASSISTANT -->
+  <section class="slide" id="slide-9">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">🤖 API Integration 02</span>
@@ -501,11 +917,9 @@
           <h3 class="card-title">Endpoint & Payload API</h3>
           <span class="api-badge api-post">POST /api/v1/ai/ask</span>
           
-          <div class="code-block" style="margin-top: 0.6rem;">
-            <span style="color: var(--text-muted);">// Request Payload:</span><br>
-            {<br>
-            &nbsp;&nbsp;<span style="color: var(--primary);">"prompt"</span>: <span style="color: #FDE047;">"Bagaimana cara menginput data survei ubinan padi?"</span><br>
-            }<br><br>
+          <div class="code-block" style="margin-top: 0.5rem;">
+            <span style="color: var(--text-muted);">// Request:</span><br>
+            { <span style="color: var(--primary);">"prompt"</span>: <span style="color: #FDE047;">"Bagaimana cara menginput survei ubinan padi?"</span> }<br><br>
             <span style="color: var(--text-muted);">// Response:</span><br>
             {<br>
             &nbsp;&nbsp;<span style="color: var(--primary);">"jawaban"</span>: <span style="color: #A7F3D0;">"Untuk survei ubinan, gunakan modul SIMBATIK..."</span>,<br>
@@ -516,7 +930,7 @@
 
         <div class="card">
           <h3 class="card-title">Pengalaman Antarmuka AI Chat</h3>
-          <ul class="feature-list" style="margin-top: 0.25rem;">
+          <ul class="feature-list" style="margin-top: 0.2rem;">
             <li><strong>Spotlight AI Floating Bar</strong>: Input prompt dengan placeholder sugestif (contoh: <em>"Mau cari data inflasi?", "Input dokumen dinas?"</em>).</li>
             <li><strong>Interactive Response Cards</strong>: Jawaban AI dilengkapi dengan tombol peluncur aplikasi rekomendasi langsung (1-click direct open).</li>
             <li><strong>Typing Streaming Animation</strong>: Memberikan visualisasi loading cerdas yang interaktif saat AI memproses jawaban.</li>
@@ -527,8 +941,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 6: API INTEGRATION - PERSONALISASI & KLIK -->
-  <section class="slide" id="slide-6">
+  <!-- SLIDE 10: API INTEGRATION - PERSONALISASI & KLIK -->
+  <section class="slide" id="slide-10">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">⭐ API Integration 03</span>
@@ -542,7 +956,7 @@
         <div class="card">
           <h3 class="card-title">1. Toggle Favorit</h3>
           <span class="api-badge api-post">POST /api/v1/apps/:id/favorite</span>
-          <p class="card-desc" style="margin-top: 0.5rem;">
+          <p class="card-desc" style="margin-top: 0.4rem;">
             Memungkinkan pengguna menandai aplikasi harian mereka. Data disimpan di database dan di-cache lokal untuk akses instan.
           </p>
         </div>
@@ -550,7 +964,7 @@
         <div class="card">
           <h3 class="card-title">2. Rekaman Klik Telemetri</h3>
           <span class="api-badge api-post">POST /api/v1/apps/:id/click</span>
-          <p class="card-desc" style="margin-top: 0.5rem;">
+          <p class="card-desc" style="margin-top: 0.4rem;">
             Setiap peluncuran aplikasi mentrigger telemetri klik tanpa memperlambat pembukaan tab baru (background async fire-and-forget).
           </p>
         </div>
@@ -558,13 +972,13 @@
         <div class="card">
           <h3 class="card-title">3. Riwayat Terakhir Diakses</h3>
           <span class="api-badge api-get">GET /api/v1/users/me/recents</span>
-          <p class="card-desc" style="margin-top: 0.5rem;">
+          <p class="card-desc" style="margin-top: 0.4rem;">
             Menampilkan deretan 5 aplikasi terakhir yang dibuka pengguna untuk efisiensi alur kerja harian.
           </p>
         </div>
       </div>
 
-      <div class="card reveal delay-4" style="margin-top: 0.75rem; background: rgba(0, 212, 178, 0.03);">
+      <div class="card reveal delay-4" style="margin-top: 0.6rem; background: rgba(0, 212, 178, 0.03);">
         <p style="font-size: var(--body-size); color: #E2E8F0;">
           💡 <strong>Optimistic UI Update:</strong> Tombol bintang favorit langsung berubah status secara instan di sisi klien sebelum server merespon untuk menghilangkan latensi antarmuka.
         </p>
@@ -572,8 +986,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 7: API INTEGRATION - REALTIME SSE MONITORING -->
-  <section class="slide" id="slide-7">
+  <!-- SLIDE 11: API INTEGRATION - REALTIME SSE MONITORING -->
+  <section class="slide" id="slide-11">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">📡 API Integration 04</span>
@@ -587,11 +1001,11 @@
         <div class="card">
           <h3 class="card-title">Arsitektur SSE Streaming</h3>
           <span class="api-badge api-sse">GET /api/v1/services/realtime-status (SSE)</span>
-          <p class="card-desc" style="margin-top: 0.4rem;">
+          <p class="card-desc" style="margin-top: 0.35rem;">
             Koneksi HTTP Server-Sent Events persisten yang mem-push status perubahan kesehatan modul secara instan ke browser tanpa perlu polling berulang.
           </p>
 
-          <span class="api-badge api-get" style="margin-top: 0.6rem;">GET /api/v1/services/status</span>
+          <span class="api-badge api-get" style="margin-top: 0.5rem;">GET /api/v1/services/status</span>
           <p class="card-desc" style="margin-top: 0.2rem;">
             Snapshot ringkasan ketersediaan SLA 30 hari untuk widget status bar publik.
           </p>
@@ -599,7 +1013,7 @@
 
         <div class="card">
           <h3 class="card-title">Representasi Visual di Frontend</h3>
-          <ul class="feature-list" style="margin-top: 0.25rem;">
+          <ul class="feature-list" style="margin-top: 0.2rem;">
             <li><strong>Live Pulsing Indicators</strong>: Titik hijau (Normal), oranye (Kendala), kuning (Maintenance), merah (Down) pada setiap kartu aplikasi.</li>
             <li><strong>Toast System Alerts</strong>: Pop-up notifikasi otomatis ketika layanan penting mengalami gangguan operasional.</li>
             <li><strong>System Health Status Page</strong>: Halaman transparan SLA publik <code>/status</code> yang menampilkan riwayat uptime per aplikasi.</li>
@@ -609,8 +1023,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 8: API INTEGRATION - PENGUMUMAN & FEEDBACK -->
-  <section class="slide" id="slide-8">
+  <!-- SLIDE 12: API INTEGRATION - PENGUMUMAN & FEEDBACK -->
+  <section class="slide" id="slide-12">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">📢 API Integration 05</span>
@@ -624,7 +1038,7 @@
         <div class="card">
           <h3 class="card-title">Siaran Pengumuman (Broadcast)</h3>
           <span class="api-badge api-get">GET /api/v1/announcements</span>
-          <ul class="feature-list" style="margin-top: 0.5rem;">
+          <ul class="feature-list" style="margin-top: 0.4rem;">
             <li><strong>Sticky Header Banner</strong>: Menampilkan jadwal rilis fitur baru, agenda survei nasional, atau pemeliharaan server.</li>
             <li><strong>Tipe Pengumuman Dinamis</strong>: <code>info</code> (biru), <code>warning</code> (kuning), <code>urgent</code> (merah), <code>maintenance</code> (oranye).</li>
             <li><strong>Dismissable Storage</strong>: Pengguna dapat menutup banner dan preferensi tersimpan di local storage.</li>
@@ -634,7 +1048,7 @@
         <div class="card">
           <h3 class="card-title">Pengajuan Tiket Umpan Balik</h3>
           <span class="api-badge api-post">POST /api/v1/feedbacks</span>
-          <ul class="feature-list" style="margin-top: 0.5rem;">
+          <ul class="feature-list" style="margin-top: 0.4rem;">
             <li><strong>Floating Helpdesk Button</strong>: Tombol bantuan melayang di pojok kanan bawah yang membuka modal pengaduan.</li>
             <li><strong>Kategori Laporan</strong>: Kendala teknis (Bug), Saran Pengembangan (Fitur), dan Permasalahan Data.</li>
             <li><strong>Feedback Confirmation</strong>: Menampilkan nomor tiket keluhan untuk tindak lanjut tim pengembang.</li>
@@ -644,8 +1058,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 9: TECH STACK & ARSITEKTUR FRONTEND -->
-  <section class="slide" id="slide-9">
+  <!-- SLIDE 13: TECH STACK & ARSITEKTUR FRONTEND -->
+  <section class="slide" id="slide-13">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">⚡ Teknologi & Performa</span>
@@ -657,38 +1071,38 @@
 
       <div class="grid-4 reveal delay-3">
         <div class="card" style="text-align: center; align-items: center;">
-          <div style="font-size: 2rem; color: var(--primary);">⚛️</div>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">React 19 + Vite</h3>
+          <div style="font-size: 1.8rem; color: var(--primary);">⚛️</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">React 19 + Vite</h3>
           <p class="card-desc" style="font-size: var(--small-size);">Bundler berkecepatan tinggi dengan Hot Module Replacement (HMR) instan.</p>
         </div>
 
         <div class="card" style="text-align: center; align-items: center;">
-          <div style="font-size: 2rem; color: var(--accent-blue);">🔄</div>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">TanStack Query</h3>
+          <div style="font-size: 1.8rem; color: var(--accent-blue);">🔄</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">TanStack Query</h3>
           <p class="card-desc" style="font-size: var(--small-size);">Stale-While-Revalidate caching, auto-refetching, dan deduplication request API.</p>
         </div>
 
         <div class="card" style="text-align: center; align-items: center;">
-          <div style="font-size: 2rem; color: var(--accent-indigo);">🎨</div>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Tailwind v4 + Shadcn</h3>
+          <div style="font-size: 1.8rem; color: var(--accent-indigo);">🎨</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Tailwind v4 + Shadcn</h3>
           <p class="card-desc" style="font-size: var(--small-size);">Design system modular, dark/light theme, dan aksesibilitas ARIA bawaan.</p>
         </div>
 
         <div class="card" style="text-align: center; align-items: center;">
-          <div style="font-size: 2rem; color: var(--accent-amber);">✨</div>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Framer Motion</h3>
+          <div style="font-size: 1.8rem; color: var(--accent-amber);">✨</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Framer Motion</h3>
           <p class="card-desc" style="font-size: var(--small-size);">Animasi transisi mikro yang mulus untuk launcher dialog dan category switching.</p>
         </div>
       </div>
 
-      <div class="code-block reveal delay-4" style="margin-top: 0.75rem;">
+      <div class="code-block reveal delay-4" style="margin-top: 0.6rem;">
         <span style="color: var(--primary);">Target Performance:</span> Lighthouse Score 98+ | FCP &lt; 0.6s | LCP &lt; 1.2s | Total Bundle Size &lt; 150 KB (gzipped)
       </div>
     </div>
   </section>
 
-  <!-- SLIDE 10: BREAKDOWN KOMPONEN UI -->
-  <section class="slide" id="slide-10">
+  <!-- SLIDE 14: BREAKDOWN KOMPONEN UI -->
+  <section class="slide" id="slide-14">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">🧩 Desain Komponen</span>
@@ -744,8 +1158,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 11: ACCESSIBILITY, PWA & OFFLINE -->
-  <section class="slide" id="slide-11">
+  <!-- SLIDE 15: ACCESSIBILITY, PWA & OFFLINE -->
+  <section class="slide" id="slide-15">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">📱 Fitur Lanjutan</span>
@@ -757,9 +1171,9 @@
 
       <div class="grid-3 reveal delay-3">
         <div class="card">
-          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">♿</div>
+          <div style="font-size: 1.3rem; margin-bottom: 0.2rem;">♿</div>
           <h3 class="card-title">WCAG 2.2 AA Compliance</h3>
-          <ul class="feature-list" style="margin-top: 0.3rem;">
+          <ul class="feature-list" style="margin-top: 0.2rem;">
             <li>Full Keyboard Navigation (Tab, Esc, Enter, Arrow keys).</li>
             <li>Kontras warna tinggi untuk keterbacaan optimal.</li>
             <li>ARIA labels semantik untuk pembaca layar (screen reader).</li>
@@ -767,9 +1181,9 @@
         </div>
 
         <div class="card">
-          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">📲</div>
+          <div style="font-size: 1.3rem; margin-bottom: 0.2rem;">📲</div>
           <h3 class="card-title">Progressive Web App (PWA)</h3>
-          <ul class="feature-list" style="margin-top: 0.3rem;">
+          <ul class="feature-list" style="margin-top: 0.2rem;">
             <li>Dapat diinstall langsung ke Homescreen Smartphone & Desktop.</li>
             <li>Service Worker caching untuk katalog aplikasi saat sinyal offline.</li>
             <li>Tampilan responsif ramah layar sentuh mobile.</li>
@@ -777,9 +1191,9 @@
         </div>
 
         <div class="card">
-          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🌓</div>
+          <div style="font-size: 1.3rem; margin-bottom: 0.2rem;">🌓</div>
           <h3 class="card-title">Dual Theme & Kustomisasi</h3>
-          <ul class="feature-list" style="margin-top: 0.3rem;">
+          <ul class="feature-list" style="margin-top: 0.2rem;">
             <li>Dukungan Dark Mode dan Light Mode otomatis.</li>
             <li>Pilihan tata letak: Grid View vs List Table View.</li>
             <li>Ukuran teks adaptif untuk kenyamanan mata.</li>
@@ -789,8 +1203,8 @@
     </div>
   </section>
 
-  <!-- SLIDE 12: ROADMAP & TIMELINE EKSEKUSI -->
-  <section class="slide" id="slide-12">
+  <!-- SLIDE 16: ROADMAP & TIMELINE EKSEKUSI -->
+  <section class="slide" id="slide-16">
     <div class="slide-content">
       <div class="reveal">
         <span class="slide-tag">🚀 Rencana Pelaksanaan</span>
@@ -803,7 +1217,7 @@
       <div class="grid-4 reveal delay-3">
         <div class="card" style="border-top: 3px solid var(--primary);">
           <span style="font-size: var(--small-size); color: var(--primary); font-weight: 700;">Sprint 1: Core Shell</span>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Inisialisasi & Katalog</h3>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Inisialisasi & Katalog</h3>
           <ul class="feature-list" style="font-size: var(--small-size);">
             <li>Setup Vite, Tailwind v4 & Router.</li>
             <li>Integrasi API Kategori & Apps.</li>
@@ -814,7 +1228,7 @@
 
         <div class="card" style="border-top: 3px solid var(--accent-blue);">
           <span style="font-size: var(--small-size); color: var(--accent-blue); font-weight: 700;">Sprint 2: Intelijen & User</span>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">AI & Personalisasi</h3>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">AI & Personalisasi</h3>
           <ul class="feature-list" style="font-size: var(--small-size);">
             <li>Integrasi API AI Assistant.</li>
             <li>Fitur Favorit & Telemetri Klik.</li>
@@ -825,7 +1239,7 @@
 
         <div class="card" style="border-top: 3px solid var(--accent-amber);">
           <span style="font-size: var(--small-size); color: var(--accent-amber); font-weight: 700;">Sprint 3: Realtime & Hub</span>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Monitoring & Helpdesk</h3>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Monitoring & Helpdesk</h3>
           <ul class="feature-list" style="font-size: var(--small-size);">
             <li>Integrasi SSE Live Status.</li>
             <li>Banner Pengumuman Aktif.</li>
@@ -836,7 +1250,7 @@
 
         <div class="card" style="border-top: 3px solid var(--accent-indigo);">
           <span style="font-size: var(--small-size); color: var(--accent-indigo); font-weight: 700;">Sprint 4: Polish</span>
-          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">PWA & Peluncuran</h3>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">PWA & Peluncuran</h3>
           <ul class="feature-list" style="font-size: var(--small-size);">
             <li>Optimasi Service Worker & PWA.</li>
             <li>Audit Aksesibilitas WCAG AA.</li>
@@ -846,7 +1260,7 @@
         </div>
       </div>
 
-      <div class="reveal delay-4" style="margin-top: 1rem; text-align: center;">
+      <div class="reveal delay-4" style="margin-top: 0.75rem; text-align: center;">
         <span style="font-size: var(--body-size); color: var(--primary); font-weight: 700;">
           ✨ Siap Dieksekusi Menuju Portal Layanan Terintegrasi Modern BPS Provinsi Sumatera Utara
         </span>
@@ -864,7 +1278,7 @@
       <div class="progress-fill" id="progress-fill"></div>
     </div>
 
-    <span class="slide-counter" id="slide-counter">1 / 12</span>
+    <span class="slide-counter" id="slide-counter">1 / 16</span>
 
     <button class="nav-btn" id="next-btn" title="Slide Berikutnya (Panah Kanan / Space / PageDown)">
       Next ▶
@@ -890,7 +1304,7 @@
       init() {
         this.bindEvents();
         this.setupIntersectionObserver();
-        this.updateSlide(0);
+        this.updateUI();
       }
 
       bindEvents() {
@@ -982,10 +1396,6 @@
 
         this.prevBtn.style.opacity = this.currentIndex === 0 ? '0.4' : '1';
         this.nextBtn.style.opacity = this.currentIndex === this.totalSlides - 1 ? '0.4' : '1';
-      }
-
-      updateSlide(index) {
-        this.goTo(index);
       }
     }
 
