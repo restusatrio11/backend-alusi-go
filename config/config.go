@@ -23,6 +23,7 @@ type AppConfig struct {
 }
 
 type DatabaseConfig struct {
+	DSN          string        `mapstructure:"dsn"`
 	Host         string        `mapstructure:"host"`
 	Port         string        `mapstructure:"port"`
 	User         string        `mapstructure:"user"`
@@ -67,6 +68,8 @@ func LoadConfig() (*Config, error) {
 	v.SetDefault("APP_PORT", "8080")
 	v.SetDefault("APP_DEBUG", true)
 
+	v.SetDefault("DATABASE_URL", "")
+	v.SetDefault("DB_DSN", "")
 	v.SetDefault("DB_HOST", "localhost")
 	v.SetDefault("DB_PORT", "5432")
 	v.SetDefault("DB_USER", "postgres")
@@ -95,6 +98,11 @@ func LoadConfig() (*Config, error) {
 		origins[i] = strings.TrimSpace(origins[i])
 	}
 
+	dbDSN := v.GetString("DATABASE_URL")
+	if dbDSN == "" {
+		dbDSN = v.GetString("DB_DSN")
+	}
+
 	cfg := &Config{
 		App: AppConfig{
 			Name:  v.GetString("APP_NAME"),
@@ -103,6 +111,7 @@ func LoadConfig() (*Config, error) {
 			Debug: v.GetBool("APP_DEBUG"),
 		},
 		Database: DatabaseConfig{
+			DSN:          dbDSN,
 			Host:         v.GetString("DB_HOST"),
 			Port:         v.GetString("DB_PORT"),
 			User:         v.GetString("DB_USER"),
