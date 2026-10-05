@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRD & Blueprint Pembangunan Frontend Portal ALUSI BPS Sumut</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ===========================================
+       VIEWPORT FITTING: MANDATORY BASE STYLES
+       =========================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #080E1A;
+      color: #F8FAFC;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html {
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+
+    :root {
+      --bg-dark: #080E1A;
+      --bg-surface: #0F172A;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(0, 212, 178, 0.4);
+      
+      --primary: #00D4B2;
+      --primary-glow: rgba(0, 212, 178, 0.25);
+      --accent-blue: #38BDF8;
+      --accent-indigo: #6366F1;
+      --accent-amber: #F59E0B;
+      --accent-rose: #F43F5E;
+      --text-muted: #94A3B8;
+
+      --title-size: clamp(1.6rem, 3.8vw, 3.2rem);
+      --h2-size: clamp(1.2rem, 2.5vw, 2rem);
+      --h3-size: clamp(0.95rem, 1.6vw, 1.25rem);
+      --body-size: clamp(0.75rem, 1.1vw, 0.95rem);
+      --small-size: clamp(0.65rem, 0.85vw, 0.8rem);
+      --mono-size: clamp(0.7rem, 0.95vw, 0.85rem);
+
+      --slide-padding: clamp(1.2rem, 3.5vw, 3.5rem);
+      --content-gap: clamp(0.6rem, 1.5vw, 1.5rem);
+      --element-gap: clamp(0.4rem, 1vw, 0.85rem);
+    }
+
+    /* SLIDE CONTAINER */
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: radial-gradient(circle at 80% 20%, rgba(0, 212, 178, 0.04) 0%, transparent 40%),
+                  radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+                  #080E1A;
+    }
+
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-height: 100%;
+      overflow: hidden;
+      padding: var(--slide-padding);
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* HEADER & BADGES */
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      font-size: var(--small-size);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(0, 212, 178, 0.1);
+      border: 1px solid rgba(0, 212, 178, 0.3);
+      color: var(--primary);
+      width: fit-content;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-title {
+      font-size: var(--title-size);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.4rem;
+    }
+
+    .slide-subtitle {
+      font-size: var(--body-size);
+      color: var(--text-muted);
+      line-height: 1.45;
+      max-width: 950px;
+      margin-bottom: var(--content-gap);
+    }
+
+    /* GRIDS & CONTAINERS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--content-gap);
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--content-gap);
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--content-gap);
+      align-items: stretch;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: clamp(0.75rem, 1.5vw, 1.25rem);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-focus);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 212, 178, 0.08);
+    }
+
+    .card-title {
+      font-size: var(--h3-size);
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-desc {
+      font-size: var(--body-size);
+      color: var(--text-muted);
+      line-height: 1.45;
+      flex: 1;
+    }
+
+    /* CODE & API BADGES */
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--small-size);
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      width: fit-content;
+    }
+
+    .api-get { background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .api-post { background: rgba(0, 212, 178, 0.15); color: #00D4B2; border: 1px solid rgba(0, 212, 178, 0.3); }
+    .api-sse { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .code-block {
+      background: #050911;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--mono-size);
+      color: #E2E8F0;
+      line-height: 1.4;
+      overflow-x: auto;
+    }
+
+    /* HIGHLIGHTS & LISTS */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.3rem, 0.7vh, 0.6rem);
+    }
+
+    .feature-list li {
+      font-size: var(--body-size);
+      color: #CBD5E1;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      line-height: 1.35;
+    }
+
+    .feature-list li::before {
+      content: "✦";
+      color: var(--primary);
+      font-size: 0.8em;
+      margin-top: 0.15em;
+      flex-shrink: 0;
+    }
+
+    /* NAVIGATION CONTROLS */
+    .nav-bar {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      padding: 0.4rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-track {
+      width: 120px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--small-size);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* REVEAL ANIMATIONS */
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* RESPONSIVE TWEAKS */
+    @media (max-width: 960px) {
+      .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SLIDE 1: COVER -->
+  <section class="slide" id="slide-1">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">✨ Product Requirement Document (PRD)</span>
+      </div>
+      <h1 class="slide-title reveal delay-1" style="font-size: clamp(2rem, 4.5vw, 4rem); max-width: 1100px;">
+        Blueprint & Rencana Pembangunan <span style="color: var(--primary); -webkit-text-fill-color: initial;">Frontend Portal Publik ALUSI</span>
+      </h1>
+      <p class="slide-subtitle reveal delay-2" style="font-size: clamp(0.9rem, 1.4vw, 1.2rem); max-width: 850px;">
+        Portal Terpadu Akses Layanan & Katalog Aplikasi Terintegrasi Badan Pusat Statistik Provinsi Sumatera Utara.
+      </p>
+
+      <div class="grid-3 reveal delay-3" style="margin-top: 1rem;">
+        <div class="card" style="border-left: 3px solid var(--primary);">
+          <span style="font-size: var(--small-size); text-transform: uppercase; color: var(--primary); font-weight: 700;">Target Pengguna</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Internal BPS & Eksternal Publik</h3>
+          <p class="card-desc">Pegawai BPS Sumut, Satker Kab/Kota, Pemda/OPD, Peneliti & Mahasiswa.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-blue);">
+          <span style="font-size: var(--small-size); text-transform: uppercase; color: var(--accent-blue); font-weight: 700;">Arsitektur Integrasi</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">REST API + SSE Streaming</h3>
+          <p class="card-desc">Berbasis Go Gin RESTful Backend dengan Live Status Monitoring & AI Assistant.</p>
+        </div>
+
+        <div class="card" style="border-left: 3px solid var(--accent-indigo);">
+          <span style="font-size: var(--small-size); text-transform: uppercase; color: var(--accent-indigo); font-weight: 700;">Standar Desain</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.2rem 0; color: #fff;">Modern Government-Tech</h3>
+          <p class="card-desc">Kecepatan kilat, aksesibilitas WCAG 2.2 AA, Command Palette <code>Cmd+K</code> & Responsif.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: VISI & PEMISAHAN DARI ADMIN PANEL -->
+  <section class="slide" id="slide-2">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🎯 Visi Produk</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Pemisahan Portal Pengguna vs Admin Panel</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Berbeda dengan Admin Panel yang fokus pada manajemen CRUD & analitik internal, Portal Publik dirancang sebagai <em>single launchpad</em> yang cepat, intuitif, dan ramah pengguna.
+      </p>
+
+      <div class="grid-2 reveal delay-3">
+        <div class="card" style="background: rgba(0, 212, 178, 0.04); border-color: rgba(0, 212, 178, 0.2);">
+          <h3 class="card-title" style="color: var(--primary);">🌐 Portal Publik ALUSI (Fokus Utama)</h3>
+          <ul class="feature-list" style="margin-top: 0.5rem;">
+            <li><strong>Omnibox Search (Cmd+K)</strong>: Pencarian instan fuzzy katalog aplikasi & panduan operasional.</li>
+            <li><strong>AI Asisten Cerdas</strong>: Tanya jawab kebutuhan statistik & rekomendasi aplikasi secara natural.</li>
+            <li><strong>Quick Launcher</strong>: Modul favorit personal, riwayat akses terakhir, dan navigasi 1-klik.</li>
+            <li><strong>Live Health Indicator</strong>: Indikator live status operasional sistem tanpa reload (via SSE).</li>
+            <li><strong>Tiket Bantuan Terbuka</strong>: Pelaporan kendala dan pengajuan saran fitur langsung ke tim IT.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="background: rgba(15, 23, 42, 0.5); opacity: 0.85;">
+          <h3 class="card-title" style="color: var(--text-muted);">🔒 Admin & Executive Panel (Sudah Tersedia)</h3>
+          <ul class="feature-list" style="margin-top: 0.5rem;">
+            <li>Manajemen Metadata Katalog, Kategori & Urutan Prioritas Aplikasi.</li>
+            <li>Manajemen Hak Akses Matriks RBAC (Role-Based Access Control).</li>
+            <li>Monitoring Kesehatan Probe Server & Broadcast Pengumuman Terjadwal.</li>
+            <li>Dasbor Analitik Eksekutif: DAU/MAU, ranking klik, dan ekspor laporan CSV/Excel.</li>
+            <li>Penanganan Respon Tiket Feedback dan Audit Trail Forensik.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: STRUKTUR TAMPILAN & USER EXPERIENCE -->
+  <section class="slide" id="slide-3">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">📐 Layout & Wireframe Strategy</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Struktur Anatomi Halaman Utama Portal</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Hirarki visual dirancang agar pengguna dapat menemukan dan meluncurkan aplikasi yang mereka butuhkan dalam waktu kurang dari 3 detik.
+      </p>
+
+      <div class="grid-3 reveal delay-3">
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🚀</div>
+          <h3 class="card-title">1. Hero & Omnibox Launcher</h3>
+          <p class="card-desc">
+            Header interaktif dengan input pencarian sentral <code>Ctrl+K</code>, tombol aktivasi AI Assistant, banner siaran pengumuman aktif, dan pin aplikasi favorit pengguna.
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">📑</div>
+          <h3 class="card-title">2. Categorized Explorer Grid</h3>
+          <p class="card-desc">
+            Tab filter kategori (Statistik Sosial, Produksi, Nerwilis, IPDS, Umum), kartu aplikasi modern dengan logo resmi, badge status live, dan tombol peluncur URL langsung.
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">⚡</div>
+          <h3 class="card-title">3. Drawer Panduan & Feedback</h3>
+          <p class="card-desc">
+            Slide-over drawer untuk FAQ & dokumen panduan aplikasi, riwayat uptime SLA, serta formulir pengajuan tiket kendala layanan secara instan.
+          </p>
+        </div>
+      </div>
+
+      <div class="code-block reveal delay-4" style="margin-top: 0.75rem;">
+        <span style="color: var(--accent-blue);">Layout Hierarchy:</span> TopNav (SSO / Theme) ➔ Announcement Banner ➔ Hero Search / AI Prompt ➔ Favorites Bar ➔ Category Tabs ➔ App Card Grid ➔ Live Uptime Footer
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: API INTEGRATION - KATALOG & PENCARIAN -->
+  <section class="slide" id="slide-4">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🔌 API Integration 01</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Katalog Aplikasi, Kategori & Fuzzy Search</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Portal mengonsumsi API katalog publik dengan dukungan caching TanStack Query dan multi-parameter filtering.
+      </p>
+
+      <div class="grid-2 reveal delay-3">
+        <div class="card">
+          <h3 class="card-title">Daftar Endpoint Terkait</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.25rem;">
+            <div>
+              <span class="api-badge api-get">GET /api/v1/categories</span>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Memuat seluruh kelompok kategori aplikasi dan metadata ikon.</p>
+            </div>
+            <div>
+              <span class="api-badge api-get">GET /api/v1/apps</span>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Daftar aplikasi terfilter kategori, target pengguna, dan status aktif.</p>
+            </div>
+            <div>
+              <span class="api-badge api-get">GET /api/v1/apps/search?q={query}</span>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Pencarian cepat berbasis <em>trigram similarity ranking</em> nama/deskripsi.</p>
+            </div>
+            <div>
+              <span class="api-badge api-get">GET /api/v1/apps/:slug/guides</span>
+              <p style="font-size: var(--small-size); color: var(--text-muted); margin-top: 0.15rem;">Mengambil dokumen petunjuk teknis dan FAQ aplikasi.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Fitur UI Frontend</h3>
+          <ul class="feature-list" style="margin-top: 0.25rem;">
+            <li><strong>Instant Client Filtering</strong>: Kombinasi filter kategori & pencarian kata kunci dengan debounce 200ms.</li>
+            <li><strong>Target Audience Badge</strong>: Penanda visual modul internal (Pegawai BPS) vs portal publik/eksternal.</li>
+            <li><strong>App Guide Modal</strong>: Menampilkan petunjuk langkah kerja dan kontak PIC pengelola aplikasi.</li>
+            <li><strong>App Card Micro-Interactions</strong>: Hover elevation, quick launch link, dan toggle favorit.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: API INTEGRATION - AI ASSISTANT -->
+  <section class="slide" id="slide-5">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🤖 API Integration 02</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">AI Assistant: Rekomendasi Cerdas Natural Language</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Fitur asisten kecerdasan buatan berbasis Gemini yang menjawab pertanyaan pengguna dan mengarahkan ke aplikasi yang tepat.
+      </p>
+
+      <div class="grid-2 reveal delay-3">
+        <div class="card">
+          <h3 class="card-title">Endpoint & Payload API</h3>
+          <span class="api-badge api-post">POST /api/v1/ai/ask</span>
+          
+          <div class="code-block" style="margin-top: 0.6rem;">
+            <span style="color: var(--text-muted);">// Request Payload:</span><br>
+            {<br>
+            &nbsp;&nbsp;<span style="color: var(--primary);">"prompt"</span>: <span style="color: #FDE047;">"Bagaimana cara menginput data survei ubinan padi?"</span><br>
+            }<br><br>
+            <span style="color: var(--text-muted);">// Response:</span><br>
+            {<br>
+            &nbsp;&nbsp;<span style="color: var(--primary);">"jawaban"</span>: <span style="color: #A7F3D0;">"Untuk survei ubinan, gunakan modul SIMBATIK..."</span>,<br>
+            &nbsp;&nbsp;<span style="color: var(--primary);">"rekomendasi_apps"</span>: [{ <span style="color: var(--accent-blue);">"id"</span>: 1, <span style="color: var(--accent-blue);">"nama"</span>: "SIMBATIK", <span style="color: var(--accent-blue);">"url"</span>: "..." }]<br>
+            }
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Pengalaman Antarmuka AI Chat</h3>
+          <ul class="feature-list" style="margin-top: 0.25rem;">
+            <li><strong>Spotlight AI Floating Bar</strong>: Input prompt dengan placeholder sugestif (contoh: <em>"Mau cari data inflasi?", "Input dokumen dinas?"</em>).</li>
+            <li><strong>Interactive Response Cards</strong>: Jawaban AI dilengkapi dengan tombol peluncur aplikasi rekomendasi langsung (1-click direct open).</li>
+            <li><strong>Typing Streaming Animation</strong>: Memberikan visualisasi loading cerdas yang interaktif saat AI memproses jawaban.</li>
+            <li><strong>Suggested Prompts Pills</strong>: Tombol chip rekomendasi pertanyaan populer bagi pengguna awam.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: API INTEGRATION - PERSONALISASI & KLIK -->
+  <section class="slide" id="slide-6">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">⭐ API Integration 03</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Personalisasi Pengguna & Pelacakan Akses</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Memberikan pengalaman terpersonalisasi untuk pegawai yang login, sekaligus mencatat metrik penggunaan secara asinkron.
+      </p>
+
+      <div class="grid-3 reveal delay-3">
+        <div class="card">
+          <h3 class="card-title">1. Toggle Favorit</h3>
+          <span class="api-badge api-post">POST /api/v1/apps/:id/favorite</span>
+          <p class="card-desc" style="margin-top: 0.5rem;">
+            Memungkinkan pengguna menandai aplikasi harian mereka. Data disimpan di database dan di-cache lokal untuk akses instan.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">2. Rekaman Klik Telemetri</h3>
+          <span class="api-badge api-post">POST /api/v1/apps/:id/click</span>
+          <p class="card-desc" style="margin-top: 0.5rem;">
+            Setiap peluncuran aplikasi mentrigger telemetri klik tanpa memperlambat pembukaan tab baru (background async fire-and-forget).
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3. Riwayat Terakhir Diakses</h3>
+          <span class="api-badge api-get">GET /api/v1/users/me/recents</span>
+          <p class="card-desc" style="margin-top: 0.5rem;">
+            Menampilkan deretan 5 aplikasi terakhir yang dibuka pengguna untuk efisiensi alur kerja harian.
+          </p>
+        </div>
+      </div>
+
+      <div class="card reveal delay-4" style="margin-top: 0.75rem; background: rgba(0, 212, 178, 0.03);">
+        <p style="font-size: var(--body-size); color: #E2E8F0;">
+          💡 <strong>Optimistic UI Update:</strong> Tombol bintang favorit langsung berubah status secara instan di sisi klien sebelum server merespon untuk menghilangkan latensi antarmuka.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: API INTEGRATION - REALTIME SSE MONITORING -->
+  <section class="slide" id="slide-7">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">📡 API Integration 04</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Status Kesehatan Layanan & Realtime SSE</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Transparansi status operasional server kepada publik dan notifikasi langsung jika ada layanan yang sedang dalam pemeliharaan.
+      </p>
+
+      <div class="grid-2 reveal delay-3">
+        <div class="card">
+          <h3 class="card-title">Arsitektur SSE Streaming</h3>
+          <span class="api-badge api-sse">GET /api/v1/services/realtime-status (SSE)</span>
+          <p class="card-desc" style="margin-top: 0.4rem;">
+            Koneksi HTTP Server-Sent Events persisten yang mem-push status perubahan kesehatan modul secara instan ke browser tanpa perlu polling berulang.
+          </p>
+
+          <span class="api-badge api-get" style="margin-top: 0.6rem;">GET /api/v1/services/status</span>
+          <p class="card-desc" style="margin-top: 0.2rem;">
+            Snapshot ringkasan ketersediaan SLA 30 hari untuk widget status bar publik.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Representasi Visual di Frontend</h3>
+          <ul class="feature-list" style="margin-top: 0.25rem;">
+            <li><strong>Live Pulsing Indicators</strong>: Titik hijau (Normal), oranye (Kendala), kuning (Maintenance), merah (Down) pada setiap kartu aplikasi.</li>
+            <li><strong>Toast System Alerts</strong>: Pop-up notifikasi otomatis ketika layanan penting mengalami gangguan operasional.</li>
+            <li><strong>System Health Status Page</strong>: Halaman transparan SLA publik <code>/status</code> yang menampilkan riwayat uptime per aplikasi.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: API INTEGRATION - PENGUMUMAN & FEEDBACK -->
+  <section class="slide" id="slide-8">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">📢 API Integration 05</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Papan Pengumuman & Tiket Bantuan (Feedback)</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Saluran komunikasi dua arah antara tim pengembang IT BPS Sumut dengan seluruh pengguna portal.
+      </p>
+
+      <div class="grid-2 reveal delay-3">
+        <div class="card">
+          <h3 class="card-title">Siaran Pengumuman (Broadcast)</h3>
+          <span class="api-badge api-get">GET /api/v1/announcements</span>
+          <ul class="feature-list" style="margin-top: 0.5rem;">
+            <li><strong>Sticky Header Banner</strong>: Menampilkan jadwal rilis fitur baru, agenda survei nasional, atau pemeliharaan server.</li>
+            <li><strong>Tipe Pengumuman Dinamis</strong>: <code>info</code> (biru), <code>warning</code> (kuning), <code>urgent</code> (merah), <code>maintenance</code> (oranye).</li>
+            <li><strong>Dismissable Storage</strong>: Pengguna dapat menutup banner dan preferensi tersimpan di local storage.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Pengajuan Tiket Umpan Balik</h3>
+          <span class="api-badge api-post">POST /api/v1/feedbacks</span>
+          <ul class="feature-list" style="margin-top: 0.5rem;">
+            <li><strong>Floating Helpdesk Button</strong>: Tombol bantuan melayang di pojok kanan bawah yang membuka modal pengaduan.</li>
+            <li><strong>Kategori Laporan</strong>: Kendala teknis (Bug), Saran Pengembangan (Fitur), dan Permasalahan Data.</li>
+            <li><strong>Feedback Confirmation</strong>: Menampilkan nomor tiket keluhan untuk tindak lanjut tim pengembang.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: TECH STACK & ARSITEKTUR FRONTEND -->
+  <section class="slide" id="slide-9">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">⚡ Teknologi & Performa</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Modern Frontend Stack & Tooling</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Dibangun dengan standar ekosistem React modern untuk menjamin ukuran bundle ultra-ringan, kecepatan render maksimal, dan kemudahan pemeliharaan.
+      </p>
+
+      <div class="grid-4 reveal delay-3">
+        <div class="card" style="text-align: center; align-items: center;">
+          <div style="font-size: 2rem; color: var(--primary);">⚛️</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">React 19 + Vite</h3>
+          <p class="card-desc" style="font-size: var(--small-size);">Bundler berkecepatan tinggi dengan Hot Module Replacement (HMR) instan.</p>
+        </div>
+
+        <div class="card" style="text-align: center; align-items: center;">
+          <div style="font-size: 2rem; color: var(--accent-blue);">🔄</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">TanStack Query</h3>
+          <p class="card-desc" style="font-size: var(--small-size);">Stale-While-Revalidate caching, auto-refetching, dan deduplication request API.</p>
+        </div>
+
+        <div class="card" style="text-align: center; align-items: center;">
+          <div style="font-size: 2rem; color: var(--accent-indigo);">🎨</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Tailwind v4 + Shadcn</h3>
+          <p class="card-desc" style="font-size: var(--small-size);">Design system modular, dark/light theme, dan aksesibilitas ARIA bawaan.</p>
+        </div>
+
+        <div class="card" style="text-align: center; align-items: center;">
+          <div style="font-size: 2rem; color: var(--accent-amber);">✨</div>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Framer Motion</h3>
+          <p class="card-desc" style="font-size: var(--small-size);">Animasi transisi mikro yang mulus untuk launcher dialog dan category switching.</p>
+        </div>
+      </div>
+
+      <div class="code-block reveal delay-4" style="margin-top: 0.75rem;">
+        <span style="color: var(--primary);">Target Performance:</span> Lighthouse Score 98+ | FCP &lt; 0.6s | LCP &lt; 1.2s | Total Bundle Size &lt; 150 KB (gzipped)
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: BREAKDOWN KOMPONEN UI -->
+  <section class="slide" id="slide-10">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🧩 Desain Komponen</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Daftar Komponen UI Utama (Atomic Breakdown)</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Struktur komponen yang siap dibangun secara modular dan dapat digunakan kembali (reusable).
+      </p>
+
+      <div class="grid-3 reveal delay-3">
+        <div class="card">
+          <h3 class="card-title">1. SearchOmniboxModal</h3>
+          <p class="card-desc">
+            Modal Command Palette <code>Cmd+K</code> dengan auto-complete instan, shortcut keyboard navigasi panah, filter kategori cepat, dan history pencarian.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">2. AppLauncherCard</h3>
+          <p class="card-desc">
+            Kartu aplikasi dengan logo resmi teroptimasi, indikator live ping status, chip kategori, tombol favorite toggle, dan preview panduan.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">3. AIAssistantDrawer</h3>
+          <p class="card-desc">
+            Slide-over interactive dialog dengan input percakapan, rendering format Markdown jawaban, dan tautan aplikasi yang direkomendasikan.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">4. QuickFavoritesBar</h3>
+          <p class="card-desc">
+            Grid horizontal aplikasi favorit berukuran compact dengan icon badge, khusus untuk peluncuran cepat tugas operasional harian pegawai.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">5. StatusUptimeBadge</h3>
+          <p class="card-desc">
+            Komponen status realtime dengan visualisasi denyut (pulse) yang terkoneksi langsung ke stream Server-Sent Events (SSE).
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">6. FeedbackSubmitDialog</h3>
+          <p class="card-desc">
+            Formulir pelaporan kendala terintegrasi dengan validasi Zod, pemilihan modul bersangkutan, dan unggah tangkapan layar (opsional).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: ACCESSIBILITY, PWA & OFFLINE -->
+  <section class="slide" id="slide-11">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">📱 Fitur Lanjutan</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Aksesibilitas, PWA & Dukungan Offline</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Memastikan portal dapat diakses oleh semua kalangan pegawai dan masyarakat dari beragam perangkat dan kondisi jaringan.
+      </p>
+
+      <div class="grid-3 reveal delay-3">
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">♿</div>
+          <h3 class="card-title">WCAG 2.2 AA Compliance</h3>
+          <ul class="feature-list" style="margin-top: 0.3rem;">
+            <li>Full Keyboard Navigation (Tab, Esc, Enter, Arrow keys).</li>
+            <li>Kontras warna tinggi untuk keterbacaan optimal.</li>
+            <li>ARIA labels semantik untuk pembaca layar (screen reader).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">📲</div>
+          <h3 class="card-title">Progressive Web App (PWA)</h3>
+          <ul class="feature-list" style="margin-top: 0.3rem;">
+            <li>Dapat diinstall langsung ke Homescreen Smartphone & Desktop.</li>
+            <li>Service Worker caching untuk katalog aplikasi saat sinyal offline.</li>
+            <li>Tampilan responsif ramah layar sentuh mobile.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 1.5rem; margin-bottom: 0.3rem;">🌓</div>
+          <h3 class="card-title">Dual Theme & Kustomisasi</h3>
+          <ul class="feature-list" style="margin-top: 0.3rem;">
+            <li>Dukungan Dark Mode dan Light Mode otomatis.</li>
+            <li>Pilihan tata letak: Grid View vs List Table View.</li>
+            <li>Ukuran teks adaptif untuk kenyamanan mata.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12: ROADMAP & TIMELINE EKSEKUSI -->
+  <section class="slide" id="slide-12">
+    <div class="slide-content">
+      <div class="reveal">
+        <span class="slide-tag">🚀 Rencana Pelaksanaan</span>
+      </div>
+      <h2 class="slide-title reveal delay-1">Roadmap Sprint Pembangunan Frontend Portal</h2>
+      <p class="slide-subtitle reveal delay-2">
+        Tahapan implementasi bertahap dengan estimasi delivery terstruktur dan siap integrasi.
+      </p>
+
+      <div class="grid-4 reveal delay-3">
+        <div class="card" style="border-top: 3px solid var(--primary);">
+          <span style="font-size: var(--small-size); color: var(--primary); font-weight: 700;">Sprint 1: Core Shell</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Inisialisasi & Katalog</h3>
+          <ul class="feature-list" style="font-size: var(--small-size);">
+            <li>Setup Vite, Tailwind v4 & Router.</li>
+            <li>Integrasi API Kategori & Apps.</li>
+            <li>App Grid & Filter Kategori.</li>
+            <li>Omnibox Search (Cmd+K).</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--accent-blue);">
+          <span style="font-size: var(--small-size); color: var(--accent-blue); font-weight: 700;">Sprint 2: Intelijen & User</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">AI & Personalisasi</h3>
+          <ul class="feature-list" style="font-size: var(--small-size);">
+            <li>Integrasi API AI Assistant.</li>
+            <li>Fitur Favorit & Telemetri Klik.</li>
+            <li>Hero Section & Quick Launcher.</li>
+            <li>SSO Login & Profil Pengguna.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--accent-amber);">
+          <span style="font-size: var(--small-size); color: var(--accent-amber); font-weight: 700;">Sprint 3: Realtime & Hub</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">Monitoring & Helpdesk</h3>
+          <ul class="feature-list" style="font-size: var(--small-size);">
+            <li>Integrasi SSE Live Status.</li>
+            <li>Banner Pengumuman Aktif.</li>
+            <li>Formulir Tiket Feedback/Bug.</li>
+            <li>Drawer FAQ & Panduan Modul.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--accent-indigo);">
+          <span style="font-size: var(--small-size); color: var(--accent-indigo); font-weight: 700;">Sprint 4: Polish</span>
+          <h3 style="font-size: var(--h3-size); margin: 0.3rem 0; color: #fff;">PWA & Peluncuran</h3>
+          <ul class="feature-list" style="font-size: var(--small-size);">
+            <li>Optimasi Service Worker & PWA.</li>
+            <li>Audit Aksesibilitas WCAG AA.</li>
+            <li>UAT Internal Pegawai BPS.</li>
+            <li>Deployment Production.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="reveal delay-4" style="margin-top: 1rem; text-align: center;">
+        <span style="font-size: var(--body-size); color: var(--primary); font-weight: 700;">
+          ✨ Siap Dieksekusi Menuju Portal Layanan Terintegrasi Modern BPS Provinsi Sumatera Utara
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- NAVIGATION BAR CONTROLS -->
+  <nav class="nav-bar" aria-label="Slide navigation">
+    <button class="nav-btn" id="prev-btn" title="Slide Sebelumnya (Panah Kiri / PageUp)">
+      ◀ Prev
+    </button>
+
+    <div class="progress-track" title="Progres Presentasi">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <span class="slide-counter" id="slide-counter">1 / 12</span>
+
+    <button class="nav-btn" id="next-btn" title="Slide Berikutnya (Panah Kanan / Space / PageDown)">
+      Next ▶
+    </button>
+  </nav>
+
+  <!-- PRESENTATION CONTROLLER SCRIPT -->
+  <script>
+    class PresentationController {
+      constructor() {
+        this.slides = Array.from(document.querySelectorAll('.slide'));
+        this.totalSlides = this.slides.length;
+        this.currentIndex = 0;
+        
+        this.prevBtn = document.getElementById('prev-btn');
+        this.nextBtn = document.getElementById('next-btn');
+        this.progressFill = document.getElementById('progress-fill');
+        this.counter = document.getElementById('slide-counter');
+
+        this.init();
+      }
+
+      init() {
+        this.bindEvents();
+        this.setupIntersectionObserver();
+        this.updateSlide(0);
+      }
+
+      bindEvents() {
+        // Keyboard navigation
+        window.addEventListener('keydown', (e) => {
+          if (['ArrowRight', 'Space', 'PageDown'].includes(e.code)) {
+            e.preventDefault();
+            this.next();
+          } else if (['ArrowLeft', 'PageUp'].includes(e.code)) {
+            e.preventDefault();
+            this.prev();
+          } else if (e.code === 'Home') {
+            e.preventDefault();
+            this.goTo(0);
+          } else if (e.code === 'End') {
+            e.preventDefault();
+            this.goTo(this.totalSlides - 1);
+          }
+        });
+
+        // Button clicks
+        this.prevBtn.addEventListener('click', () => this.prev());
+        this.nextBtn.addEventListener('click', () => this.next());
+
+        // Wheel debounce navigation
+        let wheelTimeout;
+        window.addEventListener('wheel', (e) => {
+          clearTimeout(wheelTimeout);
+          wheelTimeout = setTimeout(() => {
+            if (e.deltaY > 40) this.next();
+            else if (e.deltaY < -40) this.prev();
+          }, 60);
+        }, { passive: true });
+
+        // Touch gestures
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+          touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+          const touchEndY = e.changedTouches[0].clientY;
+          const diff = touchStartY - touchEndY;
+          if (diff > 50) this.next();
+          else if (diff < -50) this.prev();
+        }, { passive: true });
+      }
+
+      setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('active');
+              const index = this.slides.indexOf(entry.target);
+              if (index !== -1) {
+                this.currentIndex = index;
+                this.updateUI();
+              }
+            }
+          });
+        }, { threshold: 0.5 });
+
+        this.slides.forEach(slide => observer.observe(slide));
+      }
+
+      goTo(index) {
+        if (index < 0 || index >= this.totalSlides) return;
+        this.currentIndex = index;
+        this.slides[index].scrollIntoView({ behavior: 'smooth' });
+        this.updateUI();
+      }
+
+      next() {
+        if (this.currentIndex < this.totalSlides - 1) {
+          this.goTo(this.currentIndex + 1);
+        }
+      }
+
+      prev() {
+        if (this.currentIndex > 0) {
+          this.goTo(this.currentIndex - 1);
+        }
+      }
+
+      updateUI() {
+        const progress = ((this.currentIndex + 1) / this.totalSlides) * 100;
+        this.progressFill.style.width = `${progress}%`;
+        this.counter.textContent = `${this.currentIndex + 1} / ${this.totalSlides}`;
+
+        this.prevBtn.style.opacity = this.currentIndex === 0 ? '0.4' : '1';
+        this.nextBtn.style.opacity = this.currentIndex === this.totalSlides - 1 ? '0.4' : '1';
+      }
+
+      updateSlide(index) {
+        this.goTo(index);
+      }
+    }
+
+    // Initialize presentation on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      new PresentationController();
+    });
+  </script>
+</body>
+</html>
