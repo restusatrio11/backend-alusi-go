@@ -1,0 +1,28 @@
+[Unit]
+Description=ALUSI Portal Backend API Service
+After=network.target
+
+[Service]
+Type=simple
+User=alusi
+Group=alusi
+WorkingDirectory=/var/www/alusi-backend
+ExecStart=/var/www/alusi-backend/backend-alusi
+Restart=always
+RestartSec=5s
+
+# Environment File
+EnvironmentFile=/var/www/alusi-backend/.env
+
+# Security Sandbox (Optional but Recommended)
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Standard Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=alusi-backend
+
+[Install]
+WantedBy=multi-user.target
