@@ -1,0 +1,31 @@
+name: Branch & PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-branch:
+    name: Check Branch Naming Convention
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Check Head Branch Name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          PATTERN="^(feat|fix|refactor|docs|test|chore|hotfix)\/((ADM|FE|AND)-[0-9]+|[a-z0-9-]+)(-[a-z0-9-]+)*$"
+          
+          echo "Checking branch name: $BRANCH_NAME"
+          
+          if [[ "$BRANCH_NAME" =~ ^(main|SAT|dev)$ ]]; then
+            echo "✅ Standard branch allowed."
+            exit 0
+          fi
+          
+          if [[ "$BRANCH_NAME" =~ $PATTERN ]]; then
+            echo "✅ Branch name matches Issue Scrum pattern!"
+          else
+            echo "❌ [Error] Nama branch '$BRANCH_NAME' tidak sesuai aturan!"
+            echo "Gunakan format: feat/ADM-01-nama-fitur, fix/ADM-03-nama-fix, dll."
+            exit 1
+          fi

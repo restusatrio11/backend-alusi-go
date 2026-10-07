@@ -1,0 +1,37 @@
+name: ALUSI Backend Go CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - SAT
+      - dev
+  pull_request:
+    branches:
+      - main
+      - SAT
+      - dev
+
+jobs:
+  test-and-build:
+    name: Go Test & Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🗄️ Setup Go Environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: 📦 Install Go Dependencies
+        run: go mod download
+
+      - name: 🧪 Run Unit & Integration Tests
+        run: go test -v -race ./...
+
+      - name: 🛠️ Build Backend Binary
+        run: go build -v -o bin/server ./cmd/server
