@@ -1,6 +1,8 @@
 package http
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"backend-alusi-go/config"
@@ -90,6 +92,25 @@ func SetupRouter(
 
 	// Static file serving for uploads (logos, attachments)
 	router.Static("/uploads", "./uploads")
+
+	// Top-level SSO OAuth redirect route (/auth/callback)
+	// Forwards code & state from SSO provider redirect (http://localhost:8080/auth/callback) to frontend or auth handler
+	router.GET("/auth/callback", func(c *gin.Context) {
+		code := c.Query("code")
+		state := c.Query("state")
+
+		// Determine frontend origin from CORS allowed origins or default to http://localhost:5173
+		frontendOrigin := "http://localhost:5173"
+		for _, origin := range cfg.CORS.AllowedOrigins {
+			if strings.Contains(origin, "5173") || strings.Contains(origin, "3000") || strings.Contains(origin, "bps.web.id") {
+				frontendOrigin = origin
+				break
+			}
+		}
+
+		targetURL := fmt.Sprintf("%s/callback?code=%s&state=%s", frontendOrigin, code, state)
+		c.Redirect(302, targetURL)
+	})
 
 	// API v1 group
 	v1 := router.Group("/api/v1")
