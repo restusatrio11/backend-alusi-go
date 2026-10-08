@@ -47,8 +47,8 @@ func (u *AuthUsecase) HandleSSOCallback(ctx context.Context, code string) (*doma
 		return nil, "", fmt.Errorf("failed to exchange auth code: %w", err)
 	}
 
-	// 2. Fetch User Claims from /userinfo
-	userInfo, err := u.ssoClient.GetUserInfo(ctx, tok.AccessToken)
+	// 2. Fetch User Claims from /userinfo or JWT token claims
+	userInfo, err := u.ssoClient.GetUserInfo(ctx, tok.AccessToken, tok.IDToken)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to fetch userinfo from SSO: %w", err)
 	}

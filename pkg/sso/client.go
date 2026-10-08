@@ -2,6 +2,7 @@ package sso
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -106,40 +107,155 @@ func (c *Client) ExchangeCode(ctx context.Context, code string) (*TokenResponse,
 	return &tok, nil
 }
 
-// GetUserInfo retrieves user profile claims via GET /userinfo
-func (c *Client) GetUserInfo(ctx context.Context, accessToken string) (*UserInfo, error) {
-	userInfoURL := fmt.Sprintf("%s/userinfo", strings.TrimRight(c.cfg.IssuerURL, "/"))
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, userInfoURL, nil)
+// GetUserInfo retrieves user profile claims via GET /userinfo or JWT token claims
+func (c *Client) GetUserInfo(ctx context.Context, accessToken string, idToken ...string) (*UserInfo, error) {
+	baseURL := strings.TrimRight(c.cfg.IssuerURL, "/")
+
+	// Possible userinfo endpoints on different OIDC providers
+	endpoints := []string{
+		baseURL + "/userinfo",
+		baseURL + "/api/userinfo",
+		baseURL + "/api/v1/userinfo",
+		baseURL + "/oauth/userinfo",
+		baseURL + "/me",
+	}
+
+	var lastErr error
+	for _, userInfoURL := range endpoints {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, userInfoURL, nil)
+		if err != nil {
+			continue
+		}
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		if resp.StatusCode == http.StatusOK {
+			var user UserInfo
+			if err := json.Unmarshal(bodyBytes, &user); err == nil && user.Sub != "" {
+				return &user, nil
+			}
+		} else {
+			lastErr = fmt.Errorf("endpoint %s returned status %d", userInfoURL, resp.StatusCode)
+		}
+	}
+
+	// Fallback 1: Parse claims from IDToken if provided
+	if len(idToken) > 0 && idToken[0] != "" {
+		if claims, err := parseJWTClaims(idToken[0]); err == nil && claims.Sub != "" {
+			return claims, nil
+		}
+	}
+
+	// Fallback 2: Parse claims directly from AccessToken if it's a JWT
+	if claims, err := parseJWTClaims(accessToken); err == nil && claims.Sub != "" {
+		return claims, nil
+	}
+
+	if lastErr != nil {
+		return nil, fmt.Errorf("failed to fetch userinfo from SSO provider: %w", lastErr)
+	}
+
+	return nil, fmt.Errorf("endpoint userinfo SSO (404) dan klaim token tidak ditemukan")
+}
+
+// parseJWTClaims extracts user profile claims from a JWT token string (id_token or access_token)
+func parseJWTClaims(tokenStr string) (*UserInfo, error) {
+	if tokenStr == "" {
+		return nil, fmt.Errorf("token string is empty")
+	}
+
+	parts := strings.Split(tokenStr, ".")
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("invalid JWT format")
+	}
+
+	segment := parts[1]
+	switch len(segment) % 4 {
+	case 2:
+		segment += "=="
+	case 3:
+		segment += "="
+	}
+
+	decoded, err := base64.URLEncoding.DecodeString(segment)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create userinfo request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("userinfo request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read userinfo response: %w", err)
+		decoded, err = base64.RawURLEncoding.DecodeString(parts[1])
+		if err != nil {
+			return nil, fmt.Errorf("failed to base64 decode JWT payload: %w", err)
+		}
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("userinfo endpoint returned status %d: %s", resp.StatusCode, string(bodyBytes))
+	var claims struct {
+		Sub           string `json:"sub"`
+		UserType      string `json:"user_type"`
+		Nama          string `json:"nama"`
+		NamaLengkap   string `json:"nama_lengkap"`
+		Name          string `json:"name"`
+		Username      string `json:"username"`
+		Email         string `json:"email"`
+		NIP           string `json:"nip"`
+		KodeSatker    string `json:"kode_satker"`
+		NIK           string `json:"nik"`
+		KodeKabupaten string `json:"kode_kabupaten"`
+		KodeKecamatan string `json:"kode_kecamatan"`
+		KodeDesa      string `json:"kode_desa"`
+		KodeSLS       string `json:"kode_sls"`
+		Jabatan       string `json:"jabatan"`
 	}
 
-	var user UserInfo
-	if err := json.Unmarshal(bodyBytes, &user); err != nil {
-		return nil, fmt.Errorf("failed to decode userinfo response: %w", err)
+	if err := json.Unmarshal(decoded, &claims); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JWT payload: %w", err)
 	}
 
-	if user.Sub == "" {
-		return nil, fmt.Errorf("userinfo response missing 'sub' claim")
+	sub := claims.Sub
+	if sub == "" {
+		sub = claims.Username
+	}
+	if sub == "" {
+		sub = claims.NIP
 	}
 
-	return &user, nil
+	if sub == "" {
+		return nil, fmt.Errorf("JWT payload missing 'sub' identifier")
+	}
+
+	nama := claims.NamaLengkap
+	if nama == "" {
+		nama = claims.Nama
+	}
+	if nama == "" {
+		nama = claims.Name
+	}
+	if nama == "" {
+		nama = claims.Username
+	}
+
+	userType := claims.UserType
+	if userType == "" {
+		userType = "internal"
+	}
+
+	return &UserInfo{
+		Sub:           sub,
+		UserType:      userType,
+		NamaLengkap:   nama,
+		Email:         claims.Email,
+		NIP:           claims.NIP,
+		KodeSatker:    claims.KodeSatker,
+		NIK:           claims.NIK,
+		KodeKabupaten: claims.KodeKabupaten,
+		KodeKecamatan: claims.KodeKecamatan,
+		KodeDesa:      claims.KodeDesa,
+		KodeSLS:       claims.KodeSLS,
+		Jabatan:       claims.Jabatan,
+	}, nil
 }
 
 // GetLogoutURL generates Single Log Out (SLO) redirect URL
