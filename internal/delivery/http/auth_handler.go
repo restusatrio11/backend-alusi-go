@@ -178,7 +178,7 @@ func (h *AuthHandler) Callback(c *gin.Context) {
 	}
 
 	// Otherwise, redirect to frontend homepage / portal dashboard
-	frontendOrigin := "http://localhost:3000"
+	frontendOrigin := "http://localhost:5173"
 	if len(h.cfg.CORS.AllowedOrigins) > 0 && h.cfg.CORS.AllowedOrigins[0] != "*" {
 		frontendOrigin = h.cfg.CORS.AllowedOrigins[0]
 	}

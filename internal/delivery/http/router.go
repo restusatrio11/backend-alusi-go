@@ -102,9 +102,12 @@ func SetupRouter(
 		// Determine frontend origin from CORS allowed origins or default to http://localhost:5173
 		frontendOrigin := "http://localhost:5173"
 		for _, origin := range cfg.CORS.AllowedOrigins {
-			if strings.Contains(origin, "5173") || strings.Contains(origin, "3000") || strings.Contains(origin, "bps.web.id") {
+			if strings.Contains(origin, "5173") {
 				frontendOrigin = origin
 				break
+			}
+			if strings.Contains(origin, "bps.web.id") || strings.Contains(origin, "3000") {
+				frontendOrigin = origin
 			}
 		}
 
