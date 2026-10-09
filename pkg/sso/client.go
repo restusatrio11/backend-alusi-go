@@ -27,6 +27,7 @@ type UserInfo struct {
 	NamaLengkap   string `json:"nama_lengkap"`
 	Email         string `json:"email"`
 	NIP           string `json:"nip,omitempty"`
+	NIPLama       string `json:"nip_lama,omitempty"`
 	KodeSatker    string `json:"kode_satker,omitempty"`
 	NIK           string `json:"nik,omitempty"`
 	KodeKabupaten string `json:"kode_kabupaten,omitempty"`
@@ -201,6 +202,8 @@ func parseJWTClaims(tokenStr string) (*UserInfo, error) {
 		Username      string `json:"username"`
 		Email         string `json:"email"`
 		NIP           string `json:"nip"`
+		NIPLama       string `json:"nip_lama"`
+		NipLama       string `json:"niplama"`
 		KodeSatker    string `json:"kode_satker"`
 		NIK           string `json:"nik"`
 		KodeKabupaten string `json:"kode_kabupaten"`
@@ -242,12 +245,18 @@ func parseJWTClaims(tokenStr string) (*UserInfo, error) {
 		userType = "internal"
 	}
 
+	nipLama := claims.NIPLama
+	if nipLama == "" {
+		nipLama = claims.NipLama
+	}
+
 	return &UserInfo{
 		Sub:           sub,
 		UserType:      userType,
 		NamaLengkap:   nama,
 		Email:         claims.Email,
 		NIP:           claims.NIP,
+		NIPLama:       nipLama,
 		KodeSatker:    claims.KodeSatker,
 		NIK:           claims.NIK,
 		KodeKabupaten: claims.KodeKabupaten,

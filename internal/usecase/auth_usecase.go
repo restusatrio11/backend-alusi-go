@@ -75,6 +75,9 @@ func (u *AuthUsecase) HandleSSOCallback(ctx context.Context, code string) (*doma
 
 	now := time.Now()
 	metadata := map[string]interface{}{}
+	if userInfo.NIPLama != "" {
+		metadata["nip_lama"] = userInfo.NIPLama
+	}
 	if userInfo.UserType == "external" {
 		metadata["kode_kabupaten"] = userInfo.KodeKabupaten
 		metadata["kode_kecamatan"] = userInfo.KodeKecamatan
