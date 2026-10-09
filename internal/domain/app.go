@@ -31,6 +31,10 @@ type Guide struct {
 	AppID     int       `json:"app_id"`
 	Judul     string    `json:"judul"`
 	Konten    string    `json:"konten"`
+	Tipe      string    `json:"tipe"`
+	PDFURL    *string   `json:"pdf_url,omitempty"`
+	PICNama   *string   `json:"pic_nama,omitempty"`
+	PICEmail  *string   `json:"pic_email,omitempty"`
 	Urutan    int       `json:"urutan"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

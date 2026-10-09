@@ -232,17 +232,29 @@ func (u *AdminUsecase) DeleteCategory(ctx context.Context, id int) error {
 }
 
 type GuideInput struct {
-	Judul  string `json:"judul" binding:"required"`
-	Konten string `json:"konten" binding:"required"`
-	Urutan int    `json:"urutan"`
+	Judul    string  `json:"judul" binding:"required"`
+	Konten   string  `json:"konten" binding:"required"`
+	Tipe     string  `json:"tipe"`
+	PDFURL   *string `json:"pdf_url"`
+	PICNama  *string `json:"pic_nama"`
+	PICEmail *string `json:"pic_email"`
+	Urutan   int     `json:"urutan"`
 }
 
 func (u *AdminUsecase) CreateGuide(ctx context.Context, appID int, input GuideInput) (*domain.Guide, error) {
+	tipe := input.Tipe
+	if tipe == "" {
+		tipe = "guide"
+	}
 	guide := &domain.Guide{
-		AppID:  appID,
-		Judul:  input.Judul,
-		Konten: input.Konten,
-		Urutan: input.Urutan,
+		AppID:    appID,
+		Judul:    input.Judul,
+		Konten:   input.Konten,
+		Tipe:     tipe,
+		PDFURL:   input.PDFURL,
+		PICNama:  input.PICNama,
+		PICEmail: input.PICEmail,
+		Urutan:   input.Urutan,
 	}
 
 	if err := u.guideRepo.Create(ctx, guide); err != nil {
@@ -258,8 +270,16 @@ func (u *AdminUsecase) UpdateGuide(ctx context.Context, id int, input GuideInput
 		return nil, fmt.Errorf("panduan tidak ditemukan")
 	}
 
+	tipe := input.Tipe
+	if tipe == "" {
+		tipe = "guide"
+	}
 	guide.Judul = input.Judul
 	guide.Konten = input.Konten
+	guide.Tipe = tipe
+	guide.PDFURL = input.PDFURL
+	guide.PICNama = input.PICNama
+	guide.PICEmail = input.PICEmail
 	guide.Urutan = input.Urutan
 
 	if err := u.guideRepo.Update(ctx, guide); err != nil {
