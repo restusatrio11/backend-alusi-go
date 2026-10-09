@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,24 @@ func CORS(allowedOrigins []string) gin.HandlerFunc {
 				if o == "*" || o == origin {
 					allowOrigin = origin
 					break
+				}
+			}
+			// Fallback: If allowedOrigins has wildcard "*" or matches local LAN subnet
+			if allowOrigin == "" {
+				for _, o := range allowedOrigins {
+					if o == "*" {
+						allowOrigin = origin
+						break
+					}
+				}
+			}
+			if allowOrigin == "" {
+				if strings.HasPrefix(origin, "http://10.") ||
+					strings.HasPrefix(origin, "http://192.168.") ||
+					strings.HasPrefix(origin, "http://172.") ||
+					strings.HasPrefix(origin, "http://localhost") ||
+					strings.HasPrefix(origin, "http://127.0.0.1") {
+					allowOrigin = origin
 				}
 			}
 		}
