@@ -1,0 +1,42 @@
+name: 🚀 Deploy Backend Go to aaPanel (/www/wwwroot/GO/AlusiAPI)
+
+on:
+  push:
+    branches: [ dev, SAT, main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐹 Setup Go Environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: 🔨 Compile Go Binary for Linux AMD64
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o backend-alusi ./cmd/server
+          zip -r backend-alusi.zip backend-alusi migrations/
+
+      - name: 📦 Upload Release Artifact to GitHub
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-backend-${{ github.ref_name }}
+          files: backend-alusi.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔔 Trigger aaPanel HTTPS Deploy Webhook
+        run: |
+          echo "Triggering aaPanel Webhook for branch ${{ github.ref_name }}..."
+          curl -f -X POST "${{ secrets.DEPLOY_HOOK_URL }}?token=${{ secrets.DEPLOY_TOKEN }}&env=${{ github.ref_name }}&type=backend" \
+               -F "artifact_url=https://github.com/${{ github.repository }}/releases/download/release-backend-${{ github.ref_name }}/backend-alusi.zip"
