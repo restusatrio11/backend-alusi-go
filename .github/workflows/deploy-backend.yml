@@ -3,6 +3,7 @@ name: 🚀 Deploy Backend Go to aaPanel (/www/wwwroot/GO/AlusiAPI)
 on:
   push:
     branches: [ dev, SAT, main ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -36,7 +37,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🔔 Trigger aaPanel HTTPS Deploy Webhook
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          echo "Triggering aaPanel Webhook for branch ${{ github.ref_name }}..."
-          curl -f -X POST "${{ secrets.DEPLOY_HOOK_URL }}?token=${{ secrets.DEPLOY_TOKEN }}&env=${{ github.ref_name }}&type=backend" \
+          HOOK_URL="${DEPLOY_HOOK_URL:-https://alusi-api.bps.web.id/deploy-hook.php}"
+          TOKEN="${DEPLOY_TOKEN:-AlusiBpsSecretDeployToken2026!Key}"
+          echo "Triggering aaPanel Webhook to ${HOOK_URL} for branch ${{ github.ref_name }}..."
+          curl -f -X POST "${HOOK_URL}?token=${TOKEN}&env=${{ github.ref_name }}&type=backend" \
                -F "artifact_url=https://github.com/${{ github.repository }}/releases/download/release-backend-${{ github.ref_name }}/backend-alusi.zip"
