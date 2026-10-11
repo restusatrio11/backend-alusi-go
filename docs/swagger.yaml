@@ -46,6 +46,15 @@ definitions:
       success:
         type: boolean
     type: object
+  usecase.AssignUserRolesInput:
+    properties:
+      role_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - role_ids
+    type: object
   usecase.CategoryInput:
     properties:
       deskripsi:
@@ -106,6 +115,10 @@ definitions:
         type: string
       status_layanan:
         type: string
+      status_layanan_until:
+        type: string
+      status_layanan_until_announced:
+        type: boolean
       target_pengguna:
         type: string
       url:
@@ -122,6 +135,14 @@ definitions:
       judul:
         type: string
       konten:
+        type: string
+      pdf_url:
+        type: string
+      pic_email:
+        type: string
+      pic_nama:
+        type: string
+      tipe:
         type: string
       urutan:
         type: integer
@@ -239,6 +260,10 @@ definitions:
         type: string
       status_layanan:
         type: string
+      status_layanan_until:
+        type: string
+      status_layanan_until_announced:
+        type: boolean
       target_pengguna:
         type: string
       url:
@@ -260,7 +285,15 @@ definitions:
     required:
     - status
     type: object
-host: localhost:8080
+  usecase.UpdateRolePermissionsInput:
+    properties:
+      permission_codes:
+        items:
+          type: string
+        type: array
+    required:
+    - permission_codes
+    type: object
 info:
   contact:
     email: bps1200@bps.go.id
@@ -1210,6 +1243,153 @@ paths:
       summary: Perbarui panduan / FAQ
       tags:
       - Admin - Guides
+  /admin/rbac/permissions:
+    get:
+      description: Mengembalikan seluruh kode izin granular yang terdaftar dalam sistem
+        dikelompokkan per modul
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Daftar seluruh granular permissions
+      tags:
+      - Admin - RBAC
+  /admin/rbac/roles:
+    get:
+      description: Mengembalikan daftar seluruh role beserta array permissions yang
+        terhubung
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Daftar roles dan perizinan matriks
+      tags:
+      - Admin - RBAC
+  /admin/rbac/roles/{id}/permissions:
+    put:
+      consumes:
+      - application/json
+      description: Mengatur daftar permission codes yang diberikan kepada role tertentu
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Daftar kode permissions baru
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.UpdateRolePermissionsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Perbarui matriks permission untuk role tertentu
+      tags:
+      - Admin - RBAC
+  /admin/rbac/users:
+    get:
+      description: Mengembalikan daftar akun pengguna dengan role dan perizinan efektif
+        mereka
+      parameters:
+      - description: Pencarian nama/email/username/NIP
+        in: query
+        name: q
+        type: string
+      - description: 'Nomor halaman (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Jumlah item per halaman (default: 15)'
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Daftar pengguna dan penugasan role
+      tags:
+      - Admin - RBAC
+  /admin/rbac/users/{id}/roles:
+    put:
+      consumes:
+      - application/json
+      description: Mengatur penugasan role (multi-role) kepada user tertentu
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Daftar role IDs yang diberikan
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/usecase.AssignUserRolesInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Tetapkan roles untuk pengguna
+      tags:
+      - Admin - RBAC
   /admin/reports/analytics/export:
     get:
       description: Mengunduh file laporan rekapitulasi statistik penggunaan dan SLA

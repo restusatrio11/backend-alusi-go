@@ -1471,6 +1471,235 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/rbac/permissions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengembalikan seluruh kode izin granular yang terdaftar dalam sistem dikelompokkan per modul",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin - RBAC"
+                ],
+                "summary": "Daftar seluruh granular permissions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/rbac/roles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengembalikan daftar seluruh role beserta array permissions yang terhubung",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin - RBAC"
+                ],
+                "summary": "Daftar roles dan perizinan matriks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/rbac/roles/{id}/permissions": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengatur daftar permission codes yang diberikan kepada role tertentu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin - RBAC"
+                ],
+                "summary": "Perbarui matriks permission untuk role tertentu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Daftar kode permissions baru",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.UpdateRolePermissionsInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/rbac/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengembalikan daftar akun pengguna dengan role dan perizinan efektif mereka",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin - RBAC"
+                ],
+                "summary": "Daftar pengguna dan penugasan role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pencarian nama/email/username/NIP",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Nomor halaman (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Jumlah item per halaman (default: 15)",
+                        "name": "per_page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/rbac/users/{id}/roles": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengatur penugasan role (multi-role) kepada user tertentu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin - RBAC"
+                ],
+                "summary": "Tetapkan roles untuk pengguna",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Daftar role IDs yang diberikan",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/usecase.AssignUserRolesInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/reports/analytics/export": {
             "get": {
                 "security": [
@@ -2634,6 +2863,20 @@ const docTemplate = `{
                 }
             }
         },
+        "usecase.AssignUserRolesInput": {
+            "type": "object",
+            "required": [
+                "role_ids"
+            ],
+            "properties": {
+                "role_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "usecase.CategoryInput": {
             "type": "object",
             "required": [
@@ -2729,6 +2972,12 @@ const docTemplate = `{
                 "status_layanan": {
                     "type": "string"
                 },
+                "status_layanan_until": {
+                    "type": "string"
+                },
+                "status_layanan_until_announced": {
+                    "type": "boolean"
+                },
                 "target_pengguna": {
                     "type": "string"
                 },
@@ -2751,6 +3000,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "konten": {
+                    "type": "string"
+                },
+                "pdf_url": {
+                    "type": "string"
+                },
+                "pic_email": {
+                    "type": "string"
+                },
+                "pic_nama": {
+                    "type": "string"
+                },
+                "tipe": {
                     "type": "string"
                 },
                 "urutan": {
@@ -2929,6 +3190,12 @@ const docTemplate = `{
                 "status_layanan": {
                     "type": "string"
                 },
+                "status_layanan_until": {
+                    "type": "string"
+                },
+                "status_layanan_until_announced": {
+                    "type": "boolean"
+                },
                 "target_pengguna": {
                     "type": "string"
                 },
@@ -2954,6 +3221,20 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "usecase.UpdateRolePermissionsInput": {
+            "type": "object",
+            "required": [
+                "permission_codes"
+            ],
+            "properties": {
+                "permission_codes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -2969,7 +3250,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.2.0",
-	Host:             "localhost:8080",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Portal Aplikasi BPS Provinsi Sumatera Utara (ALUSI) API",
