@@ -15,7 +15,9 @@ type App struct {
 	Pemilik        string    `json:"pemilik"`
 	KontakAdmin    *string   `json:"kontak_admin,omitempty"`
 	Urutan         int       `json:"urutan"`
-	StatusLayanan  string    `json:"status_layanan"` // online, degraded, down, maintenance
+	StatusLayanan               string     `json:"status_layanan"` // online, degraded, down, maintenance
+	StatusLayananUntil          *time.Time `json:"status_layanan_until,omitempty"`
+	StatusLayananUntilAnnounced bool       `json:"status_layanan_until_announced"`
 	IsPublic       bool      `json:"is_public"`
 	Aktif          bool      `json:"aktif"`
 	IsFavorite     bool      `json:"is_favorite"`

@@ -97,6 +97,7 @@ func (r *AppRepo) List(ctx context.Context, filter domain.AppFilter) ([]domain.A
 	SELECT 
 		a.id, a.category_id, a.nama, a.slug, a.url, a.deskripsi, a.ikon_url,
 		a.target_pengguna, a.pemilik, a.kontak_admin, a.urutan, a.status_layanan,
+		a.status_layanan_until, a.status_layanan_until_announced,
 		a.is_public, a.aktif, a.created_at, a.updated_at,
 		c.id, c.nama, c.slug, c.deskripsi, c.urutan, c.ikon, c.created_at, c.updated_at
 		%s
@@ -134,6 +135,7 @@ func (r *AppRepo) GetByID(ctx context.Context, id int, userID *int) (*domain.App
 	SELECT 
 		a.id, a.category_id, a.nama, a.slug, a.url, a.deskripsi, a.ikon_url,
 		a.target_pengguna, a.pemilik, a.kontak_admin, a.urutan, a.status_layanan,
+		a.status_layanan_until, a.status_layanan_until_announced,
 		a.is_public, a.aktif, a.created_at, a.updated_at,
 		c.id, c.nama, c.slug, c.deskripsi, c.urutan, c.ikon, c.created_at, c.updated_at
 		%s
@@ -312,15 +314,17 @@ func (r *AppRepo) Create(ctx context.Context, app *domain.App, roleIDs []int) er
 	query := `
 	INSERT INTO apps (
 		category_id, nama, slug, url, deskripsi, ikon_url, 
-		target_pengguna, pemilik, kontak_admin, urutan, status_layanan, is_public, aktif
+		target_pengguna, pemilik, kontak_admin, urutan, status_layanan,
+		status_layanan_until, status_layanan_until_announced, is_public, aktif
 	)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 	RETURNING id, created_at, updated_at
 	`
 	err = tx.QueryRow(
 		ctx, query,
 		app.CategoryID, app.Nama, app.Slug, app.URL, app.Deskripsi, app.IkonURL,
-		app.TargetPengguna, app.Pemilik, app.KontakAdmin, app.Urutan, app.StatusLayanan, app.IsPublic, app.Aktif,
+		app.TargetPengguna, app.Pemilik, app.KontakAdmin, app.Urutan, app.StatusLayanan,
+		app.StatusLayananUntil, app.StatusLayananUntilAnnounced, app.IsPublic, app.Aktif,
 	).Scan(&app.ID, &app.CreatedAt, &app.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("failed to insert app: %w", err)
@@ -349,14 +353,16 @@ func (r *AppRepo) Update(ctx context.Context, app *domain.App, roleIDs []int) er
 	SET 
 		category_id = $1, nama = $2, slug = $3, url = $4, deskripsi = $5, ikon_url = $6,
 		target_pengguna = $7, pemilik = $8, kontak_admin = $9, urutan = $10, status_layanan = $11,
-		is_public = $12, aktif = $13, updated_at = NOW()
-	WHERE id = $14
+		status_layanan_until = $12, status_layanan_until_announced = $13,
+		is_public = $14, aktif = $15, updated_at = NOW()
+	WHERE id = $16
 	RETURNING updated_at
 	`
 	err = tx.QueryRow(
 		ctx, query,
 		app.CategoryID, app.Nama, app.Slug, app.URL, app.Deskripsi, app.IkonURL,
 		app.TargetPengguna, app.Pemilik, app.KontakAdmin, app.Urutan, app.StatusLayanan,
+		app.StatusLayananUntil, app.StatusLayananUntilAnnounced,
 		app.IsPublic, app.Aktif, app.ID,
 	).Scan(&app.UpdatedAt)
 	if err != nil {
@@ -424,6 +430,7 @@ func (r *AppRepo) scanAppRow(rows pgx.Rows) (*domain.App, error) {
 	err := rows.Scan(
 		&a.ID, &a.CategoryID, &a.Nama, &a.Slug, &a.URL, &a.Deskripsi, &a.IkonURL,
 		&a.TargetPengguna, &a.Pemilik, &a.KontakAdmin, &a.Urutan, &a.StatusLayanan,
+		&a.StatusLayananUntil, &a.StatusLayananUntilAnnounced,
 		&a.IsPublic, &a.Aktif, &a.CreatedAt, &a.UpdatedAt,
 		&c.ID, &c.Nama, &c.Slug, &c.Deskripsi, &c.Urutan, &c.Ikon, &c.CreatedAt, &c.UpdatedAt,
 		&a.IsFavorite,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"backend-alusi-go/internal/domain"
 	"backend-alusi-go/internal/repository/postgres"
@@ -38,26 +39,30 @@ type CreateAppInput struct {
 	Pemilik        string  `json:"pemilik"`
 	KontakAdmin    *string `json:"kontak_admin"`
 	Urutan         int     `json:"urutan"`
-	StatusLayanan  string  `json:"status_layanan"`
-	IsPublic       bool    `json:"is_public"`
-	RoleIDs        []int   `json:"role_ids"`
+	StatusLayanan               string     `json:"status_layanan"`
+	StatusLayananUntil          *time.Time `json:"status_layanan_until"`
+	StatusLayananUntilAnnounced bool       `json:"status_layanan_until_announced"`
+	IsPublic                    bool       `json:"is_public"`
+	RoleIDs                     []int      `json:"role_ids"`
 }
 
 type UpdateAppInput struct {
-	CategoryID     int     `json:"category_id" binding:"required"`
-	Nama           string  `json:"nama" binding:"required"`
-	Slug           string  `json:"slug"`
-	URL            string  `json:"url" binding:"required"`
-	Deskripsi      *string `json:"deskripsi"`
-	IkonURL        *string `json:"ikon_url"`
-	TargetPengguna string  `json:"target_pengguna"`
-	Pemilik        string  `json:"pemilik"`
-	KontakAdmin    *string `json:"kontak_admin"`
-	Urutan         int     `json:"urutan"`
-	StatusLayanan  string  `json:"status_layanan"`
-	IsPublic       bool    `json:"is_public"`
-	Aktif          bool    `json:"aktif"`
-	RoleIDs        []int   `json:"role_ids"`
+	CategoryID                  int        `json:"category_id" binding:"required"`
+	Nama                        string     `json:"nama" binding:"required"`
+	Slug                        string     `json:"slug"`
+	URL                         string     `json:"url" binding:"required"`
+	Deskripsi                   *string    `json:"deskripsi"`
+	IkonURL                     *string    `json:"ikon_url"`
+	TargetPengguna              string     `json:"target_pengguna"`
+	Pemilik                     string     `json:"pemilik"`
+	KontakAdmin                 *string    `json:"kontak_admin"`
+	Urutan                      int        `json:"urutan"`
+	StatusLayanan               string     `json:"status_layanan"`
+	StatusLayananUntil          *time.Time `json:"status_layanan_until"`
+	StatusLayananUntilAnnounced bool       `json:"status_layanan_until_announced"`
+	IsPublic                    bool       `json:"is_public"`
+	Aktif                       bool       `json:"aktif"`
+	RoleIDs                     []int      `json:"role_ids"`
 }
 
 func (u *AdminUsecase) CreateApp(ctx context.Context, input CreateAppInput) (*domain.App, error) {
@@ -92,9 +97,11 @@ func (u *AdminUsecase) CreateApp(ctx context.Context, input CreateAppInput) (*do
 		Pemilik:        pemilik,
 		KontakAdmin:    input.KontakAdmin,
 		Urutan:         input.Urutan,
-		StatusLayanan:  status,
-		IsPublic:       input.IsPublic,
-		Aktif:          true,
+		StatusLayanan:               status,
+		StatusLayananUntil:          input.StatusLayananUntil,
+		StatusLayananUntilAnnounced: input.StatusLayananUntilAnnounced,
+		IsPublic:                    input.IsPublic,
+		Aktif:                       true,
 	}
 
 	if err := u.appRepo.Create(ctx, app, input.RoleIDs); err != nil {
@@ -126,6 +133,8 @@ func (u *AdminUsecase) UpdateApp(ctx context.Context, id int, input UpdateAppInp
 	app.KontakAdmin = input.KontakAdmin
 	app.Urutan = input.Urutan
 	app.StatusLayanan = input.StatusLayanan
+	app.StatusLayananUntil = input.StatusLayananUntil
+	app.StatusLayananUntilAnnounced = input.StatusLayananUntilAnnounced
 	app.IsPublic = input.IsPublic
 	app.Aktif = input.Aktif
 

@@ -1,0 +1,3 @@
+ALTER TABLE apps
+ADD COLUMN IF NOT EXISTS status_layanan_until TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS status_layanan_until_announced BOOLEAN NOT NULL DEFAULT FALSE;
